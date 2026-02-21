@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── NextAuth required models ─────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Core Entities ────────────────────────────────────────────────────────────
+
+model Spa {
+  id             String         @id @default(cuid())
+  name           String
+  logo           String?
+  address        String?
+  timezone       String         @default("Africa/Johannesburg")
+  currency       String         @default("ZAR")
+  settings       Json           @default("{}")
+  createdAt      DateTime       @default(now())
+  users          User[]
+  services       Service[]
+  staff          Staff[]
+  appointments   Appointment[]
+  loyaltyConfig  LoyaltyConfig?
+  notifications  Notification[]
+}
+
+enum Role {
+  owner
+  staff
+  client
+}
+
+model User {
+  id                String         @id @default(cuid())
+  spaId             String?
+  role              Role           @default(client)
+  name              String?
+  email             String?        @unique
+  emailVerified     DateTime?
+  phone             String?
+  passwordHash      String?
+  dob               DateTime?
+  image             String?
+  createdAt         DateTime       @default(now())
+  spa               Spa?           @relation(fields: [spaId], references: [id])
+  accounts          Account[]
+  sessions          Session[]
+  staffProfile      Staff?
+  appointments      Appointment[]  @relation("ClientAppointments")
+  loyaltyAccount    LoyaltyAccount?
+  notifications     Notification[]
+}
+
+model Service {
+  id           String        @id @default(cuid())
+  spaId        String
+  name         String
+  category     String
+  durationMins Int
+  price        Float
+  description  String?
+  isActive     Boolean       @default(true)
+  spa          Spa           @relation(fields: [spaId], references: [id])
+  appointments Appointment[]
+  staffServices StaffService[]
+}
+
+model Staff {
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  spaId         String
+  bio           String?
+  color         String         @default("#0D9488")
+  workingHours  Json           @default("{}")
+  user          User           @relation(fields: [userId], references: [id])
+  spa           Spa            @relation(fields: [spaId], references: [id])
+  appointments  Appointment[]
+  services      StaffService[]
+}
+
+model StaffService {
+  staffId   String
+  serviceId String
+  staff     Staff   @relation(fields: [staffId], references: [id])
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  @@id([staffId, serviceId])
+}
+
+enum AppointmentStatus {
+  pending
+  confirmed
+  completed
+  no_show
+  cancelled_by_client
+  cancelled_by_spa
+}
+
+model Appointment {
+  id                  String            @id @default(cuid())
+  spaId               String
+  clientId            String
+  staffId             String
+  serviceId           String
+  startAt             DateTime
+  endAt               DateTime
+  status              AppointmentStatus @default(pending)
+  notes               String?
+  depositPaid         Boolean           @default(false)
+  pointsRedeemed      Int               @default(0)
+  createdAt           DateTime          @default(now())
+  spa                 Spa               @relation(fields: [spaId], references: [id])
+  client              User              @relation("ClientAppointments", fields: [clientId], references: [id])
+  staff               Staff             @relation(fields: [staffId], references: [id])
+  service             Service           @relation(fields: [serviceId], references: [id])
+  pointsTransactions  PointsTransaction[]
+}
+
+model LoyaltyAccount {
+  id                String              @id @default(cuid())
+  clientId          String              @unique
+  spaId             String
+  balance           Int                 @default(0)
+  lifetimeEarned    Int                 @default(0)
+  lastActivityAt    DateTime            @default(now())
+  client            User                @relation(fields: [clientId], references: [id])
+  transactions      PointsTransaction[]
+}
+
+enum PointsTransactionType {
+  earned
+  redeemed
+  birthday
+  rebooking_bonus
+  referral
+  milestone
+  review
+  expired
+  refunded
+}
+
+model PointsTransaction {
+  id              String                @id @default(cuid())
+  accountId       String
+  appointmentId   String?
+  type            PointsTransactionType
+  amount          Int
+  description     String
+  createdAt       DateTime              @default(now())
+  account         LoyaltyAccount        @relation(fields: [accountId], references: [id])
+  appointment     Appointment?          @relation(fields: [appointmentId], references: [id])
+}
+
+model LoyaltyConfig {
+  id                   String  @id @default(cuid())
+  spaId                String  @unique
+  pointsPerUnit        Float   @default(1)    // points per R10 spent
+  currencyUnitAmount   Float   @default(10)   // e.g. R10 per unit
+  rebookingBonus       Int     @default(100)
+  rebookingWindowDays  Int     @default(56)   // 8 weeks
+  birthdayBonus        Int     @default(200)
+  redemptionRate       Float   @default(100)  // 100 points = R10
+  minRedeem            Int     @default(500)
+  expiryDays           Int?                   // null = no expiry
+  spa                  Spa     @relation(fields: [spaId], references: [id])
+}
+
+enum NotificationChannel {
+  email
+  sms
+}
+
+enum NotificationStatus {
+  pending
+  sent
+  failed
+}
+
+model Notification {
+  id      String              @id @default(cuid())
+  userId  String
+  spaId   String
+  type    String
+  channel NotificationChannel
+  status  NotificationStatus  @default(pending)
+  sentAt  DateTime?
+  payload Json                @default("{}")
+  user    User                @relation(fields: [userId], references: [id])
+  spa     Spa                 @relation(fields: [spaId], references: [id])
+}
