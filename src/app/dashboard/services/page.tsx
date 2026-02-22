@@ -10,6 +10,7 @@ const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
 const CATEGORY_ICONS: Record<string, string> = {
   Facials: "🧖‍♀️",
+  Peels: "✨",
   Massage: "💆",
   "Body Treatments": "🌿",
   "Brows & Lashes": "👁️",

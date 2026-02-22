@@ -18,6 +18,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const CATEGORY_ICONS: Record<string, string> = {
   Facials: "🧖‍♀️",
+  Peels: "✨",
   Massage: "💆",
   "Body Treatments": "🌿",
   "Brows & Lashes": "👁️",

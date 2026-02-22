@@ -11,6 +11,7 @@ type Step = "service" | "staff" | "datetime" | "contact" | "confirm";
 
 const CATEGORY_ICONS: Record<string, string> = {
   Facials: "🧖‍♀️",
+  Peels: "✨",
   Massage: "💆",
   "Body Treatments": "🌿",
   "Brows & Lashes": "👁️",

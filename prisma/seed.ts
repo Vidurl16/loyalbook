@@ -43,16 +43,30 @@ async function main() {
 
   // Seed example services
   const serviceData = [
-    { name: "Classic Facial", category: "Facials", durationMins: 60, price: 450, description: "Deep cleanse, exfoliation and hydration for all skin types." },
-    { name: "Anti-Ageing Facial", category: "Facials", durationMins: 75, price: 650, description: "Targeted treatment with peptides and collagen boosters." },
-    { name: "Swedish Massage", category: "Massage", durationMins: 60, price: 500, description: "Full-body relaxation massage with soothing aromatherapy." },
-    { name: "Deep Tissue Massage", category: "Massage", durationMins: 90, price: 700, description: "Targets muscle knots and chronic tension in deep layers." },
-    { name: "Body Scrub & Wrap", category: "Body Treatments", durationMins: 90, price: 750, description: "Exfoliating scrub followed by a nourishing body wrap." },
-    { name: "Brow Lamination", category: "Brows & Lashes", durationMins: 45, price: 350, description: "Brushed-up, full-looking brows that last 6–8 weeks." },
-    { name: "Lash Lift & Tint", category: "Brows & Lashes", durationMins: 60, price: 450, description: "Curled, darkened lashes with zero maintenance." },
-    { name: "Full Leg Wax", category: "Waxing", durationMins: 45, price: 300, description: "Smooth, long-lasting hair removal for full legs." },
-    { name: "Gel Manicure", category: "Nails", durationMins: 60, price: 250, description: "Long-lasting gel polish with cuticle care and hand massage." },
-    { name: "Luxury Pedicure", category: "Nails", durationMins: 75, price: 350, description: "Foot soak, scrub, shape and gel polish application." },
+    // Dermalogica Facials
+    { name: "Pro Skin 30", category: "Facials", durationMins: 30, price: 450, description: "Express Dermalogica skin treatment featuring Face Mapping® analysis. Targets your most pressing skin concern in a results-driven 30-minute session — perfect for a lunch break facial." },
+    { name: "Pro Skin 60", category: "Facials", durationMins: 60, price: 750, description: "Dermalogica's signature 60-minute treatment, fully personalised after a Face Mapping® skin analysis. Combines deep cleanse, exfoliation, extractions and targeted serums for visibly healthier skin." },
+    { name: "Pro Skin 90", category: "Facials", durationMins: 90, price: 1050, description: "The ultimate Dermalogica experience. A comprehensive 90-minute skin treatment with Face Mapping®, advanced massage techniques, custom masque and targeted skin therapist prescriptions." },
+    { name: "BioLumin-C Vitamin C Facial", category: "Facials", durationMins: 60, price: 850, description: "Harness the power of stabilised Vitamin C to brighten dull skin, reduce dark spots and stimulate collagen. Leaves skin luminous, even-toned and protected against environmental damage." },
+    { name: "Age Smart® Anti-Ageing Facial", category: "Facials", durationMins: 75, price: 950, description: "Targets lines, wrinkles and loss of firmness using Dermalogica Age Smart® actives. Includes a peptide-rich masque and professional massage to lift, firm and restore youthful radiance." },
+    { name: "UltraCalming Sensitive Skin Facial", category: "Facials", durationMins: 60, price: 800, description: "Specially formulated for reactive, sensitised and rosacea-prone skin. Uses Dermalogica UltraCalming system to reduce redness, fortify the skin barrier and restore comfort." },
+    { name: "Clear Start Breakout Facial", category: "Facials", durationMins: 60, price: 750, description: "Targets congestion, breakouts and excess oil with Dermalogica Clear Start range. Includes professional extractions, salicylic acid exfoliation and a purifying masque to clarify the skin." },
+    // Peels
+    { name: "BioSurface Peel", category: "Peels", durationMins: 45, price: 900, description: "Dermalogica's professional resurfacing peel combining AHAs and BHAs to accelerate cell turnover, smooth texture, fade pigmentation and reveal fresher, younger-looking skin. Minimal downtime." },
+    { name: "Rapid Reveal Peel", category: "Peels", durationMins: 30, price: 650, description: "A professional-strength enzyme and lactic acid peel that dissolves dead skin build-up and resurfaces in under 30 minutes. Skin is instantly brighter with continued improvement over days." },
+    { name: "Phyto Replenish Hydration Peel", category: "Peels", durationMins: 45, price: 750, description: "A nourishing peel combining gentle exfoliation with intensive hydration. Ideal for dry, dehydrated or compromised skin — leaves skin plump, soft and deeply replenished." },
+    // Body
+    { name: "Stress Relief Body Massage", category: "Body Treatments", durationMins: 60, price: 650, description: "A therapeutic full-body massage using Dermalogica Phyto Replenish Body Oil. Slow, rhythmic strokes melt away tension, calm the nervous system and leave skin deeply nourished." },
+    { name: "Body Hydration Wrap", category: "Body Treatments", durationMins: 75, price: 850, description: "Full-body exfoliation followed by an intensive Dermalogica body masque wrap. Skin emerges silky smooth, intensely hydrated and infused with replenishing botanical actives." },
+    // Brows & Lashes
+    { name: "Brow Lamination & Tint", category: "Brows & Lashes", durationMins: 60, price: 450, description: "Restructures brow hairs into a full, brushed-up shape that lasts 6-8 weeks. Combined with a precision tint for depth and definition — zero daily effort required." },
+    { name: "Lash Lift & Tint", category: "Brows & Lashes", durationMins: 60, price: 500, description: "Curls your natural lashes from root to tip for a wide-eyed, mascara-free look. Combined with a keratin-enriched tint for bold, defined lashes that last up to 8 weeks." },
+    // Waxing
+    { name: "Full Leg Wax", category: "Waxing", durationMins: 45, price: 380, description: "Smooth, long-lasting hair removal for the full leg using premium hot wax. Finished with a soothing post-wax lotion to calm the skin and minimise ingrown hairs." },
+    { name: "Bikini Wax", category: "Waxing", durationMins: 30, price: 280, description: "Precise, comfortable bikini line waxing using low-temperature hot wax for sensitive skin. Leaves the area clean, smooth and irritation-free." },
+    // Nails
+    { name: "Luxury Gel Manicure", category: "Nails", durationMins: 60, price: 320, description: "Includes cuticle care, nail shaping, hand scrub, massage and long-lasting gel polish application. Hands feel soft, nails look flawless for up to 3 weeks." },
+    { name: "Luxury Gel Pedicure", category: "Nails", durationMins: 75, price: 420, description: "A foot soak, callus treatment, scrub, extended massage and gel polish finish. The ultimate foot treatment — perfect before a holiday or just as a treat." },
   ];
 
   await prisma.service.createMany({
