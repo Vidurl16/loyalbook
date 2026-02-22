@@ -8,12 +8,22 @@ import { redirect } from "next/navigation";
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
 const CATEGORY_ICONS: Record<string, string> = {
+  Nails: "💅",
   Facials: "🧖‍♀️",
+  Peels: "✨",
   Massage: "💆",
   "Body Treatments": "🌿",
   "Brows & Lashes": "👁️",
   Waxing: "🪷",
-  Nails: "💅",
+};
+
+const STATUS_LABELS: Record<string, { label: string; classes: string }> = {
+  pending:              { label: "Awaiting Confirmation", classes: "bg-amber-50 text-amber-700 border border-amber-200" },
+  confirmed:            { label: "Confirmed",             classes: "bg-green-50 text-green-700 border border-green-200" },
+  completed:            { label: "Completed",             classes: "bg-stone-100 text-stone-500" },
+  no_show:              { label: "No Show",               classes: "bg-red-50 text-red-500" },
+  cancelled_by_client:  { label: "Cancelled",             classes: "bg-red-50 text-red-400" },
+  cancelled_by_spa:     { label: "Cancelled",             classes: "bg-red-50 text-red-400" },
 };
 
 function getTier(pts: number) {
@@ -58,15 +68,17 @@ export default function AccountPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
         {/* Points & tier card */}
-        <div className="bg-gradient-to-r from-teal-700 to-teal-900 rounded-2xl p-8 text-white relative overflow-hidden">
-          <div className="absolute top-4 right-6 text-5xl opacity-20">{tier.icon}</div>
+        <div className="bg-stone-900 rounded-2xl p-8 text-white relative overflow-hidden">
+          {/* Subtle decorative ring */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full border border-white/5 pointer-events-none" />
+          <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full border border-white/5 pointer-events-none" />
           <div className="flex items-start justify-between">
             <div>
-              <div className="text-sm font-medium opacity-80 mb-1">Your Points Balance</div>
+              <div className="text-sm font-medium opacity-60 mb-1 tracking-wide uppercase text-xs">Points Balance</div>
               <div className="text-5xl font-bold mb-1">{balance.toLocaleString()}</div>
-              <div className="text-sm opacity-60">Lifetime earned: {lifetime.toLocaleString()} pts</div>
+              <div className="text-sm opacity-50">Lifetime earned: {lifetime.toLocaleString()} pts</div>
             </div>
-            <span className={`px-3 py-1 rounded-full text-xs font-bold ${tier.color}`}>
+            <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${tier.color}`}>
               {tier.icon} {tier.name}
             </span>
           </div>
@@ -89,10 +101,10 @@ export default function AccountPage() {
           )}
 
           <div className="flex gap-3 mt-6">
-            <Link href="/account/rewards" className="inline-block bg-white/20 hover:bg-white/30 text-white text-sm px-4 py-2 rounded-lg transition-colors">
+            <Link href="/account/rewards" className="inline-block bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-2 rounded-lg transition-colors">
               Points History →
             </Link>
-            <Link href="/book" className="inline-block bg-white text-teal-800 text-sm px-4 py-2 rounded-lg hover:bg-white/90 transition-colors font-medium">
+            <Link href="/book" className="inline-block text-stone-900 text-sm px-4 py-2 rounded-lg hover:opacity-90 transition-colors font-medium" style={{ background: "var(--accent-gold)" }}>
               Book & Earn ✨
             </Link>
           </div>
@@ -129,9 +141,9 @@ export default function AccountPage() {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                      apt.status === "confirmed" ? "bg-teal-100 text-teal-700" : "bg-amber-100 text-amber-700"
+                      (STATUS_LABELS[apt.status] ?? { classes: "bg-stone-100 text-stone-500" }).classes
                     }`}>
-                      {apt.status}
+                      {(STATUS_LABELS[apt.status] ?? { label: apt.status }).label}
                     </span>
                     <span className="text-xs text-stone-400">R{apt.service.price}</span>
                   </div>
@@ -162,8 +174,10 @@ export default function AccountPage() {
                     >
                       Rebook →
                     </Link>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${apt.status === "completed" ? "bg-stone-100 text-stone-500" : "bg-red-50 text-red-400"}`}>
-                      {apt.status}
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      (STATUS_LABELS[apt.status] ?? { classes: "bg-stone-100 text-stone-500" }).classes
+                    }`}>
+                      {(STATUS_LABELS[apt.status] ?? { label: apt.status }).label}
                     </span>
                   </div>
                 </div>
