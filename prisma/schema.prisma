@@ -137,7 +137,7 @@ model Appointment {
   id                  String            @id @default(cuid())
   spaId               String
   clientId            String
-  staffId             String
+  staffId             String?
   serviceId           String
   startAt             DateTime
   endAt               DateTime
@@ -148,7 +148,7 @@ model Appointment {
   createdAt           DateTime          @default(now())
   spa                 Spa               @relation(fields: [spaId], references: [id])
   client              User              @relation("ClientAppointments", fields: [clientId], references: [id])
-  staff               Staff             @relation(fields: [staffId], references: [id])
+  staff               Staff?            @relation(fields: [staffId], references: [id])
   service             Service           @relation(fields: [serviceId], references: [id])
   pointsTransactions  PointsTransaction[]
 }

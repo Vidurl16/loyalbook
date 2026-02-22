@@ -1,0 +1,10 @@
+import "dotenv/config";
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '@prisma/client';
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter } as any);
+const staff = await (prisma as any).staff.findMany({ include: { user: true } });
+console.log('Staff count:', staff.length);
+const users = await (prisma as any).user.findMany({ select: { id: true, email: true, role: true } });
+console.log('Users:', JSON.stringify(users, null, 2));
+await (prisma as any).$disconnect();

@@ -25,7 +25,7 @@ export const appointmentsRouter = router({
       z.object({
         spaId: z.string(),
         clientId: z.string(),
-        staffId: z.string(),
+        staffId: z.string().optional(),
         serviceId: z.string(),
         startAt: z.string(),
         endAt: z.string(),
@@ -50,7 +50,7 @@ export const appointmentsRouter = router({
         data: {
           spaId: input.spaId,
           clientId: input.clientId,
-          staffId: input.staffId,
+          ...(input.staffId ? { staffId: input.staffId } : {}),
           serviceId: input.serviceId,
           startAt: new Date(input.startAt),
           endAt: new Date(input.endAt),

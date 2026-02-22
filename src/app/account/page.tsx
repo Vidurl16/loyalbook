@@ -123,7 +123,7 @@ export default function AccountPage() {
                     <div>
                       <div className="font-semibold text-stone-800">{apt.service.name}</div>
                       <div className="text-sm text-stone-400">
-                        with {apt.staff.user.name} · {new Date(apt.startAt).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })} at {new Date(apt.startAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}
+                        {apt.staff ? `with ${apt.staff.user.name} · ` : ""}{new Date(apt.startAt).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })} at {new Date(apt.startAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}
                       </div>
                     </div>
                   </div>

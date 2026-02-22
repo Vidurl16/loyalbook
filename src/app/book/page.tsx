@@ -341,14 +341,16 @@ function BookPageInner() {
             )}
 
             <button
-              disabled={createAppointment.isPending}
+              disabled={createAppointment.isPending || !session?.user}
               onClick={() => {
+                if (!session?.user) return;
                 const start = new Date(selectedSlot);
                 const end = new Date(start.getTime() + selectedService.durationMins * 60000);
+                const chosenStaffId = selectedStaff?.id ?? staffList?.[0]?.id;
                 createAppointment.mutate({
                   spaId: SPA_ID,
-                  clientId: (session?.user as any)?.id ?? "guest",
-                  staffId: selectedStaff?.id ?? staffList?.[0]?.id ?? "",
+                  clientId: (session.user as any).id,
+                  ...(chosenStaffId ? { staffId: chosenStaffId } : {}),
                   serviceId: selectedService.id,
                   startAt: start.toISOString(),
                   endAt: end.toISOString(),
@@ -360,6 +362,11 @@ function BookPageInner() {
             >
               {createAppointment.isPending ? "Confirming..." : "Confirm Booking ✓"}
             </button>
+            {!session?.user && (
+              <p className="mt-3 text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-center">
+                Please <a href="/login" className="underline font-medium">sign in</a> or <a href="/signup" className="underline font-medium">create an account</a> to complete your booking.
+              </p>
+            )}
             {createAppointment.error && (
               <p className="mt-3 text-red-600 text-sm text-center">{createAppointment.error.message}</p>
             )}
