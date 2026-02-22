@@ -30,37 +30,51 @@ export default function SignUpPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-10 w-full max-w-md">
-        <Link href="/" className="text-2xl font-bold text-teal-600 block mb-8">LoyalBook</Link>
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">Create an account</h1>
+    <main className="min-h-screen flex" style={{ background: "var(--background)" }}>
+      <div className="hidden lg:flex flex-col justify-between w-96 bg-gradient-to-b from-rose-600 to-teal-800 p-12 text-white">
+        <Link href="/" className="font-display text-2xl font-bold">LoyalBook</Link>
+        <div>
+          <div className="space-y-4 text-sm">
+            {["✨ Earn points on every treatment", "🎂 Birthday bonus points", "🔁 Rebooking rewards", "💎 Unlock exclusive tiers"].map((perk) => (
+              <div key={perk} className="flex items-center gap-2">{perk}</div>
+            ))}
+          </div>
+        </div>
+        <div className="text-rose-200 text-xs">© {new Date().getFullYear()} LoyalBook</div>
+      </div>
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-10 w-full max-w-md">
+        <Link href="/" className="font-display text-xl font-bold text-teal-700 block mb-8 lg:hidden">LoyalBook</Link>
+        <h1 className="font-display text-2xl font-bold text-stone-900 mb-1">Create your account</h1>
+        <p className="text-stone-400 text-sm mb-6">Start earning rewards from your very first treatment</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {(["name", "email", "phone", "password"] as const).map((field) => (
             <input
               key={field}
               type={field === "email" ? "email" : field === "password" ? "password" : "text"}
-              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+              placeholder={field === "name" ? "Full name" : field === "email" ? "Email address" : field === "phone" ? "Phone (optional)" : "Password"}
               value={form[field]}
               onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
               required={field !== "phone"}
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-teal-500"
+              className="w-full border border-stone-200 rounded-xl px-4 py-3 focus:outline-none focus:border-teal-500 bg-stone-50 text-stone-800"
             />
           ))}
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-teal-600 text-white py-3 rounded-xl hover:bg-teal-700 disabled:opacity-50 transition-colors"
+            className="w-full bg-teal-700 text-white py-3 rounded-xl hover:bg-teal-800 disabled:opacity-50 transition-colors font-medium"
           >
-            {loading ? "Creating account..." : "Create Account"}
+            {loading ? "Creating account…" : "Join LoyalBook — it's free"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-slate-500 mt-6">
+        <p className="text-center text-sm text-stone-500 mt-6">
           Already have an account?{" "}
           <Link href="/login" className="text-teal-600 hover:underline">Sign in</Link>
         </p>
+      </div>
       </div>
     </main>
   );

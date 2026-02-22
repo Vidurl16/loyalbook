@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf9f7;
+  --foreground: #1c1917;
+  --spa-rose: #f43f5e;
+  --spa-gold: #d97706;
+  --spa-teal: #0d9488;
+  --spa-stone: #78716c;
 }
 
 @theme inline {
@@ -12,15 +16,19 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Georgia, serif;
 }
+
+.font-display {
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: -0.02em;
+}
+
+/* Tier badge colours */
+.tier-bronze  { background: #fde8d8; color: #9a3412; }
+.tier-silver  { background: #f1f5f9; color: #475569; }
+.tier-gold    { background: #fef3c7; color: #92400e; }
+.tier-platinum{ background: #f0fdf4; color: #166534; }
