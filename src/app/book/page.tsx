@@ -10,13 +10,13 @@ const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 type Step = "service" | "staff" | "datetime" | "contact" | "confirm";
 
 const CATEGORY_ICONS: Record<string, string> = {
+  Nails: "💅",
   Facials: "🧖‍♀️",
   Peels: "✨",
   Massage: "💆",
   "Body Treatments": "🌿",
   "Brows & Lashes": "👁️",
   Waxing: "🪷",
-  Nails: "💅",
 };
 
 function BookPageInner() {
@@ -61,7 +61,7 @@ function BookPageInner() {
   return (
     <main className="min-h-screen" style={{ background: "var(--background)" }}>
       <nav className="bg-white border-b border-stone-100 px-6 py-4 flex items-center gap-4 sticky top-0 z-40">
-        <a href="/" className="font-display text-xl font-bold text-teal-700">LoyalBook</a>
+        <a href="/" className="font-display text-xl font-bold text-teal-700">Perfect 10</a>
         <span className="text-stone-300">/</span>
         <span className="text-stone-500 text-sm">Book a Treatment</span>
       </nav>

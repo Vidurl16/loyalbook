@@ -47,7 +47,7 @@ export default function AccountPage() {
   return (
     <main className="min-h-screen" style={{ background: "var(--background)" }}>
       <nav className="bg-white border-b border-stone-100 px-6 py-4 flex justify-between items-center sticky top-0 z-40">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700">LoyalBook</Link>
+        <Link href="/" className="font-display text-xl font-bold text-teal-700">Perfect 10</Link>
         <div className="flex items-center gap-4">
           <Link href="/book" className="bg-teal-700 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-teal-800 transition-colors">
             + Book Treatment

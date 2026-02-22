@@ -15,7 +15,7 @@ export default function LoyaltyConfigPage() {
   return (
     <div className="min-h-screen flex" style={{ background: "var(--background)" }}>
       <aside className="w-60 bg-white border-r border-stone-100 p-6 flex flex-col gap-0.5 shrink-0">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700 mb-8 block">LoyalBook</Link>
+        <Link href="/" className="font-display text-xl font-bold text-teal-700 mb-8 block">Perfect 10</Link>
         {[
           { href: "/dashboard", label: "Overview", icon: "🏠" },
           { href: "/dashboard/clients", label: "Guests", icon: "👥" },

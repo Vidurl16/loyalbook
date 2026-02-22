@@ -31,8 +31,8 @@ export default function SignUpPage() {
 
   return (
     <main className="min-h-screen flex" style={{ background: "var(--background)" }}>
-      <div className="hidden lg:flex flex-col justify-between w-96 bg-gradient-to-b from-rose-600 to-teal-800 p-12 text-white">
-        <Link href="/" className="font-display text-2xl font-bold">LoyalBook</Link>
+      <div className="hidden lg:flex flex-col justify-between w-96 bg-gradient-to-b from-stone-900 to-stone-800 p-12 text-white">
+        <Link href="/" className="font-display text-2xl font-bold">Perfect 10</Link>
         <div>
           <div className="space-y-4 text-sm">
             {["✨ Earn points on every treatment", "🎂 Birthday bonus points", "🔁 Rebooking rewards", "💎 Unlock exclusive tiers"].map((perk) => (
@@ -40,11 +40,11 @@ export default function SignUpPage() {
             ))}
           </div>
         </div>
-        <div className="text-rose-200 text-xs">© {new Date().getFullYear()} LoyalBook</div>
+        <div className="text-rose-200 text-xs">© {new Date().getFullYear()} Perfect 10</div>
       </div>
       <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-10 w-full max-w-md">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700 block mb-8 lg:hidden">LoyalBook</Link>
+        <Link href="/" className="font-display text-xl font-bold text-teal-700 block mb-8 lg:hidden">Perfect 10</Link>
         <h1 className="font-display text-2xl font-bold text-stone-900 mb-1">Create your account</h1>
         <p className="text-stone-400 text-sm mb-6">Start earning rewards from your very first treatment</p>
 
@@ -66,7 +66,7 @@ export default function SignUpPage() {
             disabled={loading}
             className="w-full bg-teal-700 text-white py-3 rounded-xl hover:bg-teal-800 disabled:opacity-50 transition-colors font-medium"
           >
-            {loading ? "Creating account…" : "Join LoyalBook — it's free"}
+            {loading ? "Creating account…" : "Create Account — it's free"}
           </button>
         </form>
 

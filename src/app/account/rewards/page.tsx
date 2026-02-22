@@ -38,7 +38,7 @@ export default function RewardsPage() {
   return (
     <main className="min-h-screen" style={{ background: "var(--background)" }}>
       <nav className="bg-white border-b border-stone-100 px-6 py-4 flex items-center gap-3 sticky top-0 z-40">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700">LoyalBook</Link>
+        <Link href="/" className="font-display text-xl font-bold text-teal-700">Perfect 10</Link>
         <span className="text-stone-300">/</span>
         <Link href="/account" className="text-stone-500 text-sm hover:text-teal-700">Account</Link>
         <span className="text-stone-300">/</span>

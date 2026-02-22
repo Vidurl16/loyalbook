@@ -24,17 +24,17 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex" style={{ background: "var(--background)" }}>
-      <div className="hidden lg:flex flex-col justify-between w-96 bg-gradient-to-b from-teal-700 to-teal-900 p-12 text-white">
-        <Link href="/" className="font-display text-2xl font-bold">LoyalBook</Link>
+      <div className="hidden lg:flex flex-col justify-between w-96 bg-gradient-to-b from-stone-900 to-stone-800 p-12 text-white">
+        <Link href="/" className="font-display text-2xl font-bold">Perfect 10</Link>
         <div>
           <p className="font-display text-3xl font-bold leading-snug mb-4">"The ritual of self-care starts with showing up."</p>
           <p className="text-teal-200 text-sm">Join our community and earn rewards with every visit.</p>
         </div>
-        <div className="text-teal-300 text-xs">© {new Date().getFullYear()} LoyalBook</div>
+        <div className="text-teal-300 text-xs">© {new Date().getFullYear()} Perfect 10</div>
       </div>
       <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-10 w-full max-w-md">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700 block mb-8 lg:hidden">LoyalBook</Link>
+        <Link href="/" className="font-display text-xl font-bold text-teal-700 block mb-8 lg:hidden">Perfect 10</Link>
         <h1 className="font-display text-2xl font-bold text-stone-900 mb-1">Welcome back</h1>
         <p className="text-stone-400 text-sm mb-6">Sign in to manage your bookings & rewards</p>
 

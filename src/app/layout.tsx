@@ -9,8 +9,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "LoyalBook — Spa & Wellness Booking",
-  description: "Book spa appointments and earn loyalty rewards",
+  title: "Perfect 10 La Lucia — Nail & Beauty Salon",
+  description: "Book Nimue skin treatments, nail services & more at Perfect 10 La Lucia. Earn loyalty rewards on every visit.",
 };
 
 export default function RootLayout({

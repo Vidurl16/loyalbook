@@ -34,7 +34,7 @@ export default function SettingsPage() {
   const { data: session } = useSession();
   const pathname = usePathname();
 
-  const [spaName, setSpaName] = useState("LoyalBook Spa");
+  const [spaName, setSpaName] = useState("Perfect 10 Spa");
   const [address, setAddress] = useState("1 Wellness Lane, Cape Town");
   const [timezone, setTimezone] = useState("Africa/Johannesburg");
   const [currency, setCurrency] = useState("ZAR");
@@ -51,7 +51,7 @@ export default function SettingsPage() {
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-stone-200 flex flex-col">
         <div className="p-6 border-b border-stone-100">
-          <h1 className="font-display text-xl text-stone-800">🌸 LoyalBook</h1>
+          <h1 className="font-display text-xl text-stone-800">🌸 Perfect 10</h1>
           <p className="text-xs text-stone-400 mt-1">Spa Management</p>
         </div>
         <nav className="flex-1 p-4 space-y-1">
