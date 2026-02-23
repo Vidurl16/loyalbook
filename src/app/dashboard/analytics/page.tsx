@@ -1,203 +1,231 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { trpc } from "@/lib/trpc";
 import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
-const navItems = [
-  { href: "/dashboard", label: "Overview", icon: "🏠" },
-  { href: "/dashboard/clients", label: "Guests", icon: "👥" },
-  { href: "/dashboard/services", label: "Treatments", icon: "🌿" },
-  { href: "/dashboard/staff", label: "Therapists", icon: "🧖‍♀️" },
-  { href: "/dashboard/loyalty", label: "Loyalty", icon: "✨" },
-  { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
-  { href: "/dashboard/settings", label: "Settings", icon: "⚙️" },
-];
-
 type Period = "day" | "week" | "month" | "year";
 
+const STATUS_LABELS: Record<string, string> = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  completed: "Completed",
+  no_show: "No Show",
+  cancelled_by_client: "Client Cancel",
+  cancelled_by_spa: "Spa Cancel",
+};
+const STATUS_COLORS: Record<string, string> = {
+  pending: "#f59e0b",
+  confirmed: "#3b82f6",
+  completed: "#22c55e",
+  no_show: "#ef4444",
+  cancelled_by_client: "#f97316",
+  cancelled_by_spa: "#ec4899",
+};
+
+const PERIOD_LABELS: Record<Period, string> = {
+  day: "Today",
+  week: "This Week",
+  month: "This Month",
+  year: "This Year",
+};
+
+function StatCard({ label, value, sub, accent }: { label: string; value: string | number; sub?: string; accent?: boolean }) {
+  return (
+    <div className="bg-white border border-[#D1D2D4] p-6">
+      <p className="text-xs font-semibold text-[#8D8E8F] uppercase tracking-widest mb-2">{label}</p>
+      <p className="text-3xl font-bold" style={{ color: accent ? "#C9262E" : "#000000" }}>{value}</p>
+      {sub && <p className="text-xs text-[#8D8E8F] mt-1.5">{sub}</p>}
+    </div>
+  );
+}
+
 export default function AnalyticsPage() {
-  const { data: session } = useSession();
-  const pathname = usePathname();
   const [period, setPeriod] = useState<Period>("month");
 
-  const { data: revenue } = trpc.analytics.revenue.useQuery(
-    { spaId: SPA_ID, period },
-    { enabled: !!SPA_ID }
-  );
+  const { data: revenue } = trpc.analytics.revenue.useQuery({ spaId: SPA_ID, period }, { enabled: !!SPA_ID });
+  const { data: topServices } = trpc.analytics.topServices.useQuery({ spaId: SPA_ID }, { enabled: !!SPA_ID });
+  const { data: pointsEconomy } = trpc.analytics.pointsEconomy.useQuery({ spaId: SPA_ID }, { enabled: !!SPA_ID });
+  const { data: statusBreakdown } = trpc.analytics.bookingStatusBreakdown.useQuery({ spaId: SPA_ID, period }, { enabled: !!SPA_ID });
+  const { data: newMembers } = trpc.analytics.newMembers.useQuery({ spaId: SPA_ID, period }, { enabled: !!SPA_ID });
+  const { data: therapists } = trpc.analytics.therapistPerformance.useQuery({ spaId: SPA_ID, period }, { enabled: !!SPA_ID });
 
-  const { data: topServices } = trpc.analytics.topServices.useQuery(
-    { spaId: SPA_ID },
-    { enabled: !!SPA_ID }
-  );
-
-  const { data: pointsEconomy } = trpc.analytics.pointsEconomy.useQuery(
-    { spaId: SPA_ID },
-    { enabled: !!SPA_ID }
-  );
-
-  const periodLabels: Record<Period, string> = {
-    day: "Today",
-    week: "This Week",
-    month: "This Month",
-    year: "This Year",
-  };
+  const avgRevenue = revenue?.count ? Math.round(revenue.total / revenue.count) : 0;
+  const totalBookings = statusBreakdown?.reduce((s, x) => s + x.count, 0) ?? 0;
+  const maxServiceCount = topServices?.[0]?.count ?? 1;
+  const maxTherapistCount = therapists?.[0]?.count ?? 1;
 
   return (
-    <div className="min-h-screen bg-stone-50 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-stone-200 flex flex-col">
-        <div className="p-6 border-b border-stone-100">
-          <h1 className="font-display text-xl text-stone-800">🌸 Perfect 10</h1>
-          <p className="text-xs text-stone-400 mt-1">Spa Management</p>
-        </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pathname === item.href
-                  ? "bg-teal-50 text-teal-700"
-                  : "text-stone-600 hover:bg-stone-50"
-              }`}
-            >
-              <span>{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-stone-100">
-          <p className="text-xs text-stone-500">{session?.user?.name ?? "Staff"}</p>
-        </div>
-      </aside>
+    <div className="min-h-screen flex bg-[#EBEBEC]">
+      <DashboardSidebar />
 
-      {/* Main */}
       <main className="flex-1 p-8 overflow-auto">
-        <div className="flex items-center justify-between mb-8">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-display text-stone-800">Analytics</h2>
-            <p className="text-stone-500 text-sm mt-1">Revenue, bookings, and loyalty insights</p>
+            <h2 className="text-2xl font-bold text-black" style={{ fontFamily: "Didot, Georgia, serif" }}>Analytics</h2>
+            <p className="text-[#8D8E8F] text-sm mt-1">Revenue, bookings & loyalty insights</p>
           </div>
-          <div className="flex gap-1 bg-white border border-stone-200 rounded-lg p-1">
+          {/* Period selector */}
+          <div className="flex gap-1 bg-white border border-[#D1D2D4] p-1">
             {(["day", "week", "month", "year"] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  period === p ? "bg-teal-600 text-white" : "text-stone-500 hover:bg-stone-50"
-                }`}
+                className="px-4 py-1.5 text-sm font-semibold transition-colors"
+                style={period === p
+                  ? { background: "#C9262E", color: "#fff" }
+                  : { color: "#4A4A4A", background: "transparent" }}
               >
-                {periodLabels[p]}
+                {PERIOD_LABELS[p]}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Revenue cards */}
-        <div className="grid grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
-            <p className="text-xs font-medium text-stone-400 uppercase tracking-wide">Revenue</p>
-            <p className="text-3xl font-display text-stone-800 mt-2">
-              R {revenue?.total.toLocaleString() ?? "—"}
-            </p>
-            <p className="text-sm text-stone-400 mt-1">{periodLabels[period]}</p>
-          </div>
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
-            <p className="text-xs font-medium text-stone-400 uppercase tracking-wide">Completed Treatments</p>
-            <p className="text-3xl font-display text-stone-800 mt-2">{revenue?.count ?? "—"}</p>
-            <p className="text-sm text-stone-400 mt-1">{periodLabels[period]}</p>
-          </div>
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
-            <p className="text-xs font-medium text-stone-400 uppercase tracking-wide">Avg. Per Treatment</p>
-            <p className="text-3xl font-display text-stone-800 mt-2">
-              {revenue?.count
-                ? `R ${Math.round((revenue.total / revenue.count)).toLocaleString()}`
-                : "—"}
-            </p>
-            <p className="text-sm text-stone-400 mt-1">Revenue ÷ bookings</p>
-          </div>
+        {/* Top stat cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+          <StatCard label="Revenue" value={`R ${(revenue?.total ?? 0).toLocaleString()}`} sub={PERIOD_LABELS[period]} accent />
+          <StatCard label="Completed" value={revenue?.count ?? 0} sub="Treatments" />
+          <StatCard label="Avg per Visit" value={avgRevenue ? `R ${avgRevenue}` : "—"} sub="Revenue ÷ bookings" />
+          <StatCard label="New Members" value={newMembers?.count ?? 0} sub={`${newMembers?.total ?? 0} total clients`} />
+          <StatCard label="Points Issued" value={(pointsEconomy?.totalIssued ?? 0).toLocaleString()} sub="Lifetime" />
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          {/* Top Services */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
-            <h3 className="font-semibold text-stone-800 mb-4">Top Treatments</h3>
-            {!topServices || topServices.length === 0 ? (
-              <p className="text-stone-400 text-sm">No completed treatments yet</p>
+        {/* Row 2: Booking status + Points economy */}
+        <div className="grid grid-cols-2 gap-6 mb-6">
+          {/* Booking status breakdown */}
+          <div className="bg-white border border-[#D1D2D4] p-6">
+            <h3 className="font-bold text-black text-sm uppercase tracking-widest mb-5">Booking Status — {PERIOD_LABELS[period]}</h3>
+            {!statusBreakdown || statusBreakdown.length === 0 ? (
+              <p className="text-[#8D8E8F] text-sm">No bookings in this period.</p>
             ) : (
               <div className="space-y-3">
-                {topServices.map((item, i) => (
-                  <div key={item.serviceId} className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-stone-400 w-5">{i + 1}</span>
-                    <div className="flex-1">
-                      <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
+                {statusBreakdown.map((item) => {
+                  const pct = totalBookings > 0 ? Math.round((item.count / totalBookings) * 100) : 0;
+                  return (
+                    <div key={item.status}>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="font-medium text-[#4A4A4A]">{STATUS_LABELS[item.status] ?? item.status}</span>
+                        <span className="text-[#8D8E8F]">{item.count} ({pct}%)</span>
+                      </div>
+                      <div className="h-2 bg-[#EBEBEC]">
                         <div
-                          className="h-full bg-teal-500 rounded-full"
-                          style={{
-                            width: `${Math.round(
-                              (item._count.id / (topServices[0]?._count.id ?? 1)) * 100
-                            )}%`,
-                          }}
+                          className="h-full transition-all"
+                          style={{ width: `${pct}%`, background: STATUS_COLORS[item.status] ?? "#8D8E8F" }}
                         />
                       </div>
                     </div>
-                    <span className="text-sm font-medium text-stone-700 w-8 text-right">
-                      {item._count.id}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
+                <p className="text-xs text-[#8D8E8F] pt-1">{totalBookings} total bookings</p>
               </div>
             )}
           </div>
 
           {/* Points Economy */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
-            <h3 className="font-semibold text-stone-800 mb-4">Loyalty Economy</h3>
+          <div className="bg-white border border-[#D1D2D4] p-6">
+            <h3 className="font-bold text-black text-sm uppercase tracking-widest mb-5">Loyalty Economy</h3>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-stone-500">Total Points Issued</span>
-                <span className="font-semibold text-stone-800">
-                  {pointsEconomy?.totalIssued.toLocaleString() ?? "—"} pts
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-stone-500">Total Redeemed</span>
-                <span className="font-semibold text-rose-600">
-                  {pointsEconomy?.totalRedeemed.toLocaleString() ?? "—"} pts
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-stone-500">Outstanding Balance</span>
-                <span className="font-semibold text-teal-600">
-                  {pointsEconomy?.totalOutstanding.toLocaleString() ?? "—"} pts
-                </span>
-              </div>
+              {[
+                { label: "Total Points Issued", value: (pointsEconomy?.totalIssued ?? 0).toLocaleString() + " pts", color: "#000" },
+                { label: "Points Redeemed", value: (pointsEconomy?.totalRedeemed ?? 0).toLocaleString() + " pts", color: "#C9262E" },
+                { label: "Outstanding Balance", value: (pointsEconomy?.totalOutstanding ?? 0).toLocaleString() + " pts", color: "#22c55e" },
+                { label: "Active Members", value: (pointsEconomy?.memberCount ?? 0).toLocaleString(), color: "#3b82f6" },
+              ].map((row) => (
+                <div key={row.label} className="flex justify-between items-center border-b border-[#EBEBEC] pb-3 last:border-0 last:pb-0">
+                  <span className="text-sm text-[#4A4A4A]">{row.label}</span>
+                  <span className="font-bold text-sm" style={{ color: row.color }}>{row.value}</span>
+                </div>
+              ))}
               {pointsEconomy && pointsEconomy.totalIssued > 0 && (
-                <div className="pt-2">
-                  <div className="flex justify-between text-xs text-stone-400 mb-1">
+                <div className="pt-1">
+                  <div className="flex justify-between text-xs text-[#8D8E8F] mb-1.5">
                     <span>Redemption rate</span>
-                    <span>
-                      {Math.round((pointsEconomy.totalRedeemed / pointsEconomy.totalIssued) * 100)}%
-                    </span>
+                    <span>{Math.round((pointsEconomy.totalRedeemed / pointsEconomy.totalIssued) * 100)}%</span>
                   </div>
-                  <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-[#EBEBEC]">
                     <div
-                      className="h-full bg-rose-400 rounded-full"
+                      className="h-full"
                       style={{
-                        width: `${Math.round(
-                          (pointsEconomy.totalRedeemed / pointsEconomy.totalIssued) * 100
-                        )}%`,
+                        width: `${Math.round((pointsEconomy.totalRedeemed / pointsEconomy.totalIssued) * 100)}%`,
+                        background: "#C9262E",
                       }}
                     />
                   </div>
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Row 3: Top treatments + Therapist performance */}
+        <div className="grid grid-cols-2 gap-6">
+          {/* Top Treatments */}
+          <div className="bg-white border border-[#D1D2D4] p-6">
+            <h3 className="font-bold text-black text-sm uppercase tracking-widest mb-5">Top Treatments (All Time)</h3>
+            {!topServices || topServices.length === 0 ? (
+              <p className="text-[#8D8E8F] text-sm">No completed treatments yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {topServices.map((item, i) => (
+                  <div key={item.serviceId}>
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="font-medium text-[#4A4A4A] truncate pr-2">
+                        <span className="text-[#8D8E8F] mr-2">{i + 1}.</span>
+                        {item.service?.name ?? "Unknown"}
+                        {item.service?.category && (
+                          <span className="text-[#8D8E8F] ml-1">· {item.service.category}</span>
+                        )}
+                      </span>
+                      <span className="text-[#8D8E8F] shrink-0">{item.count}×</span>
+                    </div>
+                    <div className="h-1.5 bg-[#EBEBEC]">
+                      <div
+                        className="h-full"
+                        style={{
+                          width: `${Math.round((item.count / maxServiceCount) * 100)}%`,
+                          background: "#C9262E",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Therapist Performance */}
+          <div className="bg-white border border-[#D1D2D4] p-6">
+            <h3 className="font-bold text-black text-sm uppercase tracking-widest mb-5">Therapist Performance — {PERIOD_LABELS[period]}</h3>
+            {!therapists || therapists.length === 0 ? (
+              <p className="text-[#8D8E8F] text-sm">No completed treatments in this period.</p>
+            ) : (
+              <div className="space-y-4">
+                {therapists.map((t, i) => (
+                  <div key={t.staffId}>
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="font-medium text-[#4A4A4A]">
+                        <span className="text-[#8D8E8F] mr-2">{i + 1}.</span>
+                        {t.name}
+                      </span>
+                      <span className="text-[#8D8E8F]">{t.count} treatments · R {t.revenue.toLocaleString()}</span>
+                    </div>
+                    <div className="h-1.5 bg-[#EBEBEC]">
+                      <div
+                        className="h-full"
+                        style={{
+                          width: `${Math.round((t.count / maxTherapistCount) * 100)}%`,
+                          background: "#000",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>

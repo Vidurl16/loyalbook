@@ -34,7 +34,7 @@ export const appointmentsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Duplicate booking detection
+      // Duplicate booking detection (same client, same time)
       const duplicate = await ctx.prisma.appointment.findFirst({
         where: {
           clientId: input.clientId,
@@ -44,6 +44,23 @@ export const appointmentsRouter = router({
       });
       if (duplicate) {
         throw new Error("You already have a booking at this time.");
+      }
+
+      // Therapist double-booking prevention (overlapping time slots)
+      if (input.staffId) {
+        const conflict = await ctx.prisma.appointment.findFirst({
+          where: {
+            staffId: input.staffId,
+            status: { in: ["pending", "confirmed"] },
+            AND: [
+              { startAt: { lt: new Date(input.endAt) } },
+              { endAt: { gt: new Date(input.startAt) } },
+            ],
+          },
+        });
+        if (conflict) {
+          throw new Error("This therapist is already booked during that time. Please choose a different time or therapist.");
+        }
       }
 
       const appointment = await ctx.prisma.appointment.create({

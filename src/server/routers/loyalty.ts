@@ -69,6 +69,42 @@ export const loyaltyRouter = router({
       return updated;
     }),
 
+  adjustPoints: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.string(),
+        amount: z.number().int(), // positive to add, negative to remove
+        reason: z.string().min(1),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const account = await ctx.prisma.loyaltyAccount.findUnique({
+        where: { clientId: input.clientId },
+      });
+      if (!account) throw new Error("No loyalty account found for this client.");
+      if (account.balance + input.amount < 0) throw new Error("Cannot reduce balance below zero.");
+
+      const updated = await ctx.prisma.loyaltyAccount.update({
+        where: { clientId: input.clientId },
+        data: {
+          balance: { increment: input.amount },
+          ...(input.amount > 0 ? { lifetimeEarned: { increment: input.amount } } : {}),
+          lastActivityAt: new Date(),
+        },
+      });
+
+      await ctx.prisma.pointsTransaction.create({
+        data: {
+          accountId: account.id,
+          type: input.amount > 0 ? "milestone" : "expired",
+          amount: input.amount,
+          description: `Admin adjustment: ${input.reason}`,
+        },
+      });
+
+      return updated;
+    }),
+
   creditBirthdayPoints: protectedProcedure
     .input(z.object({ spaId: z.string() }))
     .mutation(async ({ ctx, input }) => {

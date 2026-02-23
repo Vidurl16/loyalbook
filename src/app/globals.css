@@ -1,12 +1,64 @@
 @import "tailwindcss";
 
+/* Perfect 10 brand font — Didot (from Perfect 10's CDN) */
+@font-face {
+  font-family: 'Didot';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://www.perfect10.co.za/wp-content/uploads/2025/09/Didot-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Didot';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('https://www.perfect10.co.za/wp-content/uploads/2025/09/Didot-Medium.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Didot';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('https://www.perfect10.co.za/wp-content/uploads/2025/09/Didot-LT-Std-Bold.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Didot';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://www.perfect10.co.za/wp-content/uploads/2025/09/Didot-LT-Std-Italic.otf') format('opentype');
+}
+@font-face {
+  font-family: 'HelveticaNeue';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://www.perfect10.co.za/wp-content/uploads/2025/09/Helvetica-LT-33-Thin-Extended.ttf') format('truetype');
+}
+
+/* ─── Perfect 10 Brand Colours ───
+   Source: Elementor kit post-765.css from perfect10.co.za
+   Primary: #000000 black
+   Accent:  #C9262E red
+   BG:      #FFFFFF / #EBEBEC
+   Text:    #4A4A4A / #282828
+*/
 :root {
-  --background: #fafaf8;
-  --foreground: #0a0a0a;
-  --accent-gold: #c4a882;
-  --accent-gold-dark: #9e7d55;
-  --muted: #7c7670;
-  --border-light: #e8e4de;
+  --background: #FFFFFF;
+  --foreground: #282828;
+  --p10-black:  #000000;
+  --p10-red:    #C9262E;
+  --p10-red-dark: #A51F24;
+  --p10-grey:   #8D8E8F;
+  --p10-light:  #EBEBEC;
+  --p10-border: #D1D2D4;
+  --p10-dark:   #4A4A4A;
+  /* Keep for backward compat with existing components */
+  --accent-gold: #C9262E;
+  --accent-gold-dark: #A51F24;
+  --muted: #8D8E8F;
+  --border-light: #D1D2D4;
 }
 
 @theme inline {
@@ -15,32 +67,32 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Remap teal → luxury black / champagne gold palette */
-  --color-teal-50:  #F9F7F3;
-  --color-teal-100: #F0E8D4;
-  --color-teal-200: #DDD0B0;
-  --color-teal-300: #C4B08A;
-  --color-teal-400: #A89068;
-  --color-teal-500: #8C7048;
-  --color-teal-600: #2A2825;
-  --color-teal-700: #1A1815;
-  --color-teal-800: #0A0908;
-  --color-teal-900: #050504;
+  /* Remap teal → Perfect 10 black/red palette */
+  --color-teal-50:  #FFF5F5;
+  --color-teal-100: #FFE0E1;
+  --color-teal-200: #FFC2C3;
+  --color-teal-300: #FF9496;
+  --color-teal-400: #F0565A;
+  --color-teal-500: #C9262E;
+  --color-teal-600: #A51F24;
+  --color-teal-700: #7E171B;
+  --color-teal-800: #561014;
+  --color-teal-900: #2D0709;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Georgia, serif;
+  font-family: var(--font-geist-sans), 'HelveticaNeue', Helvetica, Arial, sans-serif;
 }
 
 .font-display {
-  font-family: Georgia, "Times New Roman", serif;
-  letter-spacing: -0.02em;
+  font-family: 'Didot', 'GFS Didot', Georgia, "Times New Roman", serif;
+  letter-spacing: 0.01em;
 }
 
 /* Tier badge colours */
 .tier-bronze  { background: #fde8d8; color: #9a3412; }
 .tier-silver  { background: #f1f5f9; color: #475569; }
 .tier-gold    { background: #fef3c7; color: #92400e; }
-.tier-platinum{ background: #0a0a0a; color: #c4a882; }
+.tier-platinum{ background: #0a0a0a; color: #ffffff; }

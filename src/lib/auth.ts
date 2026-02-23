@@ -48,6 +48,22 @@ export const authOptions: NextAuthOptions = {
     newUser: "/signup",
   },
   providers,
+  events: {
+    // Auto-create LoyaltyAccount for users who sign up via Google OAuth
+    async createUser({ user }) {
+      const spaId = process.env.DEFAULT_SPA_ID ?? (await prisma.spa.findFirst())?.id;
+      if (!spaId) return;
+
+      const existing = await prisma.loyaltyAccount.findFirst({ where: { clientId: user.id } });
+      if (!existing) {
+        await prisma.loyaltyAccount.create({
+          data: { clientId: user.id, spaId, balance: 0, lifetimeEarned: 0 },
+        });
+        // Set spaId on the user record too
+        await prisma.user.update({ where: { id: user.id }, data: { spaId, role: "client" } });
+      }
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
