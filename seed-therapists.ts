@@ -54,6 +54,34 @@ async function main() {
       color: "#c4b8a8",
       categories: ["Facials"],
     },
+    {
+      name: "Nomvula Dlamini",
+      email: "nomvula@perfect10lalucia.co.za",
+      bio: "Nomvula is a passionate nail technician with expertise in Bio Sculpture gel, shellac and intricate nail art. Known for her long-lasting finishes and attention to nail health.",
+      color: "#d4b8e0",
+      categories: ["Nails"],
+    },
+    {
+      name: "Chloé Fourie",
+      email: "chloe@perfect10lalucia.co.za",
+      bio: "Chloé is a certified Nimue skin therapist specialising in corrective and anti-aging facials. She has completed advanced Nimue training and is passionate about results-driven skincare.",
+      color: "#f0d5c8",
+      categories: ["Facials", "Body Treatments"],
+    },
+    {
+      name: "Priya Singh",
+      email: "priya@perfect10lalucia.co.za",
+      bio: "Priya is our wellness and massage specialist with expertise in Swedish, deep tissue, hot stone and aromatherapy massage. She tailors every session to relieve tension and restore balance.",
+      color: "#c8e0d4",
+      categories: ["Body Treatments"],
+    },
+    {
+      name: "Monique Joubert",
+      email: "monique@perfect10lalucia.co.za",
+      bio: "Monique specialises in dermaplaning and advanced exfoliation treatments. She is also trained in full waxing services, including Brazilian and Hollywood. Known for her gentle, precise technique.",
+      color: "#e0d4c8",
+      categories: ["Facials", "Waxing"],
+    },
   ];
 
   let created = 0;
