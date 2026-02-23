@@ -130,4 +130,57 @@ export const analyticsRouter = router({
         }))
         .sort((a, b) => b.count - a.count);
     }),
+
+  therapistDetail: protectedProcedure
+    .input(z.object({
+      spaId: z.string(),
+      staffId: z.string(),
+      period: z.enum(["day", "week", "month", "year"]).default("month"),
+    }))
+    .query(async ({ ctx, input }) => {
+      const since = periodSince(input.period);
+
+      const appointments = await ctx.prisma.appointment.findMany({
+        where: { spaId: input.spaId, staffId: input.staffId, startAt: { gte: since } },
+        include: {
+          service: { select: { id: true, name: true, category: true, price: true } },
+          client: { select: { id: true, name: true, email: true } },
+        },
+        orderBy: { startAt: "desc" },
+      });
+
+      const completed = appointments.filter((a) => a.status === "completed");
+      const revenue = completed.reduce((s, a) => s + a.service.price, 0);
+
+      // Status breakdown
+      const statusCount: Record<string, number> = {};
+      for (const a of appointments) {
+        statusCount[a.status] = (statusCount[a.status] ?? 0) + 1;
+      }
+
+      // Top services
+      const serviceCount: Record<string, { name: string; count: number; revenue: number }> = {};
+      for (const a of completed) {
+        const sid = a.service.id;
+        if (!serviceCount[sid]) serviceCount[sid] = { name: a.service.name, count: 0, revenue: 0 };
+        serviceCount[sid].count++;
+        serviceCount[sid].revenue += a.service.price;
+      }
+      const topServices = Object.values(serviceCount).sort((a, b) => b.count - a.count).slice(0, 5);
+
+      const staff = await ctx.prisma.staff.findUnique({
+        where: { id: input.staffId },
+        include: { user: { select: { name: true, email: true, image: true } } },
+      });
+
+      return {
+        staff,
+        totalBookings: appointments.length,
+        completedBookings: completed.length,
+        revenue,
+        statusCount,
+        topServices,
+        recentAppointments: appointments.slice(0, 20),
+      };
+    }),
 });

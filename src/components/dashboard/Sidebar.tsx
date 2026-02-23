@@ -7,6 +7,7 @@ import Image from "next/image";
 
 export const navItems = [
   { href: "/dashboard", label: "Overview", icon: "🏠" },
+  { href: "/dashboard/bookings", label: "Bookings", icon: "📅" },
   { href: "/dashboard/clients", label: "Guests", icon: "👥" },
   { href: "/dashboard/services", label: "Treatments", icon: "🌿" },
   { href: "/dashboard/staff", label: "Therapists", icon: "🧖‍♀️" },
@@ -39,11 +40,11 @@ export function DashboardSidebar() {
             key={item.href}
             href={item.href}
             className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${
-              pathname === item.href
+              (item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href))
                 ? "text-white border-l-2 pl-[10px]"
                 : "text-white/50 hover:text-white"
             }`}
-            style={pathname === item.href ? { borderColor: "#C9262E" } : {}}
+            style={(item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href)) ? { borderColor: "#C9262E" } : {}}
           >
             <span className="text-base">{item.icon}</span>
             {item.label}

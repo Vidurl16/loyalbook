@@ -166,4 +166,34 @@ export const loyaltyRouter = router({
 
       return { credited: eligible.length };
     }),
+
+  adminRedeem: protectedProcedure
+    .input(z.object({
+      clientId: z.string(),
+      points: z.number().int().positive(),
+      reason: z.string().default("Redeemed in salon by admin"),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const account = await ctx.prisma.loyaltyAccount.findUnique({
+        where: { clientId: input.clientId },
+      });
+      if (!account) throw new Error("No loyalty account found");
+      if (account.balance < input.points) throw new Error("Insufficient points balance");
+
+      const updated = await ctx.prisma.loyaltyAccount.update({
+        where: { clientId: input.clientId },
+        data: { balance: { decrement: input.points }, lastActivityAt: new Date() },
+      });
+
+      await ctx.prisma.pointsTransaction.create({
+        data: {
+          accountId: account.id,
+          type: "redeemed",
+          amount: -input.points,
+          description: input.reason,
+        },
+      });
+
+      return updated;
+    }),
 });

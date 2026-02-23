@@ -18,8 +18,8 @@ const LOYALTY_TIERS = [
 ];
 
 const SECTION_TILES = [
-  { label: "Treatments", href: "/book", image: "/brand/treatments.jpg" },
-  { label: "About Us", href: "#rewards", image: "/brand/about-us.jpg" },
+  { label: "Treatments", href: "#treatments", image: "/brand/treatments.jpg" },
+  { label: "About Us", href: "#about", image: "/brand/about-us.jpg" },
   { label: "Locations", href: "#location", image: "/brand/location.jpg" },
   { label: "Contact Us", href: "#contact", image: "/brand/contact.webp" },
 ];
@@ -43,6 +43,9 @@ export default function HomePage() {
           <Link href="/book" className="hover:text-black transition-colors">Book Now</Link>
           <Link href="#treatments" className="hover:text-black transition-colors">Treatments</Link>
           <Link href="#rewards" className="hover:text-black transition-colors">Rewards</Link>
+          <Link href="#about" className="hover:text-black transition-colors">About</Link>
+          <Link href="#location" className="hover:text-black transition-colors">Location</Link>
+          <Link href="#contact" className="hover:text-black transition-colors">Contact</Link>
         </div>
         <div className="flex gap-3 items-center">
           <Link href="/login" className="text-[#4A4A4A] hover:text-black transition-colors text-sm font-medium px-3 py-2">Sign In</Link>
@@ -181,8 +184,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="max-w-5xl mx-auto px-6 py-20">
+      {/* About / Testimonials */}
+      <section id="about" className="max-w-5xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
           <p className="text-xs tracking-[0.3em] uppercase text-[#8D8E8F] mb-3">Our Clients</p>
           <h2 className="font-display text-4xl font-bold text-black mb-3">What Our Clients Say</h2>
@@ -200,6 +203,103 @@ export default function HomePage() {
               <div className="text-xs mt-0.5" style={{ color: "var(--p10-red)" }}>{t.tier}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Location */}
+      <section id="location" className="bg-white border-t border-[#D1D2D4] py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-xs tracking-[0.3em] uppercase text-[#8D8E8F] mb-3">Find Us</p>
+            <h2 className="font-display text-4xl font-bold text-black mb-3">La Lucia Mall, Durban North</h2>
+            <div className="w-12 h-0.5 mx-auto" style={{ background: "var(--p10-red)" }} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-[#8D8E8F] mb-1">Address</h3>
+                <p className="text-black leading-relaxed">
+                  Perfect 10 La Lucia<br />
+                  La Lucia Mall<br />
+                  La Lucia Ridge Office Estate<br />
+                  Durban North, 4051
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-[#8D8E8F] mb-1">Trading Hours</h3>
+                <div className="text-black space-y-0.5 text-sm">
+                  <div className="flex justify-between max-w-xs"><span>Monday – Friday</span><span>09:00 – 18:00</span></div>
+                  <div className="flex justify-between max-w-xs"><span>Saturday</span><span>08:00 – 17:00</span></div>
+                  <div className="flex justify-between max-w-xs"><span>Sunday & Public Holidays</span><span>09:00 – 15:00</span></div>
+                </div>
+              </div>
+              <a
+                href="https://maps.google.com/?q=La+Lucia+Mall+Durban"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-block text-white px-8 py-3 text-sm font-semibold hover:opacity-90 transition-opacity"
+                style={{ background: "var(--p10-red)", borderRadius: 2 }}
+              >
+                Get Directions →
+              </a>
+            </div>
+            <div className="w-full overflow-hidden border border-[#D1D2D4]" style={{ height: 320 }}>
+              <iframe
+                title="Perfect 10 La Lucia location"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3460.5!2d31.0500!3d-29.7900!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1ef7aa3b5c000001%3A0x1!2sLa+Lucia+Mall%2C+Durban+North!5e0!3m2!1sen!2sza!4v1"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="bg-[#EBEBEC] border-t border-[#D1D2D4] py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-xs tracking-[0.3em] uppercase text-[#8D8E8F] mb-3">Get In Touch</p>
+            <h2 className="font-display text-4xl font-bold text-black mb-3">Contact Us</h2>
+            <div className="w-12 h-0.5 mx-auto" style={{ background: "var(--p10-red)" }} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: "📞",
+                label: "Call Us",
+                value: "+27 31 562 9000",
+                href: "tel:+27315629000",
+              },
+              {
+                icon: "💬",
+                label: "WhatsApp",
+                value: "Chat on WhatsApp",
+                href: "https://wa.me/27315629000",
+              },
+              {
+                icon: "✉️",
+                label: "Email",
+                value: "lalucia@perfect10.co.za",
+                href: "mailto:lalucia@perfect10.co.za",
+              },
+            ].map((c) => (
+              <a
+                key={c.label}
+                href={c.href}
+                target={c.href.startsWith("http") ? "_blank" : undefined}
+                rel="noreferrer"
+                className="bg-white border border-[#D1D2D4] p-7 text-center hover:border-black transition-colors group block"
+              >
+                <div className="text-3xl mb-3">{c.icon}</div>
+                <div className="text-xs font-semibold uppercase tracking-widest text-[#8D8E8F] mb-1">{c.label}</div>
+                <div className="text-black font-medium text-sm group-hover:underline">{c.value}</div>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 

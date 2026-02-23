@@ -20,6 +20,36 @@ export const appointmentsRouter = router({
       });
     }),
 
+  listAll: protectedProcedure
+    .input(z.object({
+      spaId: z.string(),
+      from: z.string().optional(),
+      to: z.string().optional(),
+      status: z.string().optional(),
+      staffId: z.string().optional(),
+      clientId: z.string().optional(),
+      take: z.number().default(100),
+    }))
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.appointment.findMany({
+        where: {
+          spaId: input.spaId,
+          ...(input.from && { startAt: { gte: new Date(input.from) } }),
+          ...(input.to && { startAt: { lte: new Date(input.to) } }),
+          ...(input.status && { status: input.status as never }),
+          ...(input.staffId && { staffId: input.staffId }),
+          ...(input.clientId && { clientId: input.clientId }),
+        },
+        include: {
+          client: { select: { id: true, name: true, email: true } },
+          staff: { include: { user: { select: { name: true } } } },
+          service: { select: { id: true, name: true, category: true, price: true, durationMins: true } },
+        },
+        orderBy: { startAt: "desc" },
+        take: input.take,
+      });
+    }),
+
   create: publicProcedure
     .input(
       z.object({
