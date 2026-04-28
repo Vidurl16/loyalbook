@@ -72,11 +72,31 @@ model Location {
   email     String?
   timezone  String   @default("Africa/Johannesburg")
   currency  String   @default("ZAR")
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  spa       Spa      @relation(fields: [spaId], references: [id])
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  spa          Spa           @relation(fields: [spaId], references: [id])
+  galleryItems GalleryItem[]
 
   @@map("locations")
+}
+
+model GalleryItem {
+  id           String   @id @default(cuid())
+  locationId   String
+  category     String
+  title        String
+  therapist    String
+  price        Float
+  durationMins Int
+  description  String?
+  imageUrl     String?
+  isTall       Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  location     Location @relation(fields: [locationId], references: [id])
+
+  @@map("gallery_items")
 }
 
 enum Role {

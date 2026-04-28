@@ -95,6 +95,46 @@ html {
   letter-spacing: 0.01em;
 }
 
+/* ─── Perfect 10 Luxury Design Tokens (Gallery / Boutique / Loyalty Hub) ─── */
+:root {
+  --onyx-950: #0e0c0a;
+  --onyx-900: #1a1612;
+  --onyx-800: #242018;
+  --onyx-700: #302b22;
+  --onyx-600: #3e3830;
+  --onyx-500: #554f46;
+  --gold-400: #c9a85c;
+  --gold-300: #dfc07a;
+  --gold-500: #b8922e;
+  --cream-50:  #fdf9f4;
+  --cream-100: #f7eedf;
+  --cream-200: #ede0cc;
+  --cream-300: #ddd0bc;
+  --cream-400: #c9b99e;
+  --skin-100: #f2e4d3;
+  --skin-200: #e0c9af;
+  --skin-300: #c9a882;
+  --skin-400: #b08a62;
+}
+
+/* Gallery category filter underline animation */
+.gallery-filter-item {
+  position: relative;
+  cursor: pointer;
+  padding-bottom: 5px;
+}
+.gallery-filter-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--gold-400);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gallery-filter-item.active::after { transform: scaleX(1); }
+
 /* Tier badge colours */
 .tier-bronze  { background: #fde8d8; color: #9a3412; }
 .tier-silver  { background: #f1f5f9; color: #475569; }
