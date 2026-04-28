@@ -75,9 +75,29 @@ model Location {
   isActive     Boolean       @default(true)
   createdAt    DateTime      @default(now())
   spa          Spa           @relation(fields: [spaId], references: [id])
-  galleryItems GalleryItem[]
+  galleryItems    GalleryItem[]
+  transformations Transformation[]
 
   @@map("locations")
+}
+
+model Transformation {
+  id              String   @id @default(cuid())
+  locationId      String
+  category        String
+  service         String
+  therapist       String
+  description     String?
+  beforeImageUrl  String?
+  afterImageUrl   String?
+  rating          Int?
+  appointmentDate DateTime @default(now())
+  isPublished     Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  location        Location @relation(fields: [locationId], references: [id])
+
+  @@map("transformations")
 }
 
 model GalleryItem {
