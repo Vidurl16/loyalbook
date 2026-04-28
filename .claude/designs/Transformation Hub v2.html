@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfect 10 — Transformation Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0e0c0a;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  /* Ambient glow behind phone */
+  #root::before {
+    content: '';
+    position: fixed;
+    width: 380px; height: 380px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,92,0.10) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  div::-webkit-scrollbar { display: none; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes breathe {
+    0%, 100% { box-shadow: 4px 6px 0px rgba(0,0,0,0.65), 0 0 0px rgba(201,168,92,0); }
+    50%       { box-shadow: 4px 6px 0px rgba(0,0,0,0.65), 0 0 22px rgba(201,168,92,0.22); }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+// iOS.jsx — Simplified iOS 26 (Liquid Glass) device frame
+// Based on the iOS 26 UI Kit + Figma status bar spec. No assets, no deps.
+// Exports: IOSDevice, IOSStatusBar, IOSNavBar, IOSGlassPill, IOSList, IOSListRow, IOSKeyboard
+
+// ─────────────────────────────────────────────────────────────
+// Status bar
+// ─────────────────────────────────────────────────────────────
+function IOSStatusBar({ dark = false, time = '9:41' }) {
+  const c = dark ? '#fff' : '#000';
+  return (
+    <div style={{
+      display: 'flex', gap: 154, alignItems: 'center', justifyContent: 'center',
+      padding: '21px 24px 19px', boxSizing: 'border-box',
+      position: 'relative', zIndex: 20, width: '100%',
+    }}>
+      <div style={{ flex: 1, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 1.5 }}>
+        <span style={{
+          fontFamily: '-apple-system, "SF Pro", system-ui', fontWeight: 590,
+          fontSize: 17, lineHeight: '22px', color: c,
+        }}>{time}</span>
+      </div>
+      <div style={{ flex: 1, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, paddingTop: 1, paddingRight: 1 }}>
+        <svg width="19" height="12" viewBox="0 0 19 12">
+          <rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill={c}/>
+          <rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill={c}/>
+          <rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill={c}/>
+          <rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill={c}/>
+        </svg>
+        <svg width="17" height="12" viewBox="0 0 17 12">
+          <path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill={c}/>
+          <path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill={c}/>
+          <circle cx="8.5" cy="10.5" r="1.5" fill={c}/>
+        </svg>
+        <svg width="27" height="13" viewBox="0 0 27 13">
+          <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke={c} strokeOpacity="0.35" fill="none"/>
+          <rect x="2" y="2" width="20" height="9" rx="2" fill={c}/>
+          <path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill={c} fillOpacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Liquid glass pill — blur + tint + shine
+// ─────────────────────────────────────────────────────────────
+function IOSGlassPill({ children, dark = false, style = {} }) {
+  return (
+    <div style={{
+      height: 44, minWidth: 44, borderRadius: 9999,
+      position: 'relative', overflow: 'hidden',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: dark
+        ? '0 2px 6px rgba(0,0,0,0.35), 0 6px 16px rgba(0,0,0,0.2)'
+        : '0 1px 3px rgba(0,0,0,0.07), 0 3px 10px rgba(0,0,0,0.06)',
+      ...style,
+    }}>
+      {/* blur + tint */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 9999,
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+        background: dark ? 'rgba(120,120,128,0.28)' : 'rgba(255,255,255,0.5)',
+      }} />
+      {/* shine */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 9999,
+        boxShadow: dark
+          ? 'inset 1.5px 1.5px 1px rgba(255,255,255,0.15), inset -1px -1px 1px rgba(255,255,255,0.08)'
+          : 'inset 1.5px 1.5px 1px rgba(255,255,255,0.7), inset -1px -1px 1px rgba(255,255,255,0.4)',
+        border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)',
+      }} />
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', padding: '0 4px' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Navigation bar — glass pills + large title
+// ─────────────────────────────────────────────────────────────
+function IOSNavBar({ title = 'Title', dark = false, trailingIcon = true }) {
+  const muted = dark ? 'rgba(255,255,255,0.6)' : '#404040';
+  const text = dark ? '#fff' : '#000';
+  const pillIcon = (content) => (
+    <IOSGlassPill dark={dark}>
+      <div style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {content}
+      </div>
+    </IOSGlassPill>
+  );
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', gap: 10,
+      paddingTop: 62, paddingBottom: 10, position: 'relative', zIndex: 5,
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 16px',
+      }}>
+        {/* back chevron */}
+        {pillIcon(
+          <svg width="12" height="20" viewBox="0 0 12 20" fill="none" style={{ marginLeft: -1 }}>
+            <path d="M10 2L2 10l8 8" stroke={muted} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )}
+        {/* trailing ellipsis */}
+        {trailingIcon && pillIcon(
+          <svg width="22" height="6" viewBox="0 0 22 6">
+            <circle cx="3" cy="3" r="2.5" fill={muted}/>
+            <circle cx="11" cy="3" r="2.5" fill={muted}/>
+            <circle cx="19" cy="3" r="2.5" fill={muted}/>
+          </svg>
+        )}
+      </div>
+      {/* large title */}
+      <div style={{
+        padding: '0 16px',
+        fontFamily: '-apple-system, system-ui',
+        fontSize: 34, fontWeight: 700, lineHeight: '41px',
+        color: text, letterSpacing: 0.4,
+      }}>{title}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Grouped list (inset card, r:26) + row (52px)
+// ─────────────────────────────────────────────────────────────
+function IOSListRow({ title, detail, icon, chevron = true, isLast = false, dark = false }) {
+  const text = dark ? '#fff' : '#000';
+  const sec = dark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
+  const ter = dark ? 'rgba(235,235,245,0.3)' : 'rgba(60,60,67,0.3)';
+  const sep = dark ? 'rgba(84,84,88,0.65)' : 'rgba(60,60,67,0.12)';
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', minHeight: 52,
+      padding: '0 16px', position: 'relative',
+      fontFamily: '-apple-system, system-ui', fontSize: 17,
+      letterSpacing: -0.43,
+    }}>
+      {icon && (
+        <div style={{
+          width: 30, height: 30, borderRadius: 7, background: icon,
+          marginRight: 12, flexShrink: 0,
+        }} />
+      )}
+      <div style={{ flex: 1, color: text }}>{title}</div>
+      {detail && <span style={{ color: sec, marginRight: 6 }}>{detail}</span>}
+      {chevron && (
+        <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}>
+          <path d="M1 1l6 6-6 6" stroke={ter} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+      {!isLast && (
+        <div style={{
+          position: 'absolute', bottom: 0, right: 0,
+          left: icon ? 58 : 16, height: 0.5, background: sep,
+        }} />
+      )}
+    </div>
+  );
+}
+
+function IOSList({ header, children, dark = false }) {
+  const hc = dark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
+  const bg = dark ? '#1C1C1E' : '#fff';
+  return (
+    <div>
+      {header && (
+        <div style={{
+          fontFamily: '-apple-system, system-ui', fontSize: 13,
+          color: hc, textTransform: 'uppercase',
+          padding: '8px 36px 6px', letterSpacing: -0.08,
+        }}>{header}</div>
+      )}
+      <div style={{
+        background: bg, borderRadius: 26,
+        margin: '0 16px', overflow: 'hidden',
+      }}>{children}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Device frame
+// ─────────────────────────────────────────────────────────────
+function IOSDevice({
+  children, width = 402, height = 874, dark = false,
+  title, keyboard = false,
+}) {
+  return (
+    <div style={{
+      width, height, borderRadius: 48, overflow: 'hidden',
+      position: 'relative', background: dark ? '#000' : '#F2F2F7',
+      boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
+      fontFamily: '-apple-system, system-ui, sans-serif',
+      WebkitFontSmoothing: 'antialiased',
+    }}>
+      {/* dynamic island */}
+      <div style={{
+        position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
+        width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 50,
+      }} />
+      {/* status bar (absolute) */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
+        <IOSStatusBar dark={dark} />
+      </div>
+      {/* nav + content */}
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        {title !== undefined && <IOSNavBar title={title} dark={dark} />}
+        <div style={{ flex: 1, overflow: 'auto' }}>{children}</div>
+        {keyboard && <IOSKeyboard dark={dark} />}
+      </div>
+      {/* home indicator — always on top */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 60,
+        height: 34, display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+        paddingBottom: 8, pointerEvents: 'none',
+      }}>
+        <div style={{
+          width: 139, height: 5, borderRadius: 100,
+          background: dark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.25)',
+        }} />
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Keyboard — iOS 26 liquid glass
+// ─────────────────────────────────────────────────────────────
+function IOSKeyboard({ dark = false }) {
+  const glyph = dark ? 'rgba(255,255,255,0.7)' : '#595959';
+  const sugg = dark ? 'rgba(255,255,255,0.6)' : '#333';
+  const keyBg = dark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.85)';
+
+  // special-key icons
+  const icons = {
+    shift: <svg width="19" height="17" viewBox="0 0 19 17"><path d="M9.5 1L1 9.5h4.5V16h8V9.5H18L9.5 1z" fill={glyph}/></svg>,
+    del: <svg width="23" height="17" viewBox="0 0 23 17"><path d="M7 1h13a2 2 0 012 2v11a2 2 0 01-2 2H7l-6-7.5L7 1z" fill="none" stroke={glyph} strokeWidth="1.6" strokeLinejoin="round"/><path d="M10 5l7 7M17 5l-7 7" stroke={glyph} strokeWidth="1.6" strokeLinecap="round"/></svg>,
+    ret: <svg width="20" height="14" viewBox="0 0 20 14"><path d="M18 1v6H4m0 0l4-4M4 7l4 4" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  };
+
+  const key = (content, { w, flex, ret, fs = 25, k } = {}) => (
+    <div key={k} style={{
+      height: 42, borderRadius: 8.5,
+      flex: flex ? 1 : undefined, width: w, minWidth: 0,
+      background: ret ? '#08f' : keyBg,
+      boxShadow: '0 1px 0 rgba(0,0,0,0.075)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: '-apple-system, "SF Compact", system-ui',
+      fontSize: fs, fontWeight: 458, color: ret ? '#fff' : glyph,
+    }}>{content}</div>
+  );
+
+  const row = (keys, pad = 0) => (
+    <div style={{ display: 'flex', gap: 6.5, justifyContent: 'center', padding: `0 ${pad}px` }}>
+      {keys.map(l => key(l, { flex: true, k: l }))}
+    </div>
+  );
+
+  return (
+    <div style={{
+      position: 'relative', zIndex: 15, borderRadius: 27, overflow: 'hidden',
+      padding: '11px 0 2px',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      boxShadow: dark
+        ? '0 -2px 20px rgba(0,0,0,0.09)'
+        : '0 -1px 6px rgba(0,0,0,0.018), 0 -3px 20px rgba(0,0,0,0.012)',
+    }}>
+      {/* liquid glass bg — same recipe as nav pills */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 27,
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+        background: dark ? 'rgba(120,120,128,0.14)' : 'rgba(255,255,255,0.25)',
+      }} />
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 27,
+        boxShadow: dark
+          ? 'inset 1.5px 1.5px 1px rgba(255,255,255,0.15)'
+          : 'inset 1.5px 1.5px 1px rgba(255,255,255,0.7), inset -1px -1px 1px rgba(255,255,255,0.4)',
+        border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* autocorrect bar */}
+      <div style={{
+        display: 'flex', gap: 20, alignItems: 'center',
+        padding: '8px 22px 13px', width: '100%', boxSizing: 'border-box',
+        position: 'relative',
+      }}>
+        {['"The"', 'the', 'to'].map((w, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <div style={{ width: 1, height: 25, background: '#ccc', opacity: 0.3 }} />}
+            <div style={{
+              flex: 1, textAlign: 'center',
+              fontFamily: '-apple-system, system-ui', fontSize: 17,
+              color: sugg, letterSpacing: -0.43, lineHeight: '22px',
+            }}>{w}</div>
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* key layout */}
+      <div style={{
+        display: 'flex', flexDirection: 'column', gap: 13,
+        padding: '0 6.5px', width: '100%', boxSizing: 'border-box',
+        position: 'relative',
+      }}>
+        {row(['q','w','e','r','t','y','u','i','o','p'])}
+        {row(['a','s','d','f','g','h','j','k','l'], 20)}
+        <div style={{ display: 'flex', gap: 14.25, alignItems: 'center' }}>
+          {key(icons.shift, { w: 45, k: 'shift' })}
+          <div style={{ display: 'flex', gap: 6.5, flex: 1 }}>
+            {['z','x','c','v','b','n','m'].map(l => key(l, { flex: true, k: l }))}
+          </div>
+          {key(icons.del, { w: 45, k: 'del' })}
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {key('ABC', { w: 92.25, fs: 18, k: 'abc' })}
+          {key('', { flex: true, k: 'space' })}
+          {key(icons.ret, { w: 92.25, ret: true, k: 'ret' })}
+        </div>
+      </div>
+
+      {/* bottom spacer (emoji+mic area, icons omitted) */}
+      <div style={{ height: 56, width: '100%', position: 'relative' }} />
+    </div>
+  );
+}
+
+Object.assign(window, {
+  IOSDevice, IOSStatusBar, IOSNavBar, IOSGlassPill, IOSList, IOSListRow, IOSKeyboard,
+});
+
+</script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const T = {
+  onyx950: '#0e0c0a', onyx900: '#1a1612', onyx800: '#242018',
+  onyx700: '#302b22', onyx600: '#3e3830', onyx500: '#554f46',
+  gold400: '#c9a85c', gold300: '#dfc07a', gold500: '#b8922e',
+  cream50: '#fdf9f4', cream100: '#f7eedf', cream200: '#ede0cc',
+  cream300: '#ddd0bc', cream400: '#c9b99e',
+};
+
+/* ── PARTICLE BURST ──────────────────────────────────────────── */
+function useParticles(canvasRef, trigger) {
+  useEffect(() => {
+    if (!trigger || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H * 0.40;
+    const cols = [T.gold400, T.gold300, T.cream200, T.gold500, '#fff8e7'];
+    const ps = Array.from({ length: 48 }, () => {
+      const a = Math.random() * Math.PI * 2, spd = 3 + Math.random() * 6;
+      return {
+        x: cx, y: cy,
+        vx: Math.cos(a) * spd, vy: Math.sin(a) * spd - 2.5,
+        alpha: 1, size: 1.5 + Math.random() * 3,
+        color: cols[Math.floor(Math.random() * cols.length)],
+        rect: Math.random() > 0.45,
+        rot: Math.random() * Math.PI * 2,
+        rotV: (Math.random() - 0.5) * 0.25,
+      };
+    });
+    let raf;
+    const tick = () => {
+      ctx.clearRect(0, 0, W, H);
+      let alive = false;
+      ps.forEach(p => {
+        if (p.alpha <= 0) return;
+        alive = true;
+        p.x += p.vx; p.y += p.vy; p.vy += 0.14;
+        p.alpha -= 0.017; p.rot += p.rotV;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        if (p.rect) ctx.fillRect(-p.size, -p.size * 0.4, p.size * 2, p.size * 0.8);
+        else { ctx.beginPath(); ctx.arc(0, 0, p.size, 0, Math.PI * 2); ctx.fill(); }
+        ctx.restore();
+      });
+      if (alive) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [trigger]);
+}
+
+/* ── BEFORE / AFTER SLIDER ───────────────────────────────────── */
+function BeforeAfterSlider({ height = 280 }) {
+  const [pos, setPos] = useState(50);
+  const ref = useRef(null);
+  const dragging = useRef(false);
+
+  const clamp = (e) => {
+    const r = ref.current.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    return Math.max(2, Math.min(98, (x / r.width) * 100));
+  };
+
+  useEffect(() => {
+    const up = () => { dragging.current = false; };
+    window.addEventListener('mouseup', up);
+    window.addEventListener('touchend', up);
+    return () => { window.removeEventListener('mouseup', up); window.removeEventListener('touchend', up); };
+  }, []);
+
+  const beforeStripe = `repeating-linear-gradient(-45deg,#302b22 0,#302b22 4px,#1f1b14 4px,#1f1b14 12px)`;
+  const afterStripe  = `repeating-linear-gradient(-45deg,#3e3830 0,#3e3830 4px,#2d2820 4px,#2d2820 12px)`;
+
+  return (
+    <div ref={ref}
+      onMouseDown={e => { dragging.current = true; setPos(clamp(e)); }}
+      onMouseMove={e => { if (dragging.current) setPos(clamp(e)); }}
+      onTouchStart={e => { dragging.current = true; setPos(clamp(e)); }}
+      onTouchMove={e => { if (dragging.current) setPos(clamp(e)); }}
+      style={{ position:'relative', width:'100%', height, overflow:'hidden', cursor:'ew-resize', userSelect:'none', touchAction:'none' }}
+    >
+      {/* AFTER — full bg */}
+      <div style={{ position:'absolute', inset:0, background: afterStripe }}>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,rgba(201,168,92,0.07) 0%,transparent 55%)', pointerEvents:'none' }} />
+        <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, opacity:0.3 }}>
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="11" r="6" stroke={T.gold400} strokeWidth="1.2"/>
+            <path d="M6 27c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke={T.gold400} strokeWidth="1.2" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontFamily:'monospace', fontSize:9, letterSpacing:'0.14em', color:T.onyx500, textTransform:'uppercase' }}>after photo</span>
+        </div>
+      </div>
+
+      {/* BEFORE — clipped left */}
+      <div style={{ position:'absolute', inset:0, clipPath:`inset(0 ${100-pos}% 0 0)`, background: beforeStripe }}>
+        <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, opacity:0.18 }}>
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="11" r="6" stroke={T.cream400} strokeWidth="1.2"/>
+            <path d="M6 27c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke={T.cream400} strokeWidth="1.2" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontFamily:'monospace', fontSize:9, letterSpacing:'0.14em', color:T.onyx500, textTransform:'uppercase' }}>before photo</span>
+        </div>
+      </div>
+
+      {/* Labels */}
+      <div style={{ position:'absolute', top:12, left:12, zIndex:5, background:T.onyx900, border:`1px solid ${T.onyx600}`, padding:'3px 9px', borderRadius:2, fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.cream400, fontWeight:500, opacity: pos > 14 ? 1 : 0, transition:'opacity 0.15s' }}>Before</div>
+      <div style={{ position:'absolute', top:12, right:12, zIndex:5, background:T.onyx900, border:`1px solid rgba(201,168,92,0.4)`, padding:'3px 9px', borderRadius:2, fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.gold400, fontWeight:500, opacity: pos < 86 ? 1 : 0, transition:'opacity 0.15s' }}>After</div>
+
+      {/* Divider */}
+      <div style={{ position:'absolute', top:0, bottom:0, left:`${pos}%`, transform:'translateX(-50%)', width:1.5, background:`linear-gradient(180deg,transparent,${T.gold400} 12%,${T.gold400} 88%,transparent)`, zIndex:10, pointerEvents:'none' }} />
+
+      {/* Handle */}
+      <div style={{ position:'absolute', top:'50%', left:`${pos}%`, transform:'translate(-50%,-50%)', width:34, height:34, borderRadius:'50%', background:T.gold400, boxShadow:`0 0 0 2.5px ${T.onyx950},0 0 0 4px ${T.gold400},4px 6px 0 rgba(0,0,0,0.6)`, display:'flex', alignItems:'center', justifyContent:'center', zIndex:11, pointerEvents:'none' }}>
+        <svg width="16" height="9" viewBox="0 0 18 10" fill="none">
+          <path d="M5 5H13M5 5L2 2M5 5L2 8M13 5L16 2M13 5L16 8" stroke={T.onyx950} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+
+      {/* Top gloss */}
+      <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(255,255,255,0.04) 0%,transparent 35%)', pointerEvents:'none', zIndex:4 }} />
+    </div>
+  );
+}
+
+/* ── GALLERY PREVIEW (replaces Instagram Preview) ────────────── */
+function GalleryPreview() {
+  const [format, setFormat] = useState('post');
+  const dims = { post:{w:124,h:124}, story:{w:72,h:124}, reel:{w:96,h:124} };
+  const d = dims[format];
+
+  return (
+    <div style={{ margin:'0 20px', background:T.onyx800, border:`1px solid ${T.onyx600}`, borderRadius:2, overflow:'hidden', position:'relative' }}>
+      <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(255,255,255,0.03) 0%,transparent 50%)', pointerEvents:'none', zIndex:2 }} />
+
+      {/* Header */}
+      <div style={{ padding:'10px 14px 9px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:`1px solid ${T.onyx700}` }}>
+        <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+          <div style={{ width:18, height:18, borderRadius:5, background:'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', display:'flex', alignItems:'center', justifyContent:'center', opacity:0.85 }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+              <rect x="2" y="2" width="20" height="20" rx="5" stroke="white" strokeWidth="2.2"/>
+              <circle cx="12" cy="12" r="5" stroke="white" strokeWidth="2.2"/>
+              <circle cx="17.5" cy="6.5" r="1.5" fill="white"/>
+            </svg>
+          </div>
+          <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, fontWeight:500, color:T.cream400, letterSpacing:'0.28em', textTransform:'uppercase' }}>Gallery Preview</span>
+        </div>
+        {/* Format selector */}
+        <div style={{ display:'flex', gap:2, background:T.onyx700, borderRadius:100, padding:2 }}>
+          {['post','story','reel'].map(f => (
+            <button key={f} onClick={() => setFormat(f)} style={{ border:'none', cursor:'pointer', padding:'3px 9px', borderRadius:100, fontFamily:"'DM Sans',sans-serif", fontSize:8, fontWeight:500, letterSpacing:'0.18em', textTransform:'uppercase', background: format===f ? T.gold400 : 'transparent', color: format===f ? T.onyx950 : T.onyx500, transition:'all 0.14s ease' }}>{f}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Preview body */}
+      <div style={{ padding:'12px 14px 12px', display:'flex', gap:12, alignItems:'flex-start' }}>
+        {/* Frame */}
+        <div style={{ flexShrink:0, width:d.w, height:d.h, background:`repeating-linear-gradient(-45deg,#302b22 0,#302b22 3px,#242018 3px,#242018 10px)`, border:`1px solid ${T.onyx600}`, position:'relative', overflow:'hidden', transition:'all 0.22s cubic-bezier(0.16,1,0.3,1)' }}>
+          {/* After badge */}
+          <div style={{ position:'absolute', top:6, right:6, fontFamily:"'DM Sans',sans-serif", fontSize:6, fontWeight:500, letterSpacing:'0.22em', textTransform:'uppercase', background:T.gold400, color:T.onyx950, padding:'2px 5px', borderRadius:1 }}>After</div>
+          {/* Watermark */}
+          <div style={{ position:'absolute', bottom:7, left:0, right:0, display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(14,12,10,0.78)', padding:'2px 7px', borderRadius:1 }}>
+              <div style={{ width:5, height:5, borderRadius:'50%', background:T.gold400 }} />
+              <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:8, fontWeight:500, letterSpacing:'0.2em', textTransform:'uppercase', color:T.gold400 }}>Perfect 10</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Caption column */}
+        <div style={{ flex:1, paddingTop:2 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:8 }}>
+            <div style={{ width:18, height:18, borderRadius:'50%', background:`linear-gradient(135deg,${T.gold500},${T.gold400})`, border:`1px solid rgba(201,168,92,0.4)`, flexShrink:0 }} />
+            <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:9, color:T.cream400, letterSpacing:'0.1em' }}>@perfect10studio</span>
+          </div>
+          <div style={{ marginBottom:8 }}>
+            <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:13, fontStyle:'italic', fontWeight:300, color:T.cream200, display:'block', lineHeight:1.35 }}>Noir Sculptural Set ✦</span>
+            <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:9, color:T.gold500, letterSpacing:'0.06em' }}>#Perfect10 #LuxuryNails</span>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:5, paddingTop:7, borderTop:`1px solid ${T.onyx700}` }}>
+            <div style={{ width:5, height:5, borderRadius:'50%', background:'oklch(62% 0.12 152)' }} />
+            <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.22em', textTransform:'uppercase', color:T.cream400 }}>Watermark ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── TOAST ───────────────────────────────────────────────────── */
+function Toast({ message, visible }) {
+  return (
+    <div style={{
+      position:'absolute', bottom: visible ? 52 : 32, left:'50%', transform:'translateX(-50%)',
+      background:T.onyx800, border:`1px solid rgba(201,168,92,0.38)`, borderRadius:100,
+      padding:'9px 18px', display:'flex', alignItems:'center', gap:8, whiteSpace:'nowrap',
+      opacity: visible ? 1 : 0, transition:'opacity 0.2s ease, bottom 0.22s cubic-bezier(0.16,1,0.3,1)',
+      pointerEvents:'none', zIndex:200,
+    }}>
+      <div style={{ width:6, height:6, borderRadius:'50%', background:T.gold400 }} />
+      <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:14, fontStyle:'italic', fontWeight:300, color:T.cream100, letterSpacing:'0.04em' }}>{message}</span>
+    </div>
+  );
+}
+
+/* ── MAIN ────────────────────────────────────────────────────── */
+function TransformationHub() {
+  const canvasRef = useRef(null);
+  const [burst, setBurst]       = useState(0);
+  const [published, setPublished] = useState(false);
+  const [saved, setSaved]         = useState(false);
+  const [toast, setToast]         = useState({ msg:'', show:false });
+  const [breathe, setBreathe]     = useState(false);
+
+  useParticles(canvasRef, burst);
+
+  useEffect(() => {
+    const t = setTimeout(() => { setBurst(b => b+1); setBreathe(true); }, 700);
+    return () => clearTimeout(t);
+  }, []);
+
+  const showToast = msg => {
+    setToast({ msg, show:true });
+    setTimeout(() => setToast(t => ({ ...t, show:false })), 2600);
+  };
+
+  const handlePublish = () => {
+    if (published) return;
+    setPublished(true); setBurst(b => b+1); setBreathe(false);
+    showToast('Your moment is live ✦');
+  };
+
+  const handleSave = () => {
+    if (saved) return;
+    setSaved(true);
+    showToast('Cherished in your journey');
+  };
+
+  return (
+    <div style={{ position:'relative', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <IOSDevice width={402} height={874} dark={true}>
+
+        {/* Particles */}
+        <canvas ref={canvasRef} width={402} height={874} style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:50, borderRadius:48 }} />
+
+        {/* Scroll area */}
+        <div style={{ height:'100%', overflowY:'auto', overflowX:'hidden', background:T.onyx950, paddingBottom:48, scrollbarWidth:'none' }}>
+
+          {/* ── HEADER ── */}
+          <div style={{ paddingTop:64, paddingBottom:14, paddingLeft:22, paddingRight:22, display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+            <div>
+              <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.gold400, fontWeight:500, marginBottom:6 }}>This is your moment</div>
+              <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:32, fontWeight:300, lineHeight:0.95, letterSpacing:'0.01em' }}>
+                <em style={{ fontStyle:'italic', color:T.cream200 }}>Your</em>{' '}
+                <em style={{ fontStyle:'italic', color:T.gold400 }}>Reveal</em>
+              </h1>
+            </div>
+            {/* Sparkle / replay button */}
+            <button onClick={() => setBurst(b => b+1)} style={{ width:34, height:34, borderRadius:2, background:'transparent', border:`1px solid ${T.onyx600}`, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke={T.onyx500} strokeWidth="1.6" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
+
+          {/* ── BEFORE / AFTER SLIDER ── */}
+          <BeforeAfterSlider height={272} />
+          <div style={{ height:1, background:`linear-gradient(90deg,transparent,rgba(201,168,92,0.12) 40%,rgba(201,168,92,0.12) 60%,transparent)` }} />
+
+          {/* ── SERVICE INFO ── */}
+          <div style={{ padding:'14px 22px 0', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10 }}>
+            <div style={{ flex:1 }}>
+              <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, fontWeight:300, fontStyle:'italic', color:T.cream100, lineHeight:1.1, marginBottom:5 }}>
+                Noir Sculptural Set
+              </h2>
+              <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.cream400 }}>
+                Valentina R. &nbsp;·&nbsp; Today
+              </div>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4, paddingTop:2 }}>
+              <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:26, fontWeight:300, color:T.gold400, lineHeight:1, letterSpacing:'-0.01em' }}>
+                10<span style={{ fontSize:13, color:T.gold500, fontWeight:300 }}>&thinsp;/&thinsp;10</span>
+              </div>
+              <div style={{ display:'flex', gap:3 }}>
+                {[0,1,2,3,4].map(i => (
+                  <svg key={i} width="7" height="7" viewBox="0 0 10 10">
+                    <polygon points="5,0 6.2,3.6 10,3.6 7,5.9 8.1,9.5 5,7.3 1.9,9.5 3,5.9 0,3.6 3.8,3.6" fill={T.gold400} opacity="0.8"/>
+                  </svg>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── THIN SEPARATOR ── */}
+          <div style={{ margin:'14px 22px', height:1, background:`linear-gradient(90deg,transparent,${T.onyx600} 20%,${T.onyx600} 80%,transparent)` }} />
+
+          {/* ── POST YOUR MOMENT — luxury fashion invite CTA ── */}
+          <div style={{ padding:'0 22px', marginBottom:8 }}>
+            <button
+              onClick={handlePublish}
+              style={{
+                width:'100%', padding:'17px 20px',
+                background:'transparent',
+                border: published ? `1px solid ${T.onyx600}` : `1px solid rgba(201,168,92,0.58)`,
+                borderRadius:2, cursor: published ? 'default' : 'pointer',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                boxShadow: published ? '2px 3px 0 rgba(0,0,0,0.5)' : '4px 6px 0 rgba(0,0,0,0.65)',
+                animation: breathe && !published ? 'breathe 2.8s ease-in-out infinite' : 'none',
+                transition:'all 0.38s cubic-bezier(0.16,1,0.3,1)',
+                position:'relative', overflow:'hidden',
+              }}
+            >
+              {/* Gloss */}
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(255,255,255,0.03) 0%,transparent 55%)', pointerEvents:'none' }} />
+
+              {published ? (
+                // Confirmed — quiet, editorial
+                <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                  <div style={{ width:22, height:1, background:T.onyx600 }} />
+                  <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:17, fontWeight:300, fontStyle:'italic', letterSpacing:'0.08em', color:T.cream400 }}>
+                    Your moment is live
+                  </span>
+                  <div style={{ width:22, height:1, background:T.onyx600 }} />
+                </div>
+              ) : (
+                // Default — fashion campaign invite
+                <div style={{ display:'flex', alignItems:'center', width:'100%', gap:16 }}>
+                  <div style={{ flex:1, height:1, background:'linear-gradient(90deg,transparent,rgba(201,168,92,0.4))' }} />
+                  <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:21, fontWeight:300, fontStyle:'italic', letterSpacing:'0.1em', color:T.gold400, whiteSpace:'nowrap' }}>
+                    Post Your Moment
+                  </span>
+                  <div style={{ flex:1, height:1, background:'linear-gradient(90deg,rgba(201,168,92,0.4),transparent)' }} />
+                </div>
+              )}
+            </button>
+
+            {/* Sub-caption */}
+            {!published && (
+              <div style={{ textAlign:'center', marginTop:7, fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.onyx500 }}>
+                Watermarked · Instagram Ready
+              </div>
+            )}
+          </div>
+
+          {/* ── GALLERY PREVIEW ── */}
+          <GalleryPreview />
+
+          {/* ── SEPARATOR ── */}
+          <div style={{ margin:'14px 22px', height:1, background:`linear-gradient(90deg,transparent,${T.onyx600} 20%,${T.onyx600} 80%,transparent)` }} />
+
+          {/* ── ADD TO MY JOURNEY ── */}
+          <div style={{ padding:'0 22px', marginBottom:12 }}>
+            {/* Eyebrow rule */}
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+              <div style={{ flex:1, height:1, background:`linear-gradient(90deg,transparent,${T.onyx600})` }} />
+              <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.onyx500 }}>Treatment History</span>
+              <div style={{ flex:1, height:1, background:`linear-gradient(90deg,${T.onyx600},transparent)` }} />
+            </div>
+
+            <button
+              onClick={handleSave}
+              style={{
+                width:'100%', padding:'16px 20px',
+                background: saved ? 'rgba(201,168,92,0.05)' : 'transparent',
+                border:`1px solid ${saved ? 'rgba(201,168,92,0.38)' : T.onyx600}`,
+                borderRadius:2, cursor: saved ? 'default' : 'pointer',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                boxShadow:'2px 3px 0 rgba(0,0,0,0.5)',
+                transition:'all 0.38s cubic-bezier(0.16,1,0.3,1)',
+                position:'relative', overflow:'hidden',
+              }}
+            >
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(255,255,255,0.025) 0%,transparent 50%)', pointerEvents:'none' }} />
+              {saved ? (
+                <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                  <div style={{ width:18, height:1, background:'rgba(201,168,92,0.3)' }} />
+                  <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:18, fontWeight:300, fontStyle:'italic', letterSpacing:'0.07em', color:T.gold400 }}>
+                    Cherished in your journey
+                  </span>
+                  <div style={{ width:18, height:1, background:'rgba(201,168,92,0.3)' }} />
+                </div>
+              ) : (
+                <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                  <div style={{ width:18, height:1, background:`rgba(85,79,70,0.55)` }} />
+                  <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:18, fontWeight:300, fontStyle:'italic', letterSpacing:'0.07em', color:T.cream400 }}>
+                    Add to My Journey
+                  </span>
+                  <div style={{ width:18, height:1, background:`rgba(85,79,70,0.55)` }} />
+                </div>
+              )}
+            </button>
+          </div>
+
+          {/* ── JOURNEY TEASE (appears after save) ── */}
+          {saved && (
+            <div style={{ margin:'0 22px', padding:'11px 16px', background:T.onyx800, border:`1px solid ${T.onyx600}`, borderLeft:`2px solid rgba(201,168,92,0.42)`, borderRadius:2, display:'flex', alignItems:'center', justifyContent:'space-between', animation:'fadeUp 0.38s cubic-bezier(0.16,1,0.3,1) both' }}>
+              <div>
+                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.gold400, marginBottom:4 }}>Treatment No. 12</div>
+                <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:15, fontWeight:300, fontStyle:'italic', color:T.cream300, letterSpacing:'0.03em' }}>View your full story</div>
+              </div>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 5l7 7-7 7" stroke={T.onyx500} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          )}
+
+        </div>
+
+        <Toast message={toast.msg} visible={toast.show} />
+      </IOSDevice>
+    </div>
+  );
+}
+
+/* ── TWEAKS ──────────────────────────────────────────────────── */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "breatheGlow": true,
+  "sliderStart": 50,
+  "ctaStyle": "outline"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [tweaks, setTweaks] = useState(TWEAK_DEFAULTS);
+
+  useEffect(() => {
+    window.addEventListener('message', e => {
+      if (e.data?.type === '__activate_edit_mode')   setTweaksOpen(true);
+      if (e.data?.type === '__deactivate_edit_mode')  setTweaksOpen(false);
+    });
+    window.parent.postMessage({ type:'__edit_mode_available' }, '*');
+  }, []);
+
+  const set = (k, v) => {
+    setTweaks(t => { const n = {...t,[k]:v}; window.parent.postMessage({type:'__edit_mode_set_keys',edits:{[k]:v}},'*'); return n; });
+  };
+
+  return (
+    <>
+      <TransformationHub tweaks={tweaks} />
+      {tweaksOpen && (
+        <div style={{ position:'fixed', bottom:22, right:22, background:T.onyx800, border:`1px solid ${T.onyx600}`, borderRadius:2, padding:'16px 18px', width:210, zIndex:9999, boxShadow:'6px 10px 0 rgba(0,0,0,0.7)', fontFamily:"'DM Sans',sans-serif" }}>
+          <div style={{ fontSize:8, letterSpacing:'0.3em', textTransform:'uppercase', color:T.gold400, marginBottom:12, fontWeight:500 }}>Tweaks</div>
+          {[
+            { key:'breatheGlow', label:'CTA Breathe Glow' },
+          ].map(({key, label}) => (
+            <label key={key} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10, cursor:'pointer' }}>
+              <span style={{ fontSize:11, color:T.cream300 }}>{label}</span>
+              <div onClick={() => set(key, !tweaks[key])} style={{ width:30, height:17, borderRadius:100, background: tweaks[key] ? T.gold400 : T.onyx600, position:'relative', transition:'background 0.2s', cursor:'pointer', flexShrink:0 }}>
+                <div style={{ position:'absolute', top:2, left: tweaks[key] ? 15 : 2, width:13, height:13, borderRadius:'50%', background: tweaks[key] ? T.onyx950 : T.onyx500, transition:'left 0.2s ease' }} />
+              </div>
+            </label>
+          ))}
+          <div style={{ marginTop:6 }}>
+            <div style={{ fontSize:9, letterSpacing:'0.14em', textTransform:'uppercase', color:T.cream400, marginBottom:6 }}>Slider position</div>
+            <input type="range" min={10} max={90} value={tweaks.sliderStart} onChange={e => set('sliderStart', +e.target.value)} style={{ width:'100%', accentColor:T.gold400 }} />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

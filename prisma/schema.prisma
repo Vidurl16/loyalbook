@@ -59,6 +59,24 @@ model Spa {
   appointments   Appointment[]
   loyaltyConfig  LoyaltyConfig?
   notifications  Notification[]
+  locations      Location[]
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  spaId     String
+  slug      String   @unique
+  name      String
+  address   String?
+  phone     String?
+  email     String?
+  timezone  String   @default("Africa/Johannesburg")
+  currency  String   @default("ZAR")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  spa       Spa      @relation(fields: [spaId], references: [id])
+
+  @@map("locations")
 }
 
 enum Role {
