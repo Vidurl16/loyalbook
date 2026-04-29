@@ -7,6 +7,7 @@ import { clientsRouter } from "./routers/clients";
 import { analyticsRouter } from "./routers/analytics";
 import { galleryRouter } from "./routers/gallery";
 import { transformationsRouter } from "./routers/transformations";
+import { boutiqueRouter } from "./routers/boutique";
 
 export const appRouter = router({
   appointments: appointmentsRouter,
@@ -17,6 +18,7 @@ export const appRouter = router({
   analytics: analyticsRouter,
   gallery: galleryRouter,
   transformations: transformationsRouter,
+  boutique: boutiqueRouter,
 });
 
 export type AppRouter = typeof appRouter;

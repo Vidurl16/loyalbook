@@ -77,6 +77,8 @@ model Location {
   spa          Spa           @relation(fields: [spaId], references: [id])
   galleryItems    GalleryItem[]
   transformations Transformation[]
+  products        Product[]
+  orders          Order[]
 
   @@map("locations")
 }
@@ -117,6 +119,62 @@ model GalleryItem {
   location     Location @relation(fields: [locationId], references: [id])
 
   @@map("gallery_items")
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  locationId  String
+  name        String
+  brand       String
+  category    String
+  price       Float
+  description String?
+  imageUrl    String?
+  shape       String      @default("dropper")
+  bgStyle     Int         @default(1)
+  inStock     Boolean     @default(true)
+  isRoutine   Boolean     @default(false)
+  isPublished Boolean     @default(true)
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  location    Location    @relation(fields: [locationId], references: [id])
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+enum OrderStatus {
+  pending
+  enquiry
+  confirmed
+  fulfilled
+  cancelled
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  locationId String
+  clientId   String?
+  status     OrderStatus @default(enquiry)
+  total      Float       @default(0)
+  notes      String?
+  createdAt  DateTime    @default(now())
+  location   Location    @relation(fields: [locationId], references: [id])
+  items      OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  qty       Int     @default(1)
+  unitPrice Float
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
 }
 
 enum Role {

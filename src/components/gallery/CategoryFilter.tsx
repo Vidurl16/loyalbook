@@ -1,13 +1,15 @@
 "use client";
 
-const FILTERS = ["All", "Nails", "Facials", "Lashes", "Waxing", "Massage"];
+const DEFAULT_FILTERS = ["All", "Nails", "Facials", "Lashes", "Waxing", "Massage"];
 
 interface CategoryFilterProps {
   active: string;
   onChange: (cat: string) => void;
+  categories?: string[];
 }
 
-export function CategoryFilter({ active, onChange }: CategoryFilterProps) {
+export function CategoryFilter({ active, onChange, categories }: CategoryFilterProps) {
+  const FILTERS = categories ?? DEFAULT_FILTERS;
   return (
     <div style={{
       display: "flex",
