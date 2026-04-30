@@ -140,3 +140,9 @@ html {
 .tier-silver  { background: #f1f5f9; color: #475569; }
 .tier-gold    { background: #fef3c7; color: #92400e; }
 .tier-platinum{ background: #0a0a0a; color: #ffffff; }
+
+/* Homepage hero animations */
+@keyframes shimmer {
+  0%, 100% { opacity: 0.4; transform: scaleX(0.6); }
+  50%       { opacity: 1;   transform: scaleX(1); }
+}

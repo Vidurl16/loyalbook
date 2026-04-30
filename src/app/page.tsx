@@ -1,331 +1,169 @@
-import Image from "next/image";
 import Link from "next/link";
-
-const TREATMENT_CATEGORIES = [
-  { icon: "💅", name: "Nails", desc: "Manicures, pedicures, gel polish, nail extensions, Bio Sculpture & nail art" },
-  { icon: "🧖‍♀️", name: "Facials", desc: "Nimue, Environ, Placecol & Guinot personalised skin treatments — brightening, anti-aging & corrective" },
-  { icon: "🪒", name: "Dermaplaning", desc: "Aesthetic dermaplaning to remove dead skin and peach fuzz for instant radiance" },
-  { icon: "👁️", name: "Brows & Lashes", desc: "Lash lifts, brow lamination, henna brows, tints & precision shaping" },
-  { icon: "🪷", name: "Waxing", desc: "Smooth, long-lasting hair removal — Brazilian, Hollywood, full leg & more" },
-  { icon: "💆", name: "Massage", desc: "Aromatherapy, hot stone, Swedish & full-body massage treatments" },
-];
-
-const LOYALTY_TIERS = [
-  { tier: "Bronze", pts: "0 – 999 pts", textColor: "#9a3412", bg: "#fde8d8" },
-  { tier: "Silver", pts: "1 000 – 4 999 pts", textColor: "#475569", bg: "#f1f5f9" },
-  { tier: "Gold", pts: "5 000 – 14 999 pts", textColor: "#92400e", bg: "#fef3c7" },
-  { tier: "Platinum", pts: "15 000+ pts", textColor: "#FFFFFF", bg: "#000000" },
-];
-
-const SECTION_TILES = [
-  { label: "Treatments", href: "#treatments", image: "/brand/treatments.jpg" },
-  { label: "About Us", href: "#about", image: "/brand/about-us.jpg" },
-  { label: "Locations", href: "#location", image: "/brand/location.jpg" },
-  { label: "Contact Us", href: "#contact", image: "/brand/contact.webp" },
-];
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-white">
-      {/* Nav — white with black text, red CTA — exactly like perfect10.co.za */}
-      <nav className="flex items-center justify-between px-8 py-3 bg-white border-b border-[#D1D2D4] sticky top-0 z-50">
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/brand/perfect10-logo.png"
-            alt="Perfect 10 La Lucia"
-            width={160}
-            height={40}
-            className="h-10 w-auto"
-            priority
+    <main
+      className="flex flex-col items-center justify-center min-h-screen relative overflow-hidden"
+      style={{ background: "#0e0c0a" }}
+    >
+      {/* Subtle background texture — fine diagonal lines */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(135deg, transparent, transparent 40px, rgba(201,168,92,0.02) 40px, rgba(201,168,92,0.02) 41px)",
+        }}
+      />
+
+      {/* Top gold rule */}
+      <div
+        className="absolute top-0 left-0 right-0"
+        style={{ height: "2px", background: "#c9a85c" }}
+      />
+
+      {/* Wordmark */}
+      <div className="relative z-10 flex flex-col items-center px-6 text-center">
+        <p
+          style={{
+            fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+            fontSize: "11px",
+            fontWeight: 500,
+            letterSpacing: "0.35em",
+            color: "#c9a85c",
+            textTransform: "uppercase",
+            marginBottom: "24px",
+          }}
+        >
+          Ballito &nbsp;·&nbsp; La Lucia
+        </p>
+
+        <h1
+          style={{
+            fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
+            fontSize: "clamp(52px, 12vw, 96px)",
+            fontWeight: 300,
+            color: "#f5f0e8",
+            letterSpacing: "-0.01em",
+            lineHeight: 1,
+            margin: 0,
+          }}
+        >
+          Perfect 10
+        </h1>
+
+        {/* Animated gold divider */}
+        <div
+          className="my-8"
+          style={{ position: "relative", width: "180px", height: "1px" }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(90deg, transparent, #c9a85c, transparent)",
+              animation: "shimmer 3s ease-in-out infinite",
+            }}
           />
-        </Link>
-        <div className="hidden md:flex gap-7 text-sm text-[#4A4A4A] font-medium tracking-wide">
-          <Link href="/book" className="hover:text-black transition-colors">Book Now</Link>
-          <Link href="#treatments" className="hover:text-black transition-colors">Treatments</Link>
-          <Link href="#rewards" className="hover:text-black transition-colors">Rewards</Link>
-          <Link href="#about" className="hover:text-black transition-colors">About</Link>
-          <Link href="#location" className="hover:text-black transition-colors">Location</Link>
-          <Link href="#contact" className="hover:text-black transition-colors">Contact</Link>
+          <div
+            style={{
+              position: "absolute",
+              top: "-2px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "5px",
+              height: "5px",
+              background: "#c9a85c",
+              borderRadius: "1px",
+              rotate: "45deg",
+            }}
+          />
         </div>
-        <div className="flex gap-3 items-center">
-          <Link href="/login" className="text-[#4A4A4A] hover:text-black transition-colors text-sm font-medium px-3 py-2">Sign In</Link>
-          <Link href="/signup" className="text-white px-6 py-2 text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm" style={{ background: "var(--p10-red)", borderRadius: 2 }}>
-            Join Free
+
+        <p
+          style={{
+            fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
+            fontSize: "clamp(18px, 4vw, 24px)",
+            fontWeight: 300,
+            fontStyle: "italic",
+            color: "#8a6f3e",
+            letterSpacing: "0.02em",
+            marginBottom: "48px",
+          }}
+        >
+          Where every visit is a 10.
+        </p>
+
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <Link
+            href="/gallery"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+              background: "#c9a85c",
+              color: "#0e0c0a",
+              fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+              fontSize: "12px",
+              fontWeight: 500,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              padding: "14px 32px",
+              borderRadius: "2px",
+              textDecoration: "none",
+              minWidth: "200px",
+              justifyContent: "center",
+            }}
+          >
+            Explore The Gallery
+          </Link>
+
+          <Link
+            href="/book"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+              background: "transparent",
+              color: "#c9a85c",
+              fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+              fontSize: "12px",
+              fontWeight: 500,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              padding: "13px 32px",
+              borderRadius: "2px",
+              border: "1px solid #c9a85c",
+              textDecoration: "none",
+              minWidth: "200px",
+              justifyContent: "center",
+            }}
+          >
+            Book a Treatment
           </Link>
         </div>
-      </nav>
+      </div>
 
-      {/* Hero — full-bleed image with dark overlay, Didot heading */}
-      <section className="relative overflow-hidden bg-black" style={{ minHeight: "85vh" }}>
-        <div className="absolute inset-0">
-          <Image
-            src="/brand/hero.jpg"
-            alt="Perfect 10 La Lucia salon"
-            fill
-            className="object-cover object-center opacity-50"
-            priority
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none" />
-        <div className="relative flex flex-col items-center justify-center text-center px-6 h-full" style={{ minHeight: "85vh" }}>
-          <p className="text-white/70 text-xs tracking-[0.4em] uppercase mb-5 font-light">La Lucia Mall · Durban North</p>
-          <h1 className="font-display text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Your One-Stop<br />
-            <span style={{ color: "var(--p10-red)" }}>Beauty Destination</span>
-          </h1>
-          <p className="text-white/80 text-lg mb-10 max-w-xl mx-auto leading-relaxed font-light">
-            Nail treatments · Skin facials · Waxing · Lash & brow services<br />
-            Earn 10 loyalty points for every R100 spent.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/book" className="text-white text-base px-10 py-4 font-semibold hover:opacity-90 transition-opacity shadow-lg" style={{ background: "var(--p10-red)", borderRadius: 2 }}>
-              Book a Treatment →
-            </Link>
-            <Link href="/signup" className="bg-white text-black text-base px-10 py-4 hover:bg-[#EBEBEC] transition-colors font-semibold border border-white" style={{ borderRadius: 2 }}>
-              Join Loyalty Club
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Bottom gold rule */}
+      <div
+        className="absolute bottom-16 left-0 right-0 flex items-center px-8 gap-4"
+      >
+        <div style={{ flex: 1, height: "1px", background: "#1a1714" }} />
+        <p
+          style={{
+            fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+            fontSize: "10px",
+            letterSpacing: "0.2em",
+            color: "#2a2420",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Est. KwaZulu-Natal
+        </p>
+        <div style={{ flex: 1, height: "1px", background: "#1a1714" }} />
+      </div>
 
-      {/* Section tiles — exactly like Perfect 10 homepage grid */}
-      <section className="grid grid-cols-2 md:grid-cols-4">
-        {SECTION_TILES.map((tile) => (
-          <Link key={tile.label} href={tile.href} className="relative group overflow-hidden" style={{ aspectRatio: "1/1" }}>
-            <Image src={tile.image} alt={tile.label} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/55 transition-colors" />
-            <div className="absolute inset-0 flex items-end p-6">
-              <span className="font-display text-white text-xl font-bold tracking-wide">{tile.label}</span>
-            </div>
-          </Link>
-        ))}
-      </section>
-
-      {/* Red divider strip */}
-      <div className="h-1" style={{ background: "var(--p10-red)" }} />
-
-      {/* Treatment Categories */}
-      <section id="treatments" className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <p className="text-xs tracking-[0.3em] uppercase text-[#8D8E8F] mb-3">Perfect 10 La Lucia</p>
-          <h2 className="font-display text-4xl font-bold text-black mb-3">Our Services</h2>
-          <div className="w-12 h-0.5 mx-auto" style={{ background: "var(--p10-red)" }} />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-          {TREATMENT_CATEGORIES.map((cat) => (
-            <Link
-              key={cat.name}
-              href={`/book?category=${encodeURIComponent(cat.name)}`}
-              className="group bg-white p-6 border border-[#D1D2D4] hover:border-[#C9262E] hover:shadow-md transition-all text-left"
-            >
-              <div className="text-3xl mb-3">{cat.icon}</div>
-              <h3 className="font-semibold text-black mb-1 group-hover:text-[#C9262E] transition-colors">{cat.name}</h3>
-              <p className="text-[#8D8E8F] text-sm leading-relaxed">{cat.desc}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Skincare brands strip */}
-      <section className="bg-[#EBEBEC] border-y border-[#D1D2D4] py-14 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs tracking-[0.25em] text-[#8D8E8F] uppercase mb-3">Official Stockist & Treatment Salon</p>
-          <h2 className="font-display text-3xl font-bold text-black mb-4">Science-backed skincare, tailored to you</h2>
-          <p className="text-[#4A4A4A] max-w-2xl mx-auto mb-8">
-            Our trained therapists customise every facial to your unique skin profile using South Africa&apos;s leading cosmeceutical brands.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            {["Nimue", "Environ", "Placecol", "Guinot", "Dermalogica"].map((brand) => (
-              <span
-                key={brand}
-                className="border border-[#D1D2D4] px-6 py-2 text-sm font-bold tracking-[0.15em] text-black uppercase bg-white"
-              >
-                {brand}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How rewards work */}
-      <section id="rewards" className="bg-black py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-xs tracking-[0.3em] uppercase mb-3" style={{ color: "var(--p10-red)" }}>Members Club</p>
-            <h2 className="font-display text-4xl font-bold text-white mb-3">The Perfect 10 Loyalty Club</h2>
-            <div className="w-12 h-0.5 mx-auto" style={{ background: "var(--p10-red)" }} />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {[
-              { icon: "✨", title: "Earn on Every Visit", desc: "10 points for every R100 spent — added automatically after every treatment. No stamps, no cards." },
-              { icon: "🎂", title: "Birthday Bonus", desc: "Extra points every birthday month as a thank you for being a Perfect 10 member." },
-              { icon: "🔁", title: "Rebooking Bonus", desc: "Rebook within 8 weeks and earn extra points for staying consistent with your skin and nails." },
-            ].map((f) => (
-              <div key={f.title} className="bg-white/5 p-7 text-white text-center border border-white/10">
-                <div className="text-3xl mb-3">{f.icon}</div>
-                <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
-                <p className="text-[#8D8E8F] text-sm leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Tier overview */}
-          <div className="bg-white/5 p-6 border border-white/10">
-            <h3 className="text-white font-semibold text-center mb-5 text-lg tracking-wide">Loyalty Tiers</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {LOYALTY_TIERS.map((t) => (
-                <div key={t.tier} className="p-4 text-center" style={{ background: t.bg }}>
-                  <div className="font-bold text-sm mb-1" style={{ color: t.textColor }}>{t.tier}</div>
-                  <div className="text-xs" style={{ color: t.textColor, opacity: 0.75 }}>{t.pts}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* About / Testimonials */}
-      <section id="about" className="max-w-5xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <p className="text-xs tracking-[0.3em] uppercase text-[#8D8E8F] mb-3">Our Clients</p>
-          <h2 className="font-display text-4xl font-bold text-black mb-3">What Our Clients Say</h2>
-          <div className="w-12 h-0.5 mx-auto" style={{ background: "var(--p10-red)" }} />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { quote: "My Nimue facials have transformed my skin. I love earning points towards my next treatment!", name: "Priya N.", tier: "Gold Member" },
-            { quote: "The gel manicures last so long and the rebooking bonus means I never let my nails slip. Perfect 10 lives up to its name.", name: "Candice M.", tier: "Silver Member" },
-            { quote: "The birthday bonus points were such a lovely surprise. Used them for a Nimue peel — skin was glowing for weeks.", name: "Tanya R.", tier: "Platinum Member" },
-          ].map((t) => (
-            <div key={t.name} className="bg-white p-7 border border-[#D1D2D4]">
-              <p className="text-[#4A4A4A] italic mb-5 leading-relaxed text-sm">&ldquo;{t.quote}&rdquo;</p>
-              <div className="font-semibold text-black text-sm">{t.name}</div>
-              <div className="text-xs mt-0.5" style={{ color: "var(--p10-red)" }}>{t.tier}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Location */}
-      <section id="location" className="bg-white border-t border-[#D1D2D4] py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-10">
-            <p className="text-xs tracking-[0.3em] uppercase text-[#8D8E8F] mb-3">Find Us</p>
-            <h2 className="font-display text-4xl font-bold text-black mb-3">La Lucia Mall, Durban North</h2>
-            <div className="w-12 h-0.5 mx-auto" style={{ background: "var(--p10-red)" }} />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-            <div className="space-y-5">
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-[#8D8E8F] mb-1">Address</h3>
-                <p className="text-black leading-relaxed">
-                  Perfect 10 La Lucia<br />
-                  La Lucia Mall<br />
-                  La Lucia Ridge Office Estate<br />
-                  Durban North, 4051
-                </p>
-              </div>
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-[#8D8E8F] mb-1">Trading Hours</h3>
-                <div className="text-black space-y-0.5 text-sm">
-                  <div className="flex justify-between max-w-xs"><span>Monday – Friday</span><span>09:00 – 18:00</span></div>
-                  <div className="flex justify-between max-w-xs"><span>Saturday</span><span>08:00 – 17:00</span></div>
-                  <div className="flex justify-between max-w-xs"><span>Sunday & Public Holidays</span><span>09:00 – 15:00</span></div>
-                </div>
-              </div>
-              <a
-                href="https://maps.google.com/?q=La+Lucia+Mall+Durban"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-block text-white px-8 py-3 text-sm font-semibold hover:opacity-90 transition-opacity"
-                style={{ background: "var(--p10-red)", borderRadius: 2 }}
-              >
-                Get Directions →
-              </a>
-            </div>
-            <div className="w-full overflow-hidden border border-[#D1D2D4]" style={{ height: 320 }}>
-              <iframe
-                title="Perfect 10 La Lucia location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3460.5!2d31.0500!3d-29.7900!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1ef7aa3b5c000001%3A0x1!2sLa+Lucia+Mall%2C+Durban+North!5e0!3m2!1sen!2sza!4v1"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact */}
-      <section id="contact" className="bg-[#EBEBEC] border-t border-[#D1D2D4] py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-10">
-            <p className="text-xs tracking-[0.3em] uppercase text-[#8D8E8F] mb-3">Get In Touch</p>
-            <h2 className="font-display text-4xl font-bold text-black mb-3">Contact Us</h2>
-            <div className="w-12 h-0.5 mx-auto" style={{ background: "var(--p10-red)" }} />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: "📞",
-                label: "Call Us",
-                value: "+27 31 562 9000",
-                href: "tel:+27315629000",
-              },
-              {
-                icon: "💬",
-                label: "WhatsApp",
-                value: "Chat on WhatsApp",
-                href: "https://wa.me/27315629000",
-              },
-              {
-                icon: "✉️",
-                label: "Email",
-                value: "lalucia@perfect10.co.za",
-                href: "mailto:lalucia@perfect10.co.za",
-              },
-            ].map((c) => (
-              <a
-                key={c.label}
-                href={c.href}
-                target={c.href.startsWith("http") ? "_blank" : undefined}
-                rel="noreferrer"
-                className="bg-white border border-[#D1D2D4] p-7 text-center hover:border-black transition-colors group block"
-              >
-                <div className="text-3xl mb-3">{c.icon}</div>
-                <div className="text-xs font-semibold uppercase tracking-widest text-[#8D8E8F] mb-1">{c.label}</div>
-                <div className="text-black font-medium text-sm group-hover:underline">{c.value}</div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-[#EBEBEC] border-t border-[#D1D2D4] py-16 px-6 text-center">
-        <h2 className="font-display text-3xl font-bold text-black mb-4">Ready for your Perfect 10 moment?</h2>
-        <p className="text-[#4A4A4A] mb-8 max-w-md mx-auto">Book online in seconds and start earning loyalty rewards from your very first visit.</p>
-        <Link href="/book" className="inline-block text-white px-10 py-4 font-semibold hover:opacity-90 transition-opacity shadow-md" style={{ background: "var(--p10-red)", borderRadius: 2 }}>
-          Book Now →
-        </Link>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-black text-[#8D8E8F] py-10 px-6 text-center text-sm">
-        <div className="flex justify-center mb-4">
-          <Image
-            src="/brand/perfect10-logo.png"
-            alt="Perfect 10"
-            width={140}
-            height={32}
-            className="h-8 w-auto brightness-0 invert opacity-60"
-          />
-        </div>
-        <div className="text-xs tracking-[0.2em] text-[#8D8E8F] uppercase mb-4">La Lucia Mall · Durban North</div>
-        <p className="text-[#4A4A4A]">© {new Date().getFullYear()} Perfect 10 La Lucia. All rights reserved.</p>
-      </footer>
     </main>
   );
 }

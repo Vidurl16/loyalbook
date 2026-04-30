@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { BottomNav } from "@/components/ui/BottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,8 +25,9 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Perfect 10 La Lucia — Nail & Beauty Salon",
-  description: "Book Nimue, Environ, Placecol & Guinot skin treatments, nail services & more at Perfect 10 La Lucia. Earn loyalty rewards on every visit.",
+  title: "Perfect 10 — Nail & Beauty Salon",
+  description: "Book Nimue, Environ, Placecol & Guinot skin treatments, nail services & more at Perfect 10. Earn loyalty rewards on every visit.",
+  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/brand/favicon-32.png", sizes: "32x32", type: "image/png" },
@@ -43,7 +45,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${cormorant.variable} ${dmSans.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <BottomNav />
+        </Providers>
       </body>
     </html>
   );
