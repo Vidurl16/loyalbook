@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfect 10 — The Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; }
+body {
+  background: #0e0c0a;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+div::-webkit-scrollbar { display: none; }
+
+@keyframes loom {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes riseUp {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes kenBurns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+.filter-item {
+  position: relative;
+  cursor: pointer;
+  padding-bottom: 5px;
+}
+.filter-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: #c9a85c;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.26s cubic-bezier(0.16,1,0.3,1);
+}
+.filter-item.active::after { transform: scaleX(1); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+// iOS.jsx — Simplified iOS 26 (Liquid Glass) device frame
+// Based on the iOS 26 UI Kit + Figma status bar spec. No assets, no deps.
+// Exports: IOSDevice, IOSStatusBar, IOSNavBar, IOSGlassPill, IOSList, IOSListRow, IOSKeyboard
+
+// ─────────────────────────────────────────────────────────────
+// Status bar
+// ─────────────────────────────────────────────────────────────
+function IOSStatusBar({ dark = false, time = '9:41' }) {
+  const c = dark ? '#fff' : '#000';
+  return (
+    <div style={{
+      display: 'flex', gap: 154, alignItems: 'center', justifyContent: 'center',
+      padding: '21px 24px 19px', boxSizing: 'border-box',
+      position: 'relative', zIndex: 20, width: '100%',
+    }}>
+      <div style={{ flex: 1, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 1.5 }}>
+        <span style={{
+          fontFamily: '-apple-system, "SF Pro", system-ui', fontWeight: 590,
+          fontSize: 17, lineHeight: '22px', color: c,
+        }}>{time}</span>
+      </div>
+      <div style={{ flex: 1, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, paddingTop: 1, paddingRight: 1 }}>
+        <svg width="19" height="12" viewBox="0 0 19 12">
+          <rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill={c}/>
+          <rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill={c}/>
+          <rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill={c}/>
+          <rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill={c}/>
+        </svg>
+        <svg width="17" height="12" viewBox="0 0 17 12">
+          <path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill={c}/>
+          <path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill={c}/>
+          <circle cx="8.5" cy="10.5" r="1.5" fill={c}/>
+        </svg>
+        <svg width="27" height="13" viewBox="0 0 27 13">
+          <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke={c} strokeOpacity="0.35" fill="none"/>
+          <rect x="2" y="2" width="20" height="9" rx="2" fill={c}/>
+          <path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill={c} fillOpacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Liquid glass pill — blur + tint + shine
+// ─────────────────────────────────────────────────────────────
+function IOSGlassPill({ children, dark = false, style = {} }) {
+  return (
+    <div style={{
+      height: 44, minWidth: 44, borderRadius: 9999,
+      position: 'relative', overflow: 'hidden',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      boxShadow: dark
+        ? '0 2px 6px rgba(0,0,0,0.35), 0 6px 16px rgba(0,0,0,0.2)'
+        : '0 1px 3px rgba(0,0,0,0.07), 0 3px 10px rgba(0,0,0,0.06)',
+      ...style,
+    }}>
+      {/* blur + tint */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 9999,
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+        background: dark ? 'rgba(120,120,128,0.28)' : 'rgba(255,255,255,0.5)',
+      }} />
+      {/* shine */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 9999,
+        boxShadow: dark
+          ? 'inset 1.5px 1.5px 1px rgba(255,255,255,0.15), inset -1px -1px 1px rgba(255,255,255,0.08)'
+          : 'inset 1.5px 1.5px 1px rgba(255,255,255,0.7), inset -1px -1px 1px rgba(255,255,255,0.4)',
+        border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)',
+      }} />
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', padding: '0 4px' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Navigation bar — glass pills + large title
+// ─────────────────────────────────────────────────────────────
+function IOSNavBar({ title = 'Title', dark = false, trailingIcon = true }) {
+  const muted = dark ? 'rgba(255,255,255,0.6)' : '#404040';
+  const text = dark ? '#fff' : '#000';
+  const pillIcon = (content) => (
+    <IOSGlassPill dark={dark}>
+      <div style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {content}
+      </div>
+    </IOSGlassPill>
+  );
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', gap: 10,
+      paddingTop: 62, paddingBottom: 10, position: 'relative', zIndex: 5,
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 16px',
+      }}>
+        {/* back chevron */}
+        {pillIcon(
+          <svg width="12" height="20" viewBox="0 0 12 20" fill="none" style={{ marginLeft: -1 }}>
+            <path d="M10 2L2 10l8 8" stroke={muted} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )}
+        {/* trailing ellipsis */}
+        {trailingIcon && pillIcon(
+          <svg width="22" height="6" viewBox="0 0 22 6">
+            <circle cx="3" cy="3" r="2.5" fill={muted}/>
+            <circle cx="11" cy="3" r="2.5" fill={muted}/>
+            <circle cx="19" cy="3" r="2.5" fill={muted}/>
+          </svg>
+        )}
+      </div>
+      {/* large title */}
+      <div style={{
+        padding: '0 16px',
+        fontFamily: '-apple-system, system-ui',
+        fontSize: 34, fontWeight: 700, lineHeight: '41px',
+        color: text, letterSpacing: 0.4,
+      }}>{title}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Grouped list (inset card, r:26) + row (52px)
+// ─────────────────────────────────────────────────────────────
+function IOSListRow({ title, detail, icon, chevron = true, isLast = false, dark = false }) {
+  const text = dark ? '#fff' : '#000';
+  const sec = dark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
+  const ter = dark ? 'rgba(235,235,245,0.3)' : 'rgba(60,60,67,0.3)';
+  const sep = dark ? 'rgba(84,84,88,0.65)' : 'rgba(60,60,67,0.12)';
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', minHeight: 52,
+      padding: '0 16px', position: 'relative',
+      fontFamily: '-apple-system, system-ui', fontSize: 17,
+      letterSpacing: -0.43,
+    }}>
+      {icon && (
+        <div style={{
+          width: 30, height: 30, borderRadius: 7, background: icon,
+          marginRight: 12, flexShrink: 0,
+        }} />
+      )}
+      <div style={{ flex: 1, color: text }}>{title}</div>
+      {detail && <span style={{ color: sec, marginRight: 6 }}>{detail}</span>}
+      {chevron && (
+        <svg width="8" height="14" viewBox="0 0 8 14" style={{ flexShrink: 0 }}>
+          <path d="M1 1l6 6-6 6" stroke={ter} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+      {!isLast && (
+        <div style={{
+          position: 'absolute', bottom: 0, right: 0,
+          left: icon ? 58 : 16, height: 0.5, background: sep,
+        }} />
+      )}
+    </div>
+  );
+}
+
+function IOSList({ header, children, dark = false }) {
+  const hc = dark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)';
+  const bg = dark ? '#1C1C1E' : '#fff';
+  return (
+    <div>
+      {header && (
+        <div style={{
+          fontFamily: '-apple-system, system-ui', fontSize: 13,
+          color: hc, textTransform: 'uppercase',
+          padding: '8px 36px 6px', letterSpacing: -0.08,
+        }}>{header}</div>
+      )}
+      <div style={{
+        background: bg, borderRadius: 26,
+        margin: '0 16px', overflow: 'hidden',
+      }}>{children}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Device frame
+// ─────────────────────────────────────────────────────────────
+function IOSDevice({
+  children, width = 402, height = 874, dark = false,
+  title, keyboard = false,
+}) {
+  return (
+    <div style={{
+      width, height, borderRadius: 48, overflow: 'hidden',
+      position: 'relative', background: dark ? '#000' : '#F2F2F7',
+      boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
+      fontFamily: '-apple-system, system-ui, sans-serif',
+      WebkitFontSmoothing: 'antialiased',
+    }}>
+      {/* dynamic island */}
+      <div style={{
+        position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
+        width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 50,
+      }} />
+      {/* status bar (absolute) */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
+        <IOSStatusBar dark={dark} />
+      </div>
+      {/* nav + content */}
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        {title !== undefined && <IOSNavBar title={title} dark={dark} />}
+        <div style={{ flex: 1, overflow: 'auto' }}>{children}</div>
+        {keyboard && <IOSKeyboard dark={dark} />}
+      </div>
+      {/* home indicator — always on top */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 60,
+        height: 34, display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+        paddingBottom: 8, pointerEvents: 'none',
+      }}>
+        <div style={{
+          width: 139, height: 5, borderRadius: 100,
+          background: dark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.25)',
+        }} />
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Keyboard — iOS 26 liquid glass
+// ─────────────────────────────────────────────────────────────
+function IOSKeyboard({ dark = false }) {
+  const glyph = dark ? 'rgba(255,255,255,0.7)' : '#595959';
+  const sugg = dark ? 'rgba(255,255,255,0.6)' : '#333';
+  const keyBg = dark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.85)';
+
+  // special-key icons
+  const icons = {
+    shift: <svg width="19" height="17" viewBox="0 0 19 17"><path d="M9.5 1L1 9.5h4.5V16h8V9.5H18L9.5 1z" fill={glyph}/></svg>,
+    del: <svg width="23" height="17" viewBox="0 0 23 17"><path d="M7 1h13a2 2 0 012 2v11a2 2 0 01-2 2H7l-6-7.5L7 1z" fill="none" stroke={glyph} strokeWidth="1.6" strokeLinejoin="round"/><path d="M10 5l7 7M17 5l-7 7" stroke={glyph} strokeWidth="1.6" strokeLinecap="round"/></svg>,
+    ret: <svg width="20" height="14" viewBox="0 0 20 14"><path d="M18 1v6H4m0 0l4-4M4 7l4 4" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  };
+
+  const key = (content, { w, flex, ret, fs = 25, k } = {}) => (
+    <div key={k} style={{
+      height: 42, borderRadius: 8.5,
+      flex: flex ? 1 : undefined, width: w, minWidth: 0,
+      background: ret ? '#08f' : keyBg,
+      boxShadow: '0 1px 0 rgba(0,0,0,0.075)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: '-apple-system, "SF Compact", system-ui',
+      fontSize: fs, fontWeight: 458, color: ret ? '#fff' : glyph,
+    }}>{content}</div>
+  );
+
+  const row = (keys, pad = 0) => (
+    <div style={{ display: 'flex', gap: 6.5, justifyContent: 'center', padding: `0 ${pad}px` }}>
+      {keys.map(l => key(l, { flex: true, k: l }))}
+    </div>
+  );
+
+  return (
+    <div style={{
+      position: 'relative', zIndex: 15, borderRadius: 27, overflow: 'hidden',
+      padding: '11px 0 2px',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      boxShadow: dark
+        ? '0 -2px 20px rgba(0,0,0,0.09)'
+        : '0 -1px 6px rgba(0,0,0,0.018), 0 -3px 20px rgba(0,0,0,0.012)',
+    }}>
+      {/* liquid glass bg — same recipe as nav pills */}
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 27,
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+        background: dark ? 'rgba(120,120,128,0.14)' : 'rgba(255,255,255,0.25)',
+      }} />
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: 27,
+        boxShadow: dark
+          ? 'inset 1.5px 1.5px 1px rgba(255,255,255,0.15)'
+          : 'inset 1.5px 1.5px 1px rgba(255,255,255,0.7), inset -1px -1px 1px rgba(255,255,255,0.4)',
+        border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* autocorrect bar */}
+      <div style={{
+        display: 'flex', gap: 20, alignItems: 'center',
+        padding: '8px 22px 13px', width: '100%', boxSizing: 'border-box',
+        position: 'relative',
+      }}>
+        {['"The"', 'the', 'to'].map((w, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <div style={{ width: 1, height: 25, background: '#ccc', opacity: 0.3 }} />}
+            <div style={{
+              flex: 1, textAlign: 'center',
+              fontFamily: '-apple-system, system-ui', fontSize: 17,
+              color: sugg, letterSpacing: -0.43, lineHeight: '22px',
+            }}>{w}</div>
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* key layout */}
+      <div style={{
+        display: 'flex', flexDirection: 'column', gap: 13,
+        padding: '0 6.5px', width: '100%', boxSizing: 'border-box',
+        position: 'relative',
+      }}>
+        {row(['q','w','e','r','t','y','u','i','o','p'])}
+        {row(['a','s','d','f','g','h','j','k','l'], 20)}
+        <div style={{ display: 'flex', gap: 14.25, alignItems: 'center' }}>
+          {key(icons.shift, { w: 45, k: 'shift' })}
+          <div style={{ display: 'flex', gap: 6.5, flex: 1 }}>
+            {['z','x','c','v','b','n','m'].map(l => key(l, { flex: true, k: l }))}
+          </div>
+          {key(icons.del, { w: 45, k: 'del' })}
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {key('ABC', { w: 92.25, fs: 18, k: 'abc' })}
+          {key('', { flex: true, k: 'space' })}
+          {key(icons.ret, { w: 92.25, ret: true, k: 'ret' })}
+        </div>
+      </div>
+
+      {/* bottom spacer (emoji+mic area, icons omitted) */}
+      <div style={{ height: 56, width: '100%', position: 'relative' }} />
+    </div>
+  );
+}
+
+Object.assign(window, {
+  IOSDevice, IOSStatusBar, IOSNavBar, IOSGlassPill, IOSList, IOSListRow, IOSKeyboard,
+});
+
+</script>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const T = {
+  onyx950:'#0e0c0a', onyx900:'#1a1612', onyx800:'#242018',
+  onyx700:'#302b22', onyx600:'#3e3830', onyx500:'#554f46',
+  gold400:'#c9a85c', gold300:'#dfc07a', gold500:'#b8922e',
+  cream50:'#fdf9f4', cream100:'#f7eedf', cream200:'#ede0cc',
+  cream300:'#ddd0bc', cream400:'#c9b99e',
+  skin100:'#f2e4d3', skin200:'#e0c9af', skin300:'#c9a882', skin400:'#b08a62',
+};
+
+/* ── PHOTO PLACEHOLDERS ─────────────────────────────────────
+   Each one is a mini editorial composition using CSS.
+   Light source top-left, warm tones, distinct enough to read
+   as different photos at thumbnail size.
+─────────────────────────────────────────────────────────── */
+const PHOTO_STYLES = [
+  // 0 Nails — noir marble, gold veins
+  { bg:'#1c1710',
+    inner:`radial-gradient(ellipse 80% 60% at 30% 30%, rgba(201,168,92,0.18) 0%, transparent 55%),
+           radial-gradient(ellipse 50% 40% at 75% 70%, rgba(220,200,160,0.10) 0%, transparent 50%),
+           repeating-linear-gradient(118deg, #1a1510 0, #1a1510 8px, #221d14 8px, #221d14 18px)`,
+    accent: T.gold400,
+    label: 'After',
+    nail: true, nailColor: '#0e0c0a',
+  },
+  // 1 Nails — champagne foil, ivory
+  { bg:'#e8d9be',
+    inner:`radial-gradient(ellipse 90% 70% at 50% 20%, rgba(255,248,230,0.7) 0%, rgba(210,180,110,0.3) 60%, transparent 100%),
+           radial-gradient(ellipse 40% 30% at 80% 80%, rgba(180,140,60,0.3) 0%, transparent 60%)`,
+    dark: true,
+    accent: '#8a6a20',
+    label: 'After',
+    nail: true, nailColor: '#c9a85c',
+  },
+  // 2 Facials — luminous skin portrait
+  { bg:'#c9a882',
+    inner:`radial-gradient(ellipse 70% 90% at 50% 30%, rgba(255,240,218,0.55) 0%, rgba(200,160,110,0.2) 60%, transparent 100%),
+           radial-gradient(ellipse 30% 20% at 20% 80%, rgba(140,90,40,0.3) 0%, transparent 50%)`,
+    dark: true,
+    accent: '#5a3a10',
+    label: 'Glow',
+  },
+  // 3 Lashes — deep dusk, eye close-up feel
+  { bg:'#1a0f18',
+    inner:`radial-gradient(ellipse 100% 50% at 50% 40%, rgba(180,120,200,0.16) 0%, transparent 55%),
+           radial-gradient(ellipse 60% 40% at 20% 20%, rgba(100,60,120,0.20) 0%, transparent 50%),
+           linear-gradient(160deg, #200a20 0%, #0e0a14 100%)`,
+    accent: '#d4aaf0',
+    label: 'After',
+  },
+  // 4 Waxing — warm honey cream
+  { bg:'#d4a96a',
+    inner:`radial-gradient(ellipse 100% 80% at 50% 10%, rgba(255,235,180,0.5) 0%, rgba(180,110,50,0.2) 70%, transparent 100%),
+           radial-gradient(ellipse 40% 50% at 80% 80%, rgba(120,70,20,0.3) 0%, transparent 60%)`,
+    dark: true,
+    accent: '#5a3a10',
+    label: 'Smooth',
+  },
+  // 5 Massage — black marble + warm oil
+  { bg:'#151210',
+    inner:`radial-gradient(ellipse 80% 60% at 60% 30%, rgba(201,168,92,0.13) 0%, transparent 55%),
+           radial-gradient(ellipse 50% 40% at 20% 70%, rgba(180,140,80,0.10) 0%, transparent 50%),
+           repeating-linear-gradient(150deg, #121009 0, #121009 10px, #1c1812 10px, #1c1812 22px)`,
+    accent: T.gold400,
+    label: 'After',
+  },
+  // 6 Nails — ivory gel, pale pink
+  { bg:'#ead5c0',
+    inner:`radial-gradient(ellipse 80% 70% at 40% 20%, rgba(255,245,235,0.6) 0%, rgba(220,190,160,0.2) 60%, transparent 100%),
+           linear-gradient(180deg, rgba(255,240,225,0.3) 0%, transparent 60%)`,
+    dark: true,
+    accent: '#8a6040',
+    label: 'After',
+    nail: true, nailColor: '#f0e8de',
+  },
+  // 7 Facials — amber radiance
+  { bg:'#3a2008',
+    inner:`radial-gradient(ellipse 80% 70% at 50% 30%, rgba(201,148,60,0.4) 0%, rgba(160,90,20,0.2) 55%, transparent 80%),
+           radial-gradient(ellipse 40% 40% at 80% 70%, rgba(100,50,10,0.4) 0%, transparent 50%)`,
+    accent: T.gold300,
+    label: 'Glow',
+  },
+  // 8 Lashes — volume set, close crop feel
+  { bg:'#0e0a10',
+    inner:`radial-gradient(ellipse 90% 50% at 50% 50%, rgba(60,40,80,0.6) 0%, transparent 60%),
+           linear-gradient(160deg, #130d18 0%, #0a0810 100%)`,
+    accent: '#e0c8f8',
+    label: 'After',
+  },
+  // 9 Massage — bronze oil
+  { bg:'#b07040',
+    inner:`radial-gradient(ellipse 80% 80% at 50% 20%, rgba(220,175,100,0.5) 0%, rgba(150,80,20,0.2) 65%, transparent 100%),
+           radial-gradient(ellipse 40% 30% at 15% 75%, rgba(80,40,10,0.4) 0%, transparent 50%)`,
+    dark: true,
+    accent: '#3a2008',
+    label: 'After',
+  },
+  // 10 Nails — obsidian matte
+  { bg:'#181510',
+    inner:`radial-gradient(ellipse 60% 50% at 35% 35%, rgba(201,168,92,0.15) 0%, transparent 55%),
+           repeating-linear-gradient(90deg, #141210 0, #141210 6px, #1e1a14 6px, #1e1a14 14px)`,
+    accent: T.gold400,
+    label: 'After',
+    nail: true, nailColor: '#0a0907',
+  },
+  // 11 Waxing — blush rose cream
+  { bg:'#e0b8b0',
+    inner:`radial-gradient(ellipse 90% 70% at 50% 15%, rgba(255,235,228,0.55) 0%, rgba(200,140,130,0.2) 60%, transparent 100%),
+           radial-gradient(ellipse 40% 30% at 80% 80%, rgba(150,80,70,0.25) 0%, transparent 55%)`,
+    dark: true,
+    accent: '#6a2820',
+    label: 'After',
+  },
+];
+
+function PhotoPlaceholder({ id, expanded }) {
+  const s = PHOTO_STYLES[id % PHOTO_STYLES.length];
+  const textColor = s.dark ? 'rgba(20,14,8,0.55)' : 'rgba(255,245,230,0.35)';
+
+  return (
+    <div className={expanded ? 'photo-zoom' : ''} style={{
+      width:'100%', height:'100%',
+      background: s.bg,
+      position:'relative', overflow:'hidden',
+    }}>
+      {/* Layered photo simulation */}
+      <div style={{ position:'absolute', inset:0, backgroundImage: s.inner, backgroundSize:'cover' }} />
+
+      {/* Nail art accent strip (for nail cards) */}
+      {s.nail && (
+        <div style={{
+          position:'absolute', bottom:'28%', left:'50%', transform:'translateX(-50%)',
+          display:'flex', gap:5, zIndex:3,
+        }}>
+          {[0,1,2,3,4].map(i => (
+            <div key={i} style={{
+              width: 11, height: 36, borderRadius: '40% 40% 50% 50% / 30% 30% 40% 40%',
+              background: s.nailColor,
+              boxShadow:`0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15)`,
+              transform:`rotate(${(i-2)*4}deg) translateY(${Math.abs(i-2)*2}px)`,
+            }} />
+          ))}
+        </div>
+      )}
+
+      {/* Subtle treatment label watermark */}
+      <div style={{
+        position:'absolute', bottom:'32%', left:0, right:0,
+        display:'flex', justifyContent:'center',
+        fontFamily:"'Cormorant Garamond',serif",
+        fontSize:10, fontStyle:'italic', fontWeight:300,
+        color: textColor, letterSpacing:'0.12em',
+        pointerEvents:'none', zIndex:2,
+      }}>
+        — {s.label} —
+      </div>
+
+      {/* Top-left light source */}
+      <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(ellipse 55% 45% at 15% 12%, rgba(255,255,255,0.07) 0%, transparent 60%)', pointerEvents:'none', zIndex:2 }} />
+
+      {/* Bottom scrim for text legibility */}
+      <div style={{ position:'absolute', bottom:0, left:0, right:0, height:'52%', background:'linear-gradient(180deg,transparent 0%,rgba(10,8,6,0.94) 100%)', pointerEvents:'none', zIndex:3 }} />
+
+      {/* Top gloss */}
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:'30%', background:'linear-gradient(180deg,rgba(255,255,255,0.05) 0%,transparent 100%)', pointerEvents:'none', zIndex:4 }} />
+    </div>
+  );
+}
+
+/* ── TREATMENTS DATA ────────────────────────────────────── */
+const TREATMENTS = [
+  { id:0,  cat:'Nails',   service:'Noir Sculptural Set',    therapist:'Valentina R.', price:185, duration:'75 min', tall:true,  detail:'Long-form gel sculpture in matte obsidian with champagne foil accents. Precision filing, cuticle care, and editorial finish.' },
+  { id:1,  cat:'Nails',   service:'Champagne Foil Tips',    therapist:'Mara D.',      price:145, duration:'60 min', tall:false, detail:'Classic French architecture with 24k foil tape detail. Soft gel overlay, refined and luminous.' },
+  { id:2,  cat:'Facials', service:'Luminous Lift Facial',   therapist:'Sofia K.',     price:220, duration:'90 min', tall:true,  detail:'Deep-tissue lymphatic drainage, peptide infusion mask, and high-frequency sculpting. Your skin, re-lit.' },
+  { id:3,  cat:'Lashes',  service:'Lash Lift & Tint',       therapist:'Elena V.',     price:110, duration:'60 min', tall:false, detail:'Keratin wave lift and jet-black botanical tint. Open-eye effect that lasts 8 weeks.' },
+  { id:4,  cat:'Waxing',  service:'Full Body Silhouette',   therapist:'Inès M.',      price:165, duration:'80 min', tall:false, detail:'Head-to-toe waxing ritual using warm honey wax. Skin left impossibly smooth.' },
+  { id:5,  cat:'Massage', service:'Warm Marble Stone',      therapist:'Leila K.',     price:195, duration:'90 min', tall:true,  detail:'Heated black marble stones and warm oil poured along the spine. Deeply restorative.' },
+  { id:6,  cat:'Nails',   service:'Ivory Gel French',       therapist:'Valentina R.', price:130, duration:'60 min', tall:false, detail:'Sheer ivory gel base with a whisper-thin white tip. The original. Perfected.' },
+  { id:7,  cat:'Facials', service:'Amber Radiance',         therapist:'Sofia K.',     price:195, duration:'75 min', tall:true,  detail:'Jojoba microdermabrasion, hyaluronic plumping serum, and a warming amber mask.' },
+  { id:8,  cat:'Lashes',  service:'Volume Fan Set',         therapist:'Elena V.',     price:175, duration:'120 min',tall:false, detail:'Russian volume fans, 3D to 6D. Handmade from mink-finish silk. Weightless yet dramatic.' },
+  { id:9,  cat:'Massage', service:'Bronze Body Ritual',     therapist:'Leila K.',     price:240, duration:'110 min',tall:true,  detail:'Full body exfoliation, warm oil immersion, and a bronze sheen finishing oil.' },
+  { id:10, cat:'Nails',   service:'Obsidian Matte Set',     therapist:'Mara D.',      price:155, duration:'70 min', tall:false, detail:'Matte black gel sculpt with geometric negative space and gold leaf detail.' },
+  { id:11, cat:'Waxing',  service:'Intimate Wax Ritual',    therapist:'Inès M.',      price:85,  duration:'45 min', tall:false, detail:'Brazilian wax using comfort cream. Followed by a calming rosewater compress.' },
+];
+
+const FILTERS = ['All','Nails','Facials','Lashes','Waxing','Massage'];
+
+/* ── EXPANDED OVERLAY ───────────────────────────────────── */
+function ExpandedCard({ card, onClose }) {
+  const [up, setUp] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setUp(true), 240); return () => clearTimeout(t); }, []);
+
+  return (
+    <div onClick={onClose} style={{ position:'absolute', inset:0, zIndex:120, animation:'fadeIn 0.28s ease both', cursor:'pointer' }}>
+      <div style={{ position:'absolute', inset:0, background:'rgba(10,8,6,0.9)' }} />
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          position:'absolute', top:68, bottom:28, left:12, right:12,
+          background:T.onyx900, borderRadius:2,
+          border:`1px solid rgba(201,168,92,0.22)`,
+          boxShadow:'8px 12px 0 rgba(0,0,0,0.88), 0 0 0 1px rgba(201,168,92,0.1)',
+          overflow:'hidden', display:'flex', flexDirection:'column',
+          animation:'loom 0.44s cubic-bezier(0.16,1,0.3,1) both',
+          cursor:'default',
+        }}
+      >
+        {/* Close */}
+        <button onClick={onClose} style={{ position:'absolute', top:12, right:12, zIndex:20, width:30, height:30, borderRadius:2, background:'rgba(14,12,10,0.75)', border:`1px solid ${T.onyx600}`, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+          <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
+            <path d="M1 1l12 12M13 1L1 13" stroke={T.cream400} strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        </button>
+
+        {/* Photo */}
+        <div style={{ flex:'0 0 56%', position:'relative', overflow:'hidden' }}>
+          <PhotoPlaceholder id={card.id} expanded={true} />
+          <div style={{ position:'absolute', top:12, left:12, fontFamily:"'DM Sans',sans-serif", fontSize:7, letterSpacing:'0.28em', textTransform:'uppercase', color:T.gold400, background:'rgba(14,12,10,0.75)', padding:'3px 9px', borderRadius:2, border:`1px solid rgba(201,168,92,0.32)` }}>{card.cat}</div>
+        </div>
+
+        {/* Detail panel */}
+        {up && (
+          <div style={{ flex:1, padding:'18px 20px 20px', display:'flex', flexDirection:'column', overflowY:'auto', animation:'riseUp 0.4s cubic-bezier(0.16,1,0.3,1) both' }}>
+            <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:26, fontWeight:300, fontStyle:'italic', color:T.cream100, lineHeight:1.0, marginBottom:5 }}>{card.service}</h2>
+            <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.cream400, marginBottom:12 }}>{card.therapist}&nbsp;·&nbsp;{card.duration}</div>
+            <div style={{ height:1, width:'36%', background:`linear-gradient(90deg,${T.gold400},transparent)`, opacity:0.4, marginBottom:12 }} />
+            <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:15, fontWeight:300, color:T.cream300, lineHeight:1.7, flexGrow:1 }}>{card.detail}</p>
+
+            <div style={{ marginTop:16 }}>
+              <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.22em', textTransform:'uppercase', color:T.onyx500, marginBottom:4 }}>From</div>
+              <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:32, fontWeight:300, color:T.cream50, letterSpacing:'-0.02em', lineHeight:1, marginBottom:14 }}>
+                <sup style={{ fontSize:15, color:T.gold400, verticalAlign:'super' }}>$</sup>{card.price}
+              </div>
+              <button
+                style={{ width:'100%', padding:'15px 20px', background:'transparent', border:`1px solid rgba(201,168,92,0.58)`, borderRadius:2, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'4px 6px 0 rgba(0,0,0,0.6)', position:'relative', overflow:'hidden', transition:'all 0.22s cubic-bezier(0.16,1,0.3,1)' }}
+                onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px) translateX(-1px)'; e.currentTarget.style.boxShadow='6px 10px 0 rgba(0,0,0,0.7)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='4px 6px 0 rgba(0,0,0,0.6)'; }}
+              >
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(255,255,255,0.03) 0%,transparent 55%)', pointerEvents:'none' }} />
+                <div style={{ display:'flex', alignItems:'center', width:'100%', gap:14 }}>
+                  <div style={{ flex:1, height:1, background:'linear-gradient(90deg,transparent,rgba(201,168,92,0.42))' }} />
+                  <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:19, fontWeight:300, fontStyle:'italic', letterSpacing:'0.1em', color:T.gold400, whiteSpace:'nowrap' }}>Book This Look</span>
+                  <div style={{ flex:1, height:1, background:'linear-gradient(90deg,rgba(201,168,92,0.42),transparent)' }} />
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── GALLERY CARD ───────────────────────────────────────── */
+function GalleryCard({ card, onTap }) {
+  const [hovered, setHovered] = useState(false);
+  // Photo heights — tall cards taller in expanded overlay; grid heights are compact
+  const photoH = card.tall ? 200 : 148;
+
+  return (
+    <div
+      onClick={() => onTap(card)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position:'relative', borderRadius:2, overflow:'hidden', cursor:'pointer',
+        background:T.onyx800,
+        boxShadow: hovered
+          ? '8px 12px 0 rgba(0,0,0,0.85), 0 0 0 1px rgba(201,168,92,0.28)'
+          : '6px 9px 0 rgba(0,0,0,0.72), 0 0 0 1px rgba(201,168,92,0.10)',
+        transform: hovered ? 'translateY(-4px) translateX(-2px)' : 'none',
+        transition:'transform 0.26s cubic-bezier(0.16,1,0.3,1), box-shadow 0.26s ease',
+      }}
+    >
+      {/* Photo */}
+      <div style={{ height: photoH, position:'relative', overflow:'hidden' }}>
+        <div style={{ width:'100%', height:'100%', transform: hovered ? 'scale(1.035)' : 'scale(1)', transition:'transform 0.55s cubic-bezier(0.16,1,0.3,1)' }}>
+          <PhotoPlaceholder id={card.id} expanded={false} />
+        </div>
+
+        {/* Category pill */}
+        <div style={{ position:'absolute', top:8, left:8, fontFamily:"'DM Sans',sans-serif", fontSize:7, letterSpacing:'0.28em', textTransform:'uppercase', color:T.gold400, background:'rgba(14,12,10,0.78)', padding:'2px 8px', borderRadius:2, border:`1px solid rgba(201,168,92,0.28)`, zIndex:5 }}>{card.cat}</div>
+
+        {/* "Book This Look" hover reveal */}
+        <div style={{
+          position:'absolute', bottom:0, left:0, right:0,
+          padding:'10px 10px 9px',
+          transform: hovered ? 'translateY(0)' : 'translateY(100%)',
+          transition:'transform 0.22s cubic-bezier(0.16,1,0.3,1)',
+          display:'flex', alignItems:'center', gap:8,
+          zIndex:5,
+        }}>
+          <div style={{ flex:1, height:1, background:'linear-gradient(90deg,transparent,rgba(201,168,92,0.4))' }} />
+          <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:12, fontStyle:'italic', fontWeight:300, letterSpacing:'0.1em', color:T.gold400, whiteSpace:'nowrap' }}>Book This Look</span>
+          <div style={{ flex:1, height:1, background:'linear-gradient(90deg,rgba(201,168,92,0.4),transparent)' }} />
+        </div>
+      </div>
+
+      {/* Caption strip */}
+      <div style={{ padding:'9px 11px 10px', borderTop:`1px solid ${T.onyx700}`, position:'relative' }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:20, background:'linear-gradient(180deg,rgba(255,255,255,0.025) 0%,transparent 100%)', pointerEvents:'none' }} />
+        <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:14, fontWeight:300, fontStyle:'italic', color:T.cream100, lineHeight:1.2, marginBottom:4 }}>{card.service}</div>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:7, letterSpacing:'0.22em', textTransform:'uppercase', color:T.cream400 }}>{card.therapist}</div>
+          <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:15, fontWeight:300, color:T.gold400, letterSpacing:'-0.01em' }}>
+            <sup style={{ fontSize:8, color:T.gold500, verticalAlign:'super' }}>$</sup>{card.price}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── FILTER BAR ─────────────────────────────────────────── */
+function FilterBar({ active, onChange }) {
+  return (
+    <div style={{ display:'flex', overflowX:'auto', scrollbarWidth:'none', paddingBottom:2, gap:0 }}>
+      {FILTERS.map((f, i) => (
+        <button
+          key={f}
+          onClick={() => onChange(f)}
+          className={`filter-item${active === f ? ' active' : ''}`}
+          style={{
+            fontFamily:"'DM Sans',sans-serif",
+            fontSize:8, fontWeight: active===f ? 500 : 300,
+            letterSpacing:'0.22em', textTransform:'uppercase',
+            color: active===f ? T.gold400 : T.onyx500,
+            background:'transparent', border:'none', cursor:'pointer',
+            paddingLeft: i===0 ? 0 : 14, paddingRight: 2,
+            whiteSpace:'nowrap',
+            transition:'color 0.18s ease',
+          }}
+        >{f}</button>
+      ))}
+    </div>
+  );
+}
+
+/* ── STAGGERED 2-COL GRID ───────────────────────────────── */
+function StaggeredGrid({ cards, onTap }) {
+  const left  = cards.filter((_, i) => i % 2 === 0);
+  const right = cards.filter((_, i) => i % 2 === 1);
+  return (
+    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, padding:'6px 12px 32px' }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+        {left.map(c => <GalleryCard key={c.id} card={c} onTap={onTap} />)}
+      </div>
+      {/* Right col offset — editorial stagger */}
+      <div style={{ display:'flex', flexDirection:'column', gap:8, marginTop:20 }}>
+        {right.map(c => <GalleryCard key={c.id} card={c} onTap={onTap} />)}
+      </div>
+    </div>
+  );
+}
+
+/* ── EMPTY STATE ────────────────────────────────────────── */
+function EmptyState({ filter }) {
+  return (
+    <div style={{ padding:'52px 32px', display:'flex', flexDirection:'column', alignItems:'center' }}>
+      <div style={{ width:32, height:1, background:T.gold400, opacity:0.3, marginBottom:24 }} />
+      <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.gold400, marginBottom:10 }}>{filter}</div>
+      <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:28, fontWeight:300, fontStyle:'italic', color:T.cream200, lineHeight:1.1, textAlign:'center', marginBottom:14 }}>Coming Soon</h2>
+      <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:15, fontWeight:300, color:T.cream400, lineHeight:1.75, textAlign:'center', maxWidth:220 }}>
+        Our artists are preparing something extraordinary for this collection.
+      </p>
+      <div style={{ width:32, height:1, background:T.gold400, opacity:0.3, marginTop:24 }} />
+    </div>
+  );
+}
+
+/* ── MAIN SCREEN ────────────────────────────────────────── */
+function Gallery() {
+  const [filter, setFilter]   = useState('All');
+  const [expanded, setExpanded] = useState(null);
+
+  const filtered = filter === 'All' ? TREATMENTS : TREATMENTS.filter(t => t.cat === filter);
+
+  return (
+    <div style={{ position:'relative' }}>
+      <IOSDevice width={402} height={874} dark={true}>
+
+        <div style={{ height:'100%', overflowY:'auto', overflowX:'hidden', background:T.onyx950, scrollbarWidth:'none' }}>
+
+          {/* ── HEADER — scrolls with content ── */}
+          <div style={{ padding:'56px 20px 0' }}>
+
+            {/* Title */}
+            <div style={{ marginBottom:14 }}>
+              <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:8, letterSpacing:'0.28em', textTransform:'uppercase', color:T.gold400, marginBottom:5 }}>Perfect 10</div>
+              <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', gap:8 }}>
+                <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:34, fontWeight:300, fontStyle:'italic', color:T.cream100, lineHeight:1, letterSpacing:'0.01em' }}>
+                  The Gallery
+                </h1>
+                <button style={{ width:32, height:32, flexShrink:0, borderRadius:2, background:'transparent', border:`1px solid ${T.onyx600}`, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', marginBottom:2 }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <circle cx="10.5" cy="10.5" r="6.5" stroke={T.onyx500} strokeWidth="1.6"/>
+                    <path d="M15.5 15.5L21 21" stroke={T.onyx500} strokeWidth="1.6" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Editorial caption */}
+            <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:13, fontWeight:300, fontStyle:'italic', color:T.cream400, lineHeight:1.7, letterSpacing:'0.01em', marginBottom:12 }}>
+              Every image here is a result. Tap any look to meet the artist behind it.
+            </p>
+
+            {/* Filter row */}
+            <div style={{ borderBottom:`1px solid ${T.onyx700}`, paddingBottom:10, marginBottom:0 }}>
+              <FilterBar active={filter} onChange={setFilter} />
+            </div>
+          </div>
+
+          {/* ── GRID ── */}
+          {filtered.length > 0
+            ? <StaggeredGrid cards={filtered} onTap={setExpanded} />
+            : <EmptyState filter={filter} />
+          }
+        </div>
+
+        {/* Expanded overlay */}
+        {expanded && <ExpandedCard card={expanded} onClose={() => setExpanded(null)} />}
+
+      </IOSDevice>
+    </div>
+  );
+}
+
+/* ── TWEAKS ─────────────────────────────────────────────── */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "staggerOffset": true,
+  "hoverReveal": true
+}/*EDITMODE-END*/;
+
+function App() {
+  const [tweaksOpen, setTweaksOpen]   = useState(false);
+  const [tweaks, setTweaks]           = useState(TWEAK_DEFAULTS);
+
+  useEffect(() => {
+    window.addEventListener('message', e => {
+      if (e.data?.type === '__activate_edit_mode')   setTweaksOpen(true);
+      if (e.data?.type === '__deactivate_edit_mode')  setTweaksOpen(false);
+    });
+    window.parent.postMessage({ type:'__edit_mode_available' }, '*');
+  }, []);
+
+  const set = (k, v) => {
+    setTweaks(t => { const n={...t,[k]:v}; window.parent.postMessage({type:'__edit_mode_set_keys',edits:{[k]:v}},'*'); return n; });
+  };
+
+  return (
+    <>
+      <Gallery tweaks={tweaks} />
+      {tweaksOpen && (
+        <div style={{ position:'fixed', bottom:22, right:22, background:T.onyx800, border:`1px solid ${T.onyx600}`, borderRadius:2, padding:'16px 18px', width:200, zIndex:9999, boxShadow:'6px 10px 0 rgba(0,0,0,0.7)', fontFamily:"'DM Sans',sans-serif" }}>
+          <div style={{ fontSize:8, letterSpacing:'0.3em', textTransform:'uppercase', color:T.gold400, marginBottom:12, fontWeight:500 }}>Tweaks</div>
+          {[
+            { key:'staggerOffset', label:'Column Stagger' },
+            { key:'hoverReveal',   label:'Hover Book Reveal' },
+          ].map(({ key, label }) => (
+            <label key={key} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+              <span style={{ fontSize:11, color:T.cream300 }}>{label}</span>
+              <div onClick={() => set(key, !tweaks[key])} style={{ width:30, height:17, borderRadius:100, background: tweaks[key] ? T.gold400 : T.onyx600, position:'relative', transition:'background 0.18s', cursor:'pointer', flexShrink:0 }}>
+                <div style={{ position:'absolute', top:2, left: tweaks[key] ? 15 : 2, width:13, height:13, borderRadius:'50%', background: tweaks[key] ? T.onyx950 : T.onyx500, transition:'left 0.18s ease' }} />
+              </div>
+            </label>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

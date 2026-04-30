@@ -1,19 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { DashboardSidebar } from "@/components/dashboard/Sidebar";
+import { trpc } from "@/lib/trpc";
 
-const navItems = [
-  { href: "/dashboard", label: "Overview", icon: "🏠" },
-  { href: "/dashboard/clients", label: "Guests", icon: "👥" },
-  { href: "/dashboard/services", label: "Treatments", icon: "🌿" },
-  { href: "/dashboard/staff", label: "Therapists", icon: "🧖‍♀️" },
-  { href: "/dashboard/loyalty", label: "Loyalty", icon: "✨" },
-  { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
-  { href: "/dashboard/settings", label: "Settings", icon: "⚙️" },
-];
+const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
 const TIMEZONES = [
   "Africa/Johannesburg",
@@ -31,180 +23,257 @@ const TIMEZONES = [
 const CURRENCIES = ["ZAR", "USD", "EUR", "GBP", "AED", "SGD", "AUD"];
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
-  const pathname = usePathname();
+  useSession({ required: true });
 
-  const [spaName, setSpaName] = useState("Perfect 10 Spa");
-  const [address, setAddress] = useState("1 Wellness Lane, Cape Town");
+  const { data: spa, isLoading } = trpc.spa.get.useQuery(
+    { spaId: SPA_ID },
+    { enabled: !!SPA_ID }
+  );
+
+  const updateSpa = trpc.spa.update.useMutation();
+
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
   const [timezone, setTimezone] = useState("Africa/Johannesburg");
   const [currency, setCurrency] = useState("ZAR");
   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
-    // In a real implementation, this would call a tRPC mutation to update the spa settings
+  // Populate from DB once loaded
+  useEffect(() => {
+    if (spa) {
+      setName(spa.name ?? "");
+      setAddress(spa.address ?? "");
+      setTimezone(spa.timezone ?? "Africa/Johannesburg");
+      setCurrency(spa.currency ?? "ZAR");
+    }
+  }, [spa]);
+
+  const handleSave = async () => {
+    await updateSpa.mutateAsync({
+      spaId: SPA_ID,
+      name,
+      address,
+      timezone,
+      currency,
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
 
-  return (
-    <div className="min-h-screen bg-stone-50 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-stone-200 flex flex-col">
-        <div className="p-6 border-b border-stone-100">
-          <h1 className="font-display text-xl text-stone-800">🌸 Perfect 10</h1>
-          <p className="text-xs text-stone-400 mt-1">Spa Management</p>
-        </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pathname === item.href
-                  ? "bg-teal-50 text-teal-700"
-                  : "text-stone-600 hover:bg-stone-50"
-              }`}
-            >
-              <span>{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-stone-100">
-          <p className="text-xs text-stone-500">{session?.user?.name ?? "Staff"}</p>
-        </div>
-      </aside>
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    background: "#0e0c0a",
+    border: "1px solid #2a2420",
+    borderRadius: "2px",
+    padding: "10px 12px",
+    fontSize: "14px",
+    color: "#f5f0e8",
+    fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+    outline: "none",
+  };
 
-      {/* Main */}
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: "11px",
+    fontWeight: 500,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: "#8a6f3e",
+    marginBottom: "8px",
+    fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+  };
+
+  const sectionStyle: React.CSSProperties = {
+    background: "#1a1714",
+    border: "1px solid #2a2420",
+    borderRadius: "2px",
+    padding: "24px",
+  };
+
+  return (
+    <div className="min-h-screen flex" style={{ background: "#0e0c0a" }}>
+      <DashboardSidebar />
+
       <main className="flex-1 p-8 overflow-auto">
         <div className="mb-8">
-          <h2 className="text-2xl font-display text-stone-800">Settings</h2>
-          <p className="text-stone-500 text-sm mt-1">Configure your spa details and preferences</p>
+          <h2
+            style={{
+              fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
+              fontSize: "28px",
+              fontWeight: 300,
+              color: "#f5f0e8",
+              margin: 0,
+            }}
+          >
+            Settings
+          </h2>
+          <p
+            style={{
+              fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+              fontSize: "13px",
+              color: "#4a4540",
+              marginTop: "4px",
+            }}
+          >
+            Configure your spa details and preferences
+          </p>
         </div>
 
-        <div className="max-w-2xl space-y-8">
-          {/* Spa Details */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
-            <h3 className="font-semibold text-stone-800 mb-5">Spa Details</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1.5">Spa Name</label>
-                <input
-                  type="text"
-                  className="w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                  value={spaName}
-                  onChange={(e) => setSpaName(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1.5">Address</label>
-                <textarea
-                  className="w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                  rows={2}
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-stone-600 mb-1.5">Timezone</label>
-                  <select
-                    className="w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                    value={timezone}
-                    onChange={(e) => setTimezone(e.target.value)}
-                  >
-                    {TIMEZONES.map((tz) => (
-                      <option key={tz} value={tz}>
-                        {tz}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-stone-600 mb-1.5">Currency</label>
-                  <select
-                    className="w-full border border-stone-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value)}
-                  >
-                    {CURRENCIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Loyalty Config link */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-stone-800">Loyalty Programme</h3>
-                <p className="text-sm text-stone-400 mt-1">
-                  Configure points rates, tier thresholds, and redemption rules
-                </p>
-              </div>
-              <Link
-                href="/dashboard/loyalty"
-                className="text-teal-600 hover:text-teal-800 text-sm font-medium"
+        {isLoading ? (
+          <p style={{ color: "#4a4540", fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "14px" }}>
+            Loading…
+          </p>
+        ) : (
+          <div style={{ maxWidth: "640px", display: "flex", flexDirection: "column", gap: "24px" }}>
+            {/* Spa Details */}
+            <div style={sectionStyle}>
+              <h3
+                style={{
+                  fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "#f5f0e8",
+                  margin: "0 0 20px",
+                }}
               >
-                Configure →
-              </Link>
+                Spa Details
+              </h3>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div>
+                  <label style={labelStyle}>Spa Name</label>
+                  <input
+                    type="text"
+                    style={inputStyle}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onFocus={(e) => (e.target.style.borderColor = "#c9a85c")}
+                    onBlur={(e) => (e.target.style.borderColor = "#2a2420")}
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Address</label>
+                  <textarea
+                    style={{ ...inputStyle, resize: "vertical" }}
+                    rows={2}
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    onFocus={(e) => (e.target.style.borderColor = "#c9a85c")}
+                    onBlur={(e) => (e.target.style.borderColor = "#2a2420")}
+                  />
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                  <div>
+                    <label style={labelStyle}>Timezone</label>
+                    <select
+                      style={{ ...inputStyle, cursor: "pointer" }}
+                      value={timezone}
+                      onChange={(e) => setTimezone(e.target.value)}
+                    >
+                      {TIMEZONES.map((tz) => (
+                        <option key={tz} value={tz} style={{ background: "#1a1714" }}>
+                          {tz}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={labelStyle}>Currency</label>
+                    <select
+                      style={{ ...inputStyle, cursor: "pointer" }}
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                    >
+                      {CURRENCIES.map((c) => (
+                        <option key={c} value={c} style={{ background: "#1a1714" }}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Loyalty link */}
+            <div style={sectionStyle}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <p style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "14px", fontWeight: 500, color: "#f5f0e8", margin: "0 0 4px" }}>
+                    Loyalty Programme
+                  </p>
+                  <p style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "12px", color: "#4a4540", margin: 0 }}>
+                    Configure points rates, tier thresholds, and redemption rules
+                  </p>
+                </div>
+                <a
+                  href="/dashboard/loyalty"
+                  style={{
+                    fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    letterSpacing: "0.06em",
+                    color: "#c9a85c",
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Configure →
+                </a>
+              </div>
+            </div>
+
+            {/* Save */}
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <button
+                onClick={handleSave}
+                disabled={updateSpa.isPending}
+                style={{
+                  background: "#c9a85c",
+                  color: "#0e0c0a",
+                  fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                  fontSize: "12px",
+                  fontWeight: 500,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  padding: "12px 28px",
+                  borderRadius: "2px",
+                  border: "none",
+                  cursor: updateSpa.isPending ? "not-allowed" : "pointer",
+                  opacity: updateSpa.isPending ? 0.6 : 1,
+                }}
+              >
+                {updateSpa.isPending ? "Saving…" : "Save Changes"}
+              </button>
+
+              {saved && (
+                <span
+                  style={{
+                    fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                    fontSize: "13px",
+                    color: "#c9a85c",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  ✓ Saved
+                </span>
+              )}
+
+              {updateSpa.isError && (
+                <span style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "13px", color: "#ef4444" }}>
+                  Failed to save. Try again.
+                </span>
+              )}
             </div>
           </div>
-
-          {/* Booking settings */}
-          <div className="bg-white rounded-xl border border-stone-200 p-6">
-            <h3 className="font-semibold text-stone-800 mb-5">Booking Settings</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-stone-700">Allow online bookings</p>
-                  <p className="text-xs text-stone-400">Clients can book through the website</p>
-                </div>
-                <div className="w-10 h-5 bg-teal-500 rounded-full relative cursor-pointer">
-                  <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow" />
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-stone-700">Require phone for booking</p>
-                  <p className="text-xs text-stone-400">Guests must provide a contact number</p>
-                </div>
-                <div className="w-10 h-5 bg-teal-500 rounded-full relative cursor-pointer">
-                  <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow" />
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-stone-700">Send confirmation emails</p>
-                  <p className="text-xs text-stone-400">Automatic booking confirmations to guests</p>
-                </div>
-                <div className="w-10 h-5 bg-stone-200 rounded-full relative cursor-pointer">
-                  <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Save button */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleSave}
-              className="bg-teal-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
-            >
-              Save Changes
-            </button>
-            {saved && (
-              <span className="text-sm text-teal-600 font-medium flex items-center gap-1.5">
-                <span>✓</span> Saved successfully
-              </span>
-            )}
-          </div>
-        </div>
+        )}
       </main>
     </div>
   );
