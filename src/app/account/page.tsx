@@ -7,30 +7,40 @@ import { redirect } from "next/navigation";
 
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
-const CATEGORY_ICONS: Record<string, string> = {
-  Nails: "💅",
-  Facials: "🧖‍♀️",
-  Peels: "✨",
-  Massage: "💆",
-  "Body Treatments": "🌿",
-  "Brows & Lashes": "👁️",
-  Waxing: "🪷",
-};
-
-const STATUS_LABELS: Record<string, { label: string; classes: string }> = {
-  pending:              { label: "Awaiting Confirmation", classes: "bg-amber-50 text-amber-700 border border-amber-200" },
-  confirmed:            { label: "Confirmed",             classes: "bg-green-50 text-green-700 border border-green-200" },
-  completed:            { label: "Completed",             classes: "bg-stone-100 text-stone-500" },
-  no_show:              { label: "No Show",               classes: "bg-red-50 text-red-500" },
-  cancelled_by_client:  { label: "Cancelled",             classes: "bg-red-50 text-red-400" },
-  cancelled_by_spa:     { label: "Cancelled",             classes: "bg-red-50 text-red-400" },
-};
+const TIERS = [
+  { id: "bronze",  label: "Bronze",     min: 0,     max: 2499,    hex: "#c8864a" },
+  { id: "silver",  label: "Silver",     min: 2500,  max: 4999,    hex: "#cbc4b8" },
+  { id: "gold",    label: "Gold",       min: 5000,  max: 9999,    hex: "#c9a85c" },
+  { id: "perfect", label: "Perfect 10", min: 10000, max: Infinity, hex: "#f5f0e4" },
+];
 
 function getTier(pts: number) {
-  if (pts >= 15000) return { name: "Platinum", icon: "💎", color: "tier-platinum", next: null, nextAt: null };
-  if (pts >= 5000) return { name: "Gold", icon: "🥇", color: "tier-gold", next: "Platinum", nextAt: 15000 };
-  if (pts >= 1000) return { name: "Silver", icon: "🥈", color: "tier-silver", next: "Gold", nextAt: 5000 };
-  return { name: "Bronze", icon: "🥉", color: "tier-bronze", next: "Silver", nextAt: 1000 };
+  return TIERS.find((t) => pts >= t.min && pts <= t.max) ?? TIERS[0];
+}
+
+const STATUS_CONFIG: Record<string, { label: string; gold?: boolean }> = {
+  pending:             { label: "Awaiting Confirmation" },
+  confirmed:           { label: "Confirmed", gold: true },
+  completed:           { label: "Completed" },
+  no_show:             { label: "No Show" },
+  cancelled_by_client: { label: "Cancelled" },
+  cancelled_by_spa:    { label: "Cancelled" },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const cfg = STATUS_CONFIG[status] ?? { label: status };
+  return (
+    <span style={{
+      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+      fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase",
+      padding: "3px 8px", borderRadius: 2,
+      color: cfg.gold ? "var(--gold-400)" : "var(--onyx-500)",
+      background: cfg.gold ? "rgba(201,168,92,0.1)" : "var(--onyx-800)",
+      border: `1px solid ${cfg.gold ? "rgba(201,168,92,0.3)" : "var(--onyx-700)"}`,
+    }}>
+      {cfg.label}
+    </span>
+  );
 }
 
 export default function AccountPage() {
@@ -44,146 +54,340 @@ export default function AccountPage() {
   );
 
   const lifetime = client?.loyaltyAccount?.lifetimeEarned ?? 0;
-  const balance = client?.loyaltyAccount?.balance ?? 0;
+  const balance  = client?.loyaltyAccount?.balance ?? 0;
   const tier = getTier(lifetime);
+  const nextTier = TIERS[TIERS.findIndex((t) => t.id === tier.id) + 1];
 
   const upcoming = client?.appointments?.filter((a) =>
     new Date(a.startAt) >= new Date() && ["pending", "confirmed"].includes(a.status)
-  );
+  ).sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+
   const past = client?.appointments?.filter((a) =>
     new Date(a.startAt) < new Date() || a.status === "completed"
-  ).slice(0, 5);
+  ).sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime()).slice(0, 5);
+
+  const progressPct = nextTier
+    ? Math.min(100, ((lifetime - tier.min) / (nextTier.min - tier.min)) * 100)
+    : 100;
 
   return (
-    <main className="min-h-screen" style={{ background: "var(--background)" }}>
-      <nav className="bg-white border-b border-stone-100 px-6 py-4 flex justify-between items-center sticky top-0 z-40">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700">Perfect 10</Link>
-        <div className="flex items-center gap-4">
-          <Link href="/book" className="bg-teal-700 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-teal-800 transition-colors">
-            + Book Treatment
+    <main style={{ minHeight: "100vh", background: "var(--onyx-950)" }}>
+
+      {/* Nav */}
+      <nav style={{
+        position: "sticky", top: 0, zIndex: 40,
+        background: "var(--onyx-950)",
+        borderBottom: "1px solid var(--onyx-800)",
+        padding: "16px 24px",
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+      }}>
+        <Link href="/" style={{
+          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
+          fontSize: 20, fontWeight: 300, fontStyle: "italic",
+          color: "var(--gold-400)", textDecoration: "none",
+        }}>
+          Perfect 10
+        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <Link href="/book" style={{
+            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+            fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
+            color: "var(--gold-400)", textDecoration: "none",
+            padding: "8px 16px",
+            border: "1px solid rgba(201,168,92,0.45)",
+            borderRadius: 2,
+          }}>
+            Book
           </Link>
-          <span className="text-stone-500 text-sm">{session?.user?.name}</span>
+          <span style={{
+            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+            fontSize: 12, color: "var(--onyx-500)",
+          }}>
+            {session?.user?.name}
+          </span>
         </div>
       </nav>
 
-      <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
-        {/* Points & tier card */}
-        <div className="bg-stone-900 rounded-2xl p-8 text-white relative overflow-hidden">
-          {/* Subtle decorative ring */}
-          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full border border-white/5 pointer-events-none" />
-          <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full border border-white/5 pointer-events-none" />
-          <div className="flex items-start justify-between">
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: "32px 20px 80px" }}>
+
+        {/* Loyalty card */}
+        <div style={{
+          background: "var(--onyx-900)",
+          border: "1px solid var(--onyx-700)",
+          borderRadius: 2,
+          padding: "28px 24px",
+          marginBottom: 20,
+          boxShadow: "6px 8px 0 rgba(0,0,0,0.65)",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          {/* Subtle decorative lines */}
+          <div style={{
+            position: "absolute", top: 0, right: 0, bottom: 0, width: 1,
+            background: "linear-gradient(180deg,rgba(201,168,92,0.2) 0%,transparent 100%)",
+            pointerEvents: "none",
+          }} />
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
             <div>
-              <div className="text-sm font-medium opacity-60 mb-1 tracking-wide uppercase text-xs">Points Balance</div>
-              <div className="text-5xl font-bold mb-1">{balance.toLocaleString()}</div>
-              <div className="text-sm opacity-50">Lifetime earned: {lifetime.toLocaleString()} pts</div>
+              <div style={{
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase",
+                color: "var(--onyx-500)", marginBottom: 6,
+              }}>
+                Points Balance
+              </div>
+              <div style={{
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                fontSize: 44, fontWeight: 600,
+                color: "var(--cream-100)", lineHeight: 1,
+              }}>
+                {balance.toLocaleString()}
+              </div>
+              <div style={{
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                fontSize: 11, color: "var(--onyx-500)", marginTop: 4,
+              }}>
+                Lifetime earned: {lifetime.toLocaleString()} pts
+              </div>
             </div>
-            <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${tier.color}`}>
-              {tier.icon} {tier.name}
-            </span>
+            <div style={{
+              textAlign: "right",
+            }}>
+              <div style={{
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
+                color: "var(--onyx-500)", marginBottom: 4,
+              }}>
+                Tier
+              </div>
+              <div style={{
+                fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
+                fontSize: 18, fontWeight: 300, fontStyle: "italic",
+                color: tier.hex,
+              }}>
+                {tier.label}
+              </div>
+            </div>
           </div>
 
-          {/* Tier progress */}
-          {tier.next && tier.nextAt && (
-            <div className="mt-6">
-              <div className="flex justify-between text-xs mb-1.5 opacity-70">
-                <span>{tier.name}</span>
-                <span>{tier.next} at {tier.nextAt.toLocaleString()} pts</span>
+          {/* Tier progress bar */}
+          {nextTier && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                marginBottom: 6,
+              }}>
+                <span style={{
+                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                  fontSize: 9, letterSpacing: "0.14em", color: "var(--onyx-600)",
+                }}>
+                  {tier.label}
+                </span>
+                <span style={{
+                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                  fontSize: 9, letterSpacing: "0.14em", color: "var(--onyx-600)",
+                }}>
+                  {nextTier.label} at {nextTier.min.toLocaleString()} pts
+                </span>
               </div>
-              <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-white/70 rounded-full transition-all"
-                  style={{ width: `${Math.min(100, (lifetime / tier.nextAt) * 100).toFixed(1)}%` }}
-                />
+              <div style={{
+                height: 2, background: "var(--onyx-800)", borderRadius: 1, overflow: "hidden",
+              }}>
+                <div style={{
+                  height: "100%",
+                  background: "var(--gold-400)",
+                  width: `${progressPct}%`,
+                  transition: "width 0.6s ease",
+                }} />
               </div>
-              <div className="text-xs opacity-60 mt-1.5">{Math.max(0, tier.nextAt - lifetime).toLocaleString()} pts to {tier.next}</div>
+              <div style={{
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                fontSize: 9, color: "var(--onyx-600)", marginTop: 4,
+              }}>
+                {Math.max(0, nextTier.min - lifetime).toLocaleString()} pts to {nextTier.label}
+              </div>
             </div>
           )}
 
-          <div className="flex gap-3 mt-6">
-            <Link href="/account/rewards" className="inline-block bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-2 rounded-lg transition-colors">
-              Points History →
+          {/* CTA row */}
+          <div style={{ display: "flex", gap: 10 }}>
+            <Link href="/account/rewards" style={{
+              flex: 1, textAlign: "center",
+              padding: "10px",
+              background: "transparent",
+              border: "1px solid rgba(201,168,92,0.45)",
+              borderRadius: 2, textDecoration: "none",
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
+              color: "var(--gold-400)",
+            }}>
+              Loyalty Hub
             </Link>
-            <Link href="/book" className="inline-block text-stone-900 text-sm px-4 py-2 rounded-lg hover:opacity-90 transition-colors font-medium" style={{ background: "var(--accent-gold)" }}>
-              Book & Earn ✨
+            <Link href="/account/journey" style={{
+              flex: 1, textAlign: "center",
+              padding: "10px",
+              background: "transparent",
+              border: "1px solid var(--onyx-700)",
+              borderRadius: 2, textDecoration: "none",
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
+              color: "var(--cream-400)",
+            }}>
+              My Journey
+            </Link>
+            <Link href="/account/bookings" style={{
+              flex: 1, textAlign: "center",
+              padding: "10px",
+              background: "transparent",
+              border: "1px solid var(--onyx-700)",
+              borderRadius: 2, textDecoration: "none",
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
+              color: "var(--cream-400)",
+            }}>
+              Bookings
             </Link>
           </div>
         </div>
 
-        {/* Upcoming appointments */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-xl font-bold text-stone-900">Upcoming Treatments</h2>
-            <Link href="/book" className="text-sm text-teal-600 hover:underline">+ Book new</Link>
+        {/* Upcoming treatments */}
+        <section style={{ marginBottom: 28 }}>
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            marginBottom: 14,
+          }}>
+            <div style={{
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              fontSize: 8, letterSpacing: "0.28em", textTransform: "uppercase",
+              color: "var(--gold-400)",
+            }}>
+              Upcoming Treatments
+            </div>
+            <Link href="/book" style={{
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              fontSize: 9, letterSpacing: "0.14em",
+              color: "var(--onyx-500)", textDecoration: "none",
+            }}>
+              + Book new
+            </Link>
           </div>
+
           {!upcoming || upcoming.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-stone-100 p-8 text-center">
-              <div className="text-3xl mb-3">🌸</div>
-              <div className="text-stone-500 mb-3">No upcoming treatments scheduled.</div>
-              <Link href="/book" className="inline-block bg-teal-700 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-teal-800 transition-colors">
-                Book Now →
+            <div style={{
+              background: "var(--onyx-900)",
+              border: "1px solid var(--onyx-700)",
+              borderRadius: 2, padding: "32px 24px",
+              textAlign: "center",
+              boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+            }}>
+              <div style={{
+                fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
+                fontSize: 18, fontWeight: 300, fontStyle: "italic",
+                color: "var(--onyx-600)", marginBottom: 14,
+              }}>
+                No upcoming treatments scheduled.
+              </div>
+              <Link href="/book" style={{
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
+                color: "var(--gold-400)", textDecoration: "none",
+                padding: "9px 20px",
+                border: "1px solid rgba(201,168,92,0.45)",
+                borderRadius: 2, display: "inline-block",
+              }}>
+                Book Now
               </Link>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {upcoming.map((apt) => (
-                <div key={apt.id} className="bg-white rounded-2xl border border-stone-100 p-5 flex justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center text-2xl">
-                      {CATEGORY_ICONS[apt.service.category] ?? "✨"}
+                <div key={apt.id} style={{
+                  background: "var(--onyx-900)",
+                  border: "1px solid var(--onyx-700)",
+                  borderRadius: 2, padding: "16px 20px",
+                  display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+                  boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+                }}>
+                  <div>
+                    <div style={{
+                      fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
+                      fontSize: 18, fontWeight: 300, fontStyle: "italic",
+                      color: "var(--cream-100)", marginBottom: 4,
+                    }}>
+                      {apt.service.name}
                     </div>
-                    <div>
-                      <div className="font-semibold text-stone-800">{apt.service.name}</div>
-                      <div className="text-sm text-stone-400">
-                        {apt.staff ? `with ${apt.staff.user.name} · ` : ""}{new Date(apt.startAt).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })} at {new Date(apt.startAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}
-                      </div>
+                    <div style={{
+                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                      fontSize: 11, color: "var(--onyx-500)",
+                    }}>
+                      {apt.staff ? `with ${apt.staff.user.name} · ` : ""}
+                      {new Date(apt.startAt).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })}
+                      {" at "}
+                      {new Date(apt.startAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                      (STATUS_LABELS[apt.status] ?? { classes: "bg-stone-100 text-stone-500" }).classes
-                    }`}>
-                      {(STATUS_LABELS[apt.status] ?? { label: apt.status }).label}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                    <StatusBadge status={apt.status} />
+                    <span style={{
+                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                      fontSize: 12, fontWeight: 600, color: "var(--gold-400)",
+                    }}>
+                      R{apt.service.price}
                     </span>
-                    <span className="text-xs text-stone-400">R{apt.service.price}</span>
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Past treatments */}
+        {/* Recent treatments */}
         {past && past.length > 0 && (
-          <div>
-            <h2 className="font-display text-xl font-bold text-stone-900 mb-4">Recent Treatments</h2>
-            <div className="space-y-2">
+          <section>
+            <div style={{
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              fontSize: 8, letterSpacing: "0.28em", textTransform: "uppercase",
+              color: "var(--onyx-600)", marginBottom: 14,
+            }}>
+              Recent Treatments
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {past.map((apt) => (
-                <div key={apt.id} className="bg-white rounded-xl border border-stone-100 px-5 py-4 flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{CATEGORY_ICONS[apt.service.category] ?? "✨"}</span>
-                    <div>
-                      <div className="font-medium text-stone-700 text-sm">{apt.service.name}</div>
-                      <div className="text-xs text-stone-400">{new Date(apt.startAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}</div>
+                <div key={apt.id} style={{
+                  background: "var(--onyx-900)",
+                  border: "1px solid var(--onyx-800)",
+                  borderRadius: 2, padding: "12px 20px",
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                }}>
+                  <div>
+                    <div style={{
+                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                      fontSize: 13, color: "var(--cream-300)",
+                    }}>
+                      {apt.service.name}
+                    </div>
+                    <div style={{
+                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                      fontSize: 10, color: "var(--onyx-600)", marginTop: 2,
+                    }}>
+                      {new Date(apt.startAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Link
-                      href={`/book?category=${encodeURIComponent(apt.service.category)}`}
-                      className="text-xs text-teal-600 hover:underline"
-                    >
-                      Rebook →
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Link href={`/book?category=${encodeURIComponent(apt.service.category)}`} style={{
+                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                      fontSize: 9, letterSpacing: "0.14em",
+                      color: "var(--gold-400)", textDecoration: "none",
+                    }}>
+                      Rebook
                     </Link>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      (STATUS_LABELS[apt.status] ?? { classes: "bg-stone-100 text-stone-500" }).classes
-                    }`}>
-                      {(STATUS_LABELS[apt.status] ?? { label: apt.status }).label}
-                    </span>
+                    <StatusBadge status={apt.status} />
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         )}
       </div>
     </main>

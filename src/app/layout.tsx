@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -24,6 +24,10 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#c9a85c",
+};
+
 export const metadata: Metadata = {
   title: "Perfect 10 — Nail & Beauty Salon",
   description: "Book Nimue, Environ, Placecol & Guinot skin treatments, nail services & more at Perfect 10. Earn loyalty rewards on every visit.",
@@ -44,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${cormorant.variable} ${dmSans.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${cormorant.variable} ${dmSans.variable} antialiased`} style={{ paddingBottom: 58 }}>
         <Providers>
           {children}
           <BottomNav />
