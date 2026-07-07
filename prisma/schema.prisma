@@ -75,10 +75,11 @@ model Location {
   isActive     Boolean       @default(true)
   createdAt    DateTime      @default(now())
   spa          Spa           @relation(fields: [spaId], references: [id])
-  galleryItems    GalleryItem[]
-  transformations Transformation[]
-  products        Product[]
-  orders          Order[]
+  galleryItems         GalleryItem[]
+  transformations      Transformation[]
+  products             Product[]
+  orders               Order[]
+  mysteryShopperVisits MysteryShopperVisit[]
 
   @@map("locations")
 }
@@ -201,7 +202,8 @@ model User {
   staffProfile      Staff?
   appointments      Appointment[]  @relation("ClientAppointments")
   loyaltyAccount    LoyaltyAccount?
-  notifications     Notification[]
+  notifications          Notification[]
+  mysteryShopperVisits   MysteryShopperVisit[]
 }
 
 model Service {
@@ -340,4 +342,60 @@ model Notification {
   payload Json                @default("{}")
   user    User                @relation(fields: [userId], references: [id])
   spa     Spa                 @relation(fields: [spaId], references: [id])
+}
+
+// ─── Mystery Shopper Program ──────────────────────────────────────────────────
+
+enum MysteryShopperStatus {
+  applied
+  scheduled
+  completed
+  approved
+  reimbursed
+  rejected
+}
+
+model MysteryShopperVisit {
+  id                      String               @id @default(cuid())
+  locationId              String
+  clientId                String
+
+  status                  MysteryShopperStatus @default(applied)
+
+  // Pre-visit
+  serviceToEvaluate       String?
+  plannedVisitDate        DateTime?
+  preVisitNotes           String?
+
+  // Post-visit submission
+  receiptUrl              String?
+  receiptAmount           Float?
+  visitedAt               DateTime?
+  submittedAt             DateTime?
+
+  // Ratings (1–5)
+  overallRating           Int?
+  firstImpressionRating   Int?
+  cleanlinessRating       Int?
+  treatmentQualityRating  Int?
+  staffFriendlinessRating Int?
+  productKnowledgeRating  Int?
+  valueRating             Int?
+
+  // Written feedback
+  highlightsFeedback      String?
+  improvementFeedback     String?
+  staffFeedback           String?
+  wouldReturn             Boolean?
+
+  // Admin
+  reimbursementAmount     Float?
+  reimbursedAt            DateTime?
+  adminNotes              String?
+
+  createdAt               DateTime             @default(now())
+  client                  User                 @relation(fields: [clientId], references: [id])
+  location                Location             @relation(fields: [locationId], references: [id])
+
+  @@map("mystery_shopper_visits")
 }
