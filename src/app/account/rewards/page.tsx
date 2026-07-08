@@ -273,25 +273,24 @@ function MilestoneMarkers({ points }: { points: number }) {
 }
 
 // ── Reward voucher ──────────────────────────────────────────────────────────
-interface VoucherData {
-  treatment: string;
-  value: number;
-  expiry: string;
-  tag: string;
+interface VoucherRow {
+  code: string;
+  discountValue: number;
+  expiresAt: Date | string | null;
 }
 
-function RewardVoucher({ treatment, value, expiry, tag }: VoucherData) {
-  const [redeemed, setRedeemed] = useState(false);
+function RewardVoucher({ code, discountValue, expiresAt }: VoucherRow) {
+  const expiry = expiresAt
+    ? new Date(expiresAt).toLocaleDateString("en-ZA", { month: "short", year: "numeric" })
+    : "No expiry";
   return (
     <div style={{
-      flexShrink: 0, width: 200,
+      flexShrink: 0, width: 210,
       background: "var(--onyx-800)",
       border: "1px solid rgba(201,168,92,0.35)",
       borderRadius: 2,
       boxShadow: "6px 9px 0 rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,92,0.06)",
       position: "relative", overflow: "hidden",
-      opacity: redeemed ? 0.5 : 1,
-      transition: "opacity 0.3s",
     }}>
       {/* Diagonal watermark */}
       <div style={{
@@ -310,108 +309,80 @@ function RewardVoucher({ treatment, value, expiry, tag }: VoucherData) {
       {/* Top gold strip */}
       <div style={{ height: 3, background: "linear-gradient(90deg,#b8922e,#c9a85c,#dfc07a,#c9a85c,#b8922e)", position: "relative", zIndex: 1 }} />
 
-      {/* Perforation */}
-      <div style={{
-        position: "absolute", top: 38, left: 0, right: 0, height: 1,
-        backgroundImage: "repeating-linear-gradient(90deg, rgba(201,168,92,0.22) 0, rgba(201,168,92,0.22) 4px, transparent 4px, transparent 8px)",
-        zIndex: 1,
-      }} />
-
-      <div style={{ padding: "10px 14px 13px", position: "relative", zIndex: 1 }}>
+      <div style={{ padding: "12px 14px 13px", position: "relative", zIndex: 1 }}>
         <div style={{
           fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
           fontSize: 7, letterSpacing: "0.28em", textTransform: "uppercase",
-          color: "var(--gold-400)", marginBottom: 5,
+          color: "var(--gold-400)", marginBottom: 6,
         }}>
-          {tag}
+          Discount Voucher
         </div>
-        <div style={{
-          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-          fontSize: 17, fontWeight: 300, fontStyle: "italic",
-          color: "var(--cream-100)", lineHeight: 1.2, marginBottom: 8,
-        }}>
-          {treatment}
-        </div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 8 }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 10 }}>
           <span style={{
             fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 24, fontWeight: 300, color: "var(--gold-400)", lineHeight: 1,
+            fontSize: 26, fontWeight: 300, color: "var(--gold-400)", lineHeight: 1,
           }}>
-            <sup style={{ fontSize: 11, verticalAlign: "super", color: "var(--gold-500)" }}>R</sup>{value}
+            <sup style={{ fontSize: 12, verticalAlign: "super", color: "var(--gold-500)" }}>R</sup>{discountValue}
           </span>
           <span style={{
             fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
             fontSize: 7, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--onyx-500)",
           }}>
-            off
+            off any treatment
           </span>
         </div>
+        {/* Code — the client shows this in-salon */}
         <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          paddingTop: 8, borderTop: "1px solid var(--onyx-700)",
-        }}>
-          <span style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 7, letterSpacing: "0.12em", color: "var(--onyx-500)",
-          }}>
-            Exp {expiry}
-          </span>
-          <button
-            onClick={() => setRedeemed((r) => !r)}
-            style={{
-              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-              fontSize: 13, fontStyle: "italic", fontWeight: 300,
-              color: redeemed ? "var(--onyx-500)" : "var(--gold-400)",
-              background: "none", border: "none", cursor: "pointer",
-              letterSpacing: "0.04em", padding: 0,
-              textDecoration: "underline", textDecorationColor: "rgba(201,168,92,0.4)",
-              textUnderlineOffset: 3,
-            }}
-          >
-            {redeemed ? "Redeemed" : "Redeem"}
-          </button>
-        </div>
-      </div>
-
-      {redeemed && (
-        <div style={{
-          position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-          background: "rgba(14,12,10,0.55)", zIndex: 10,
+          background: "var(--onyx-950)", border: "1px dashed rgba(201,168,92,0.4)", borderRadius: 2,
+          padding: "8px 10px", textAlign: "center", marginBottom: 8,
         }}>
           <div style={{
-            border: "2px solid rgba(85,79,70,0.6)", padding: "6px 16px", borderRadius: 2,
-            transform: "rotate(-12deg)",
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 20, fontStyle: "italic", fontWeight: 400,
-            color: "var(--onyx-500)", letterSpacing: "0.08em",
+            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+            fontSize: 15, fontWeight: 600, letterSpacing: "0.12em", color: "var(--cream-100)",
           }}>
-            Redeemed
+            {code}
           </div>
         </div>
-      )}
+        <div style={{
+          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+          fontSize: 7, letterSpacing: "0.12em", color: "var(--onyx-500)",
+        }}>
+          Show in-salon · Exp {expiry}
+        </div>
+      </div>
     </div>
   );
 }
 
 // ── Shop the Look product chip ──────────────────────────────────────────────
-const SHOP_PRODUCTS = [
-  { name: "Nail Envy",        brand: "OPI",         price: 285, bg: "#e8d9be" },
-  { name: "Solar Oil",        brand: "CND",         price: 210, bg: "#c9a882" },
-  { name: "Gel Top Coat",     brand: "Essie",       price: 175, bg: "#f0e6d3" },
-  { name: "Shea Hand Cream",  brand: "L'Occitane",  price: 310, bg: "#d4b896" },
-];
-
-function ProductChip({ name, brand, price, bg }: { name: string; brand: string; price: number; bg: string }) {
+function ProductChip({ name, brand, price, imageUrl, covered, discountedPrice }: {
+  name: string; brand: string; price: number; imageUrl?: string | null;
+  covered: boolean; discountedPrice: number;
+}) {
   return (
     <Link href="/boutique" style={{ textDecoration: "none" }}>
       <div style={{
-        flexShrink: 0, width: 96,
+        flexShrink: 0, width: 104,
         background: "var(--onyx-800)", border: "1px solid var(--onyx-700)",
         borderRadius: 2, overflow: "hidden",
         boxShadow: "3px 4px 0 rgba(0,0,0,0.6)", cursor: "pointer",
       }}>
-        <div style={{ height: 64, background: bg, position: "relative" }}>
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg,rgba(255,255,255,0.08) 0%,transparent 50%)", pointerEvents: "none" }} />
+        <div style={{ height: 64, background: "var(--onyx-700)", position: "relative" }}>
+          {imageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={imageUrl} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          )}
+          {covered && (
+            <div style={{
+              position: "absolute", top: 5, right: 5,
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              fontSize: 6, letterSpacing: "0.14em", textTransform: "uppercase",
+              color: "var(--onyx-950)", background: "var(--gold-400)",
+              padding: "2px 5px", borderRadius: 2, fontWeight: 600,
+            }}>
+              Covered
+            </div>
+          )}
         </div>
         <div style={{ padding: "7px 8px 8px" }}>
           <div style={{
@@ -428,24 +399,27 @@ function ProductChip({ name, brand, price, bg }: { name: string; brand: string; 
           }}>
             {brand}
           </div>
-          <div style={{
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 13, fontWeight: 300, color: "var(--gold-400)",
-          }}>
-            <sup style={{ fontSize: 8, color: "var(--gold-500)", verticalAlign: "super" }}>R</sup>{price}
+          <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
+            <span style={{
+              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
+              fontSize: 13, fontWeight: 300, color: "var(--gold-400)",
+            }}>
+              <sup style={{ fontSize: 8, color: "var(--gold-500)", verticalAlign: "super" }}>R</sup>{covered ? 0 : discountedPrice}
+            </span>
+            {!covered && discountedPrice < price && (
+              <span style={{
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                fontSize: 9, color: "var(--onyx-500)", textDecoration: "line-through",
+              }}>
+                R{price}
+              </span>
+            )}
           </div>
         </div>
       </div>
     </Link>
   );
 }
-
-// ── Demo data fallback ──────────────────────────────────────────────────────
-const DEMO_VOUCHERS: VoucherData[] = [
-  { treatment: "Luminous Lift Facial",  value: 220, expiry: "Jun 2026", tag: "Complimentary" },
-  { treatment: "Champagne Foil Tips",   value: 145, expiry: "May 2026", tag: "Gold Reward" },
-  { treatment: "Warm Marble Stone",     value: 195, expiry: "Jul 2026", tag: "Anniversary Gift" },
-];
 
 const TX_LABELS: Record<string, string> = {
   earned:          "Treatment Reward",
@@ -459,26 +433,43 @@ const TX_LABELS: Record<string, string> = {
 };
 
 // ── Page ────────────────────────────────────────────────────────────────────
+const LOCATION_ID = process.env.NEXT_PUBLIC_LOCATION_ID ?? "";
+
 export default function RewardsPage() {
   const { data: session } = useSession();
   const userId = (session?.user as { id?: string })?.id;
+  const utils = trpc.useUtils();
 
-  const { data: account } = trpc.loyalty.getAccount.useQuery(
-    { clientId: userId! },
-    { enabled: !!userId }
-  );
+  const { data: account } = trpc.loyalty.getAccount.useQuery(undefined, { enabled: !!userId });
   const { data: config } = trpc.loyalty.getConfig.useQuery(
     { spaId: SPA_ID },
     { enabled: !!SPA_ID }
   );
+  const { data: vouchers } = trpc.loyalty.listMyVouchers.useQuery(undefined, { enabled: !!userId });
+  const { data: suggested } = trpc.loyalty.suggestedProducts.useQuery(
+    { locationId: LOCATION_ID },
+    { enabled: !!userId && !!LOCATION_ID }
+  );
 
-  const balance         = account?.balance         ?? 6800;
-  const lifetime        = account?.lifetimeEarned  ?? 6800;
+  const [redeemError, setRedeemError] = useState("");
+  const redeem = trpc.loyalty.redeemVoucher.useMutation({
+    onSuccess: () => {
+      utils.loyalty.getAccount.invalidate();
+      utils.loyalty.listMyVouchers.invalidate();
+      setRedeemError("");
+    },
+    onError: (e) => setRedeemError(e.message),
+  });
+
+  const balance         = account?.balance         ?? 0;
+  const lifetime        = account?.lifetimeEarned  ?? 0;
   const redemptionRate  = config?.redemptionRate   ?? 100;
   const minRedeem       = config?.minRedeem        ?? 500;
   const canRedeem       = balance >= minRedeem;
   const tier            = getTier(lifetime);
   const nextTier        = TIERS[TIERS.findIndex((t) => t.id === tier.id) + 1];
+
+  const activeVouchers = (vouchers ?? []).filter((v) => v.status === "active");
 
   const userName = session?.user?.name ?? "Your membership";
 
@@ -579,35 +570,51 @@ export default function RewardsPage() {
         {/* Milestone markers */}
         <MilestoneMarkers points={lifetime} />
 
-        {/* Redeem CTA — shown when enough points */}
-        {canRedeem && (
+        {/* Redeem — mint a discount voucher from points */}
+        {canRedeem ? (
           <div style={{ marginTop: 20, padding: "14px 16px", background: "rgba(201,168,92,0.06)", border: "1px solid rgba(201,168,92,0.3)", borderRadius: 2 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-                  color: "var(--gold-400)", marginBottom: 3,
-                }}>
-                  Ready to redeem
-                </div>
-                <div style={{
-                  fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                  fontSize: 22, fontWeight: 300, color: "var(--gold-400)",
-                }}>
-                  R{Math.round((balance / redemptionRate) * 10)} off your next booking
-                </div>
-              </div>
-              <Link href="/book" style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                color: "var(--gold-400)", textDecoration: "none",
-                padding: "8px 12px", border: "1px solid rgba(201,168,92,0.45)", borderRadius: 2,
-                whiteSpace: "nowrap",
-              }}>
-                Book →
-              </Link>
+            <div style={{
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
+              color: "var(--gold-400)", marginBottom: 8,
+            }}>
+              Redeem points for a voucher
             </div>
+            <p style={{
+              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
+              fontSize: 14, fontWeight: 300, fontStyle: "italic",
+              color: "var(--cream-400)", lineHeight: 1.5, marginBottom: 12,
+            }}>
+              Turn points into a discount code to use on your next treatment. Show the code in-salon.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {[minRedeem, 1000, 2500, balance].filter((v, i, arr) => v >= minRedeem && v <= balance && arr.indexOf(v) === i).map((pts) => (
+                <button
+                  key={pts}
+                  disabled={redeem.isPending}
+                  onClick={() => redeem.mutate({ points: pts })}
+                  style={{
+                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                    fontSize: 11, letterSpacing: "0.06em",
+                    color: "var(--gold-400)", background: "var(--onyx-800)",
+                    border: "1px solid rgba(201,168,92,0.45)", borderRadius: 2,
+                    padding: "8px 12px", cursor: redeem.isPending ? "default" : "pointer",
+                    opacity: redeem.isPending ? 0.6 : 1,
+                  }}
+                >
+                  {pts.toLocaleString()} pts → R{Math.round((pts / redemptionRate) * (config?.currencyUnitAmount ?? 10))}
+                </button>
+              ))}
+            </div>
+            {redeemError && (
+              <div style={{ marginTop: 10, fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: 11, color: "#e57373" }}>
+                {redeemError}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ marginTop: 20, textAlign: "center", fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif", fontSize: 14, fontStyle: "italic", color: "var(--cream-400)" }}>
+            Earn {(minRedeem - balance).toLocaleString()} more points to unlock your first voucher.
           </div>
         )}
 
@@ -626,19 +633,31 @@ export default function RewardsPage() {
             fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
             fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--onyx-500)",
           }}>
-            {DEMO_VOUCHERS.length} available
+            {activeVouchers.length} available
           </span>
         </div>
       </div>
 
       {/* Voucher scroll */}
-      <div style={{
-        display: "flex", gap: 10, overflowX: "auto",
-        paddingLeft: 20, paddingRight: 20, paddingBottom: 4,
-        scrollbarWidth: "none",
-      }}>
-        {DEMO_VOUCHERS.map((v, i) => <RewardVoucher key={i} {...v} />)}
-      </div>
+      {activeVouchers.length > 0 ? (
+        <div style={{
+          display: "flex", gap: 10, overflowX: "auto",
+          paddingLeft: 20, paddingRight: 20, paddingBottom: 4,
+          scrollbarWidth: "none",
+        }}>
+          {activeVouchers.map((v) => (
+            <RewardVoucher key={v.id} code={v.code} discountValue={v.discountValue} expiresAt={v.expiresAt} />
+          ))}
+        </div>
+      ) : (
+        <div style={{
+          padding: "0 20px", marginBottom: 4,
+          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
+          fontSize: 14, fontStyle: "italic", color: "var(--cream-400)",
+        }}>
+          No vouchers yet — redeem points above to create one.
+        </div>
+      )}
 
       <div style={{ padding: "0 20px" }}>
 
@@ -670,20 +689,20 @@ export default function RewardsPage() {
         {/* Separator */}
         <div style={{ height: 1, background: "linear-gradient(90deg,transparent,var(--onyx-600) 20%,var(--onyx-600) 80%,transparent)", margin: "16px 0" }} />
 
-        {/* Shop the Look */}
+        {/* Treat yourself — products within reach of your points */}
         <div style={{ marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
             <h2 style={{
               fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
               fontSize: 22, fontWeight: 300, fontStyle: "italic", color: "var(--cream-100)",
             }}>
-              Shop the Look
+              Treat Yourself
             </h2>
             <span style={{
               fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--onyx-500)",
+              fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--gold-400)",
             }}>
-              Last visit
+              R{suggested?.randValue ?? 0} in points
             </span>
           </div>
           <p style={{
@@ -691,19 +710,31 @@ export default function RewardsPage() {
             fontSize: 13, fontWeight: 300, fontStyle: "italic",
             color: "var(--cream-400)", lineHeight: 1.6, marginBottom: 12,
           }}>
-            Products used in your Noir Sculptural Set
+            What your points could put towards a little something from the boutique
           </p>
         </div>
       </div>
 
       {/* Product chips scroll */}
-      <div style={{
-        display: "flex", gap: 8, overflowX: "auto",
-        paddingLeft: 20, paddingRight: 20, paddingBottom: 4,
-        scrollbarWidth: "none",
-      }}>
-        {SHOP_PRODUCTS.map((p) => <ProductChip key={p.name} {...p} />)}
-      </div>
+      {suggested && suggested.products.length > 0 && (
+        <div style={{
+          display: "flex", gap: 8, overflowX: "auto",
+          paddingLeft: 20, paddingRight: 20, paddingBottom: 4,
+          scrollbarWidth: "none",
+        }}>
+          {suggested.products.map((p) => (
+            <ProductChip
+              key={p.id}
+              name={p.name}
+              brand={p.brand}
+              price={p.price}
+              imageUrl={p.imageUrl}
+              covered={p.covered}
+              discountedPrice={p.discountedPrice}
+            />
+          ))}
+        </div>
+      )}
 
       <div style={{ padding: "0 20px" }}>
         <div style={{ height: 1, background: "linear-gradient(90deg,transparent,var(--onyx-600) 20%,var(--onyx-600) 80%,transparent)", margin: "20px 0 16px" }} />

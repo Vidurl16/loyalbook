@@ -14,7 +14,7 @@ const PERKS = [
 
 export default function SignUpPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", password: "", phone: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", phone: "", marketingOptIn: true });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -152,6 +152,24 @@ export default function SignUpPage() {
                 style={inputStyle}
               />
             ))}
+            <label style={{
+              display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer",
+              marginTop: 4, padding: "2px 0",
+            }}>
+              <input
+                type="checkbox"
+                checked={form.marketingOptIn}
+                onChange={(e) => setForm((f) => ({ ...f, marketingOptIn: e.target.checked }))}
+                style={{ marginTop: 3, accentColor: "var(--gold-400)", width: 15, height: 15, flexShrink: 0 }}
+              />
+              <span style={{
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                fontSize: 11, letterSpacing: "0.03em", lineHeight: 1.5,
+                color: "var(--cream-300)",
+              }}>
+                Email me offers, news and reminders from Perfect 10. You can unsubscribe any time.
+              </span>
+            </label>
             {error && (
               <div style={{
                 fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",

@@ -46,7 +46,7 @@ function BookPageInner() {
     { enabled: !!selectedService }
   );
   const { data: loyaltyAccount } = trpc.loyalty.getAccount.useQuery(
-    { clientId: (session?.user as any)?.id },
+    undefined,
     { enabled: !!session?.user }
   );
   const { data: loyaltyConfig } = trpc.loyalty.getConfig.useQuery({ spaId: SPA_ID });
@@ -851,7 +851,6 @@ function BookPageInner() {
                 const chosenStaffId = selectedStaff?.id ?? staffList?.[0]?.id;
                 createAppointment.mutate({
                   spaId: SPA_ID,
-                  clientId: (session.user as any).id,
                   ...(chosenStaffId ? { staffId: chosenStaffId } : {}),
                   serviceId: selectedService.id,
                   startAt: start.toISOString(),

@@ -1,0 +1,3 @@
+-- AddColumn
+ALTER TABLE "User" ADD COLUMN "marketingOptIn" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "User" ADD COLUMN "marketingOptInAt" TIMESTAMP(3);

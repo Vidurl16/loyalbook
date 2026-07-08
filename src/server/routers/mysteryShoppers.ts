@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, publicProcedure, protectedProcedure } from "@/server/trpc";
+import { router, protectedProcedure, ownerProcedure } from "@/server/trpc";
 import { TRPCError } from "@trpc/server";
 
 const RatingSchema = z.number().int().min(1).max(5);
@@ -15,7 +15,7 @@ export const mysteryShoppersRouter = router({
       preVisitNotes:    z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const clientId = (ctx.session.user as any).id as string;
+      const clientId = ctx.session.user.id;
       return ctx.prisma.mysteryShopperVisit.create({
         data: {
           locationId:        input.locationId,
@@ -32,7 +32,7 @@ export const mysteryShoppersRouter = router({
   myVisit: protectedProcedure
     .input(z.object({ locationId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const clientId = (ctx.session.user as any).id as string;
+      const clientId = ctx.session.user.id;
       return ctx.prisma.mysteryShopperVisit.findFirst({
         where: { clientId, locationId: input.locationId, status: { notIn: ["rejected"] } },
         orderBy: { createdAt: "desc" },
@@ -59,7 +59,7 @@ export const mysteryShoppersRouter = router({
       wouldReturn:             z.boolean(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const clientId = (ctx.session.user as any).id as string;
+      const clientId = ctx.session.user.id;
       const visit = await ctx.prisma.mysteryShopperVisit.findUnique({ where: { id: input.visitId } });
       if (!visit || visit.clientId !== clientId) throw new TRPCError({ code: "FORBIDDEN" });
       if (visit.status === "completed" || visit.status === "approved" || visit.status === "reimbursed") {
@@ -77,8 +77,8 @@ export const mysteryShoppersRouter = router({
       });
     }),
 
-  // Admin: list all visits for a location
-  listForAdmin: publicProcedure
+  // Owner only: list all visits for a location (staff must not see shopper identities)
+  listForAdmin: ownerProcedure
     .input(z.object({
       locationId: z.string(),
       status:     z.string().optional(),
@@ -96,8 +96,8 @@ export const mysteryShoppersRouter = router({
       });
     }),
 
-  // Admin: approve + set reimbursement amount
-  approve: publicProcedure
+  // Owner only: approve + set reimbursement amount
+  approve: ownerProcedure
     .input(z.object({
       visitId:             z.string(),
       reimbursementAmount: z.number().positive(),
@@ -114,8 +114,8 @@ export const mysteryShoppersRouter = router({
       });
     }),
 
-  // Admin: mark as reimbursed
-  markReimbursed: publicProcedure
+  // Owner only: mark as reimbursed
+  markReimbursed: ownerProcedure
     .input(z.object({ visitId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.mysteryShopperVisit.update({

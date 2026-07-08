@@ -60,6 +60,7 @@ model Spa {
   loyaltyConfig  LoyaltyConfig?
   notifications  Notification[]
   locations      Location[]
+  vouchers       Voucher[]
 }
 
 model Location {
@@ -195,6 +196,8 @@ model User {
   passwordHash      String?
   dob               DateTime?
   image             String?
+  marketingOptIn    Boolean        @default(false)
+  marketingOptInAt  DateTime?
   createdAt         DateTime       @default(now())
   spa               Spa?           @relation(fields: [spaId], references: [id])
   accounts          Account[]
@@ -204,6 +207,7 @@ model User {
   loyaltyAccount    LoyaltyAccount?
   notifications          Notification[]
   mysteryShopperVisits   MysteryShopperVisit[]
+  vouchers               Voucher[]
 }
 
 model Service {
@@ -317,7 +321,44 @@ model LoyaltyConfig {
   redemptionRate       Float   @default(100)  // 100 points = R10
   minRedeem            Int     @default(500)
   expiryDays           Int?                   // null = no expiry
+  voucherExpiryDays    Int     @default(90)   // minted vouchers valid for N days
+  // Tier ladder: [{ name, minLifetimeEarned, perks }] ordered ascending by threshold.
+  tiers                Json    @default("[{\"name\":\"Bronze\",\"minLifetimeEarned\":0},{\"name\":\"Silver\",\"minLifetimeEarned\":2500},{\"name\":\"Gold\",\"minLifetimeEarned\":5000},{\"name\":\"Perfect 10\",\"minLifetimeEarned\":10000}]")
   spa                  Spa     @relation(fields: [spaId], references: [id])
+}
+
+enum VoucherStatus {
+  active
+  redeemed
+  expired
+  void
+}
+
+enum VoucherDiscountType {
+  fixed    // discountValue is a rand amount off
+  percent  // discountValue is a percentage off
+}
+
+model Voucher {
+  id                  String              @id @default(cuid())
+  spaId               String
+  clientId            String
+  code                String              @unique
+  pointsSpent         Int
+  discountType        VoucherDiscountType @default(fixed)
+  discountValue       Float               // rand amount (fixed) or percent (percent)
+  status              VoucherStatus       @default(active)
+  createdAt           DateTime            @default(now())
+  expiresAt           DateTime?
+  redeemedAt          DateTime?
+  redeemedByStaffId   String?
+  appointmentId       String?
+  pointsTransactionId String?
+  spa                 Spa                 @relation(fields: [spaId], references: [id])
+  client              User                @relation(fields: [clientId], references: [id])
+
+  @@index([spaId, status])
+  @@map("vouchers")
 }
 
 enum NotificationChannel {

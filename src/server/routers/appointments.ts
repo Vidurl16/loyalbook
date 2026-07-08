@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure, publicProcedure } from "@/server/trpc";
+import { router, protectedProcedure } from "@/server/trpc";
 
 export const appointmentsRouter = router({
   list: protectedProcedure
@@ -50,11 +50,10 @@ export const appointmentsRouter = router({
       });
     }),
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(
       z.object({
         spaId: z.string(),
-        clientId: z.string(),
         staffId: z.string().optional(),
         serviceId: z.string(),
         startAt: z.string(),
@@ -64,10 +63,13 @@ export const appointmentsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // Client is always the authenticated user — never trust a client-supplied id.
+      const clientId = ctx.session.user.id;
+
       // Duplicate booking detection (same client, same time)
       const duplicate = await ctx.prisma.appointment.findFirst({
         where: {
-          clientId: input.clientId,
+          clientId,
           startAt: new Date(input.startAt),
           status: { in: ["pending", "confirmed"] },
         },
@@ -96,7 +98,7 @@ export const appointmentsRouter = router({
       const appointment = await ctx.prisma.appointment.create({
         data: {
           spaId: input.spaId,
-          clientId: input.clientId,
+          clientId,
           ...(input.staffId ? { staffId: input.staffId } : {}),
           serviceId: input.serviceId,
           startAt: new Date(input.startAt),
