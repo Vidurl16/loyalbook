@@ -2,12 +2,8 @@
  * Creates an owner (admin) account for Perfect 10 La Lucia.
  * Run with: node node_modules/.bin/jiti create-admin.ts
  *
- * Usage:
+ * Usage (ADMIN_PASSWORD is required — there is no default):
  *   ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=yourpassword node node_modules/.bin/jiti create-admin.ts
- *
- * Defaults (if env vars not set):
- *   email:    admin@perfect10lalucia.co.za
- *   password: Perfect10Admin!
  */
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -19,8 +15,12 @@ const prisma = new PrismaClient({ adapter, log: [] });
 
 async function main() {
   const email    = process.env.ADMIN_EMAIL    ?? "admin@perfect10lalucia.co.za";
-  const password = process.env.ADMIN_PASSWORD ?? "Perfect10Admin!";
+  const password = process.env.ADMIN_PASSWORD;
   const name     = process.env.ADMIN_NAME     ?? "Perfect 10 Admin";
+
+  if (!password || password.length < 10) {
+    throw new Error("ADMIN_PASSWORD env var is required (min 10 chars) — no default is provided.");
+  }
 
   const spa = await prisma.spa.findFirst();
   if (!spa) throw new Error("No spa found — run seed.ts first.");
@@ -48,10 +48,8 @@ async function main() {
   });
 
   console.log(`\n✅ Admin account created!`);
-  console.log(`   Email:    ${email}`);
-  console.log(`   Password: ${password}`);
-  console.log(`\n👉 Log in at /login and you'll have full dashboard access.\n`);
-  console.log(`⚠️  Change your password after first login.\n`);
+  console.log(`   Email: ${email}`);
+  console.log(`\n👉 Log in at /login with the ADMIN_PASSWORD you supplied.\n`);
 }
 
 main()

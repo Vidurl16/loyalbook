@@ -986,7 +986,6 @@ function BookPageInner() {
                   startAt: start.toISOString(),
                   endAt: end.toISOString(),
                   notes: skinNotes || undefined,
-                  pointsRedeemed: pointsToRedeem,
                 });
               }}
               style={{

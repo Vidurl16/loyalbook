@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "@/server/trpc";
+import { router, adminProcedure } from "@/server/trpc";
 
 const periodSince = (period: "day" | "week" | "month" | "year") => {
   const map = { day: 1, week: 7, month: 30, year: 365 };
@@ -7,7 +7,7 @@ const periodSince = (period: "day" | "week" | "month" | "year") => {
 };
 
 export const analyticsRouter = router({
-  revenue: protectedProcedure
+  revenue: adminProcedure
     .input(z.object({ spaId: z.string(), period: z.enum(["day", "week", "month", "year"]) }))
     .query(async ({ ctx, input }) => {
       const since = periodSince(input.period);
@@ -19,7 +19,7 @@ export const analyticsRouter = router({
       return { total, count: appointments.length, since };
     }),
 
-  topServices: protectedProcedure
+  topServices: adminProcedure
     .input(z.object({ spaId: z.string() }))
     .query(async ({ ctx, input }) => {
       const grouped = await ctx.prisma.appointment.groupBy({
@@ -43,7 +43,7 @@ export const analyticsRouter = router({
       }));
     }),
 
-  pointsEconomy: protectedProcedure
+  pointsEconomy: adminProcedure
     .input(z.object({ spaId: z.string() }))
     .query(async ({ ctx, input }) => {
       const accounts = await ctx.prisma.loyaltyAccount.findMany({
@@ -56,7 +56,7 @@ export const analyticsRouter = router({
       return { totalIssued, totalRedeemed, totalOutstanding, memberCount: accounts.length };
     }),
 
-  bookingStatusBreakdown: protectedProcedure
+  bookingStatusBreakdown: adminProcedure
     .input(z.object({ spaId: z.string(), period: z.enum(["day", "week", "month", "year"]) }))
     .query(async ({ ctx, input }) => {
       const since = periodSince(input.period);
@@ -68,7 +68,7 @@ export const analyticsRouter = router({
       return grouped.map((g) => ({ status: g.status, count: g._count.id }));
     }),
 
-  newMembers: protectedProcedure
+  newMembers: adminProcedure
     .input(z.object({ spaId: z.string(), period: z.enum(["day", "week", "month", "year"]) }))
     .query(async ({ ctx, input }) => {
       const since = periodSince(input.period);
@@ -81,7 +81,7 @@ export const analyticsRouter = router({
       return { count, total };
     }),
 
-  therapistPerformance: protectedProcedure
+  therapistPerformance: adminProcedure
     .input(z.object({ spaId: z.string(), period: z.enum(["day", "week", "month", "year"]) }))
     .query(async ({ ctx, input }) => {
       const since = periodSince(input.period);
@@ -131,7 +131,7 @@ export const analyticsRouter = router({
         .sort((a, b) => b.count - a.count);
     }),
 
-  therapistDetail: protectedProcedure
+  therapistDetail: adminProcedure
     .input(z.object({
       spaId: z.string(),
       staffId: z.string(),
