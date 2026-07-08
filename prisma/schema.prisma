@@ -416,6 +416,40 @@ enum MysteryShopperStatus {
   rejected
 }
 
+// New secret-shopper programme: verified entry, server-decided spin prize,
+// once-per-person + cooldown, owner-only visibility.
+enum MysteryEntryStatus {
+  entered
+  verified
+  selected
+  redeemed
+  expired
+}
+
+model MysteryShopperEntry {
+  id            String             @id @default(cuid())
+  spaId         String
+  clientId      String?
+  name          String
+  email         String
+  phone         String?
+  otpHash       String?
+  otpExpiresAt  DateTime?
+  verifiedAt    DateTime?
+  prize         String?
+  spunAt        DateTime?
+  consentReview Boolean            @default(false)
+  consentPhoto  Boolean            @default(false)
+  status        MysteryEntryStatus @default(entered)
+  selectedAt    DateTime?
+  redeemedAt    DateTime?
+  cooldownUntil DateTime?
+  createdAt     DateTime           @default(now())
+
+  @@unique([spaId, email])
+  @@map("mystery_shopper_entries")
+}
+
 model MysteryShopperVisit {
   id                      String               @id @default(cuid())
   locationId              String
