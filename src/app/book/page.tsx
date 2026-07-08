@@ -27,6 +27,146 @@ const inputStyle: React.CSSProperties = {
   boxSizing: "border-box" as const,
 };
 
+const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+const SLOT_STEP_MINS = 30;
+
+function toMinutes(hhmm: string): number {
+  const [h, m] = hhmm.split(":").map(Number);
+  return h * 60 + (m || 0);
+}
+
+/**
+ * Availability-driven time-slot grid. Reads the therapist's working hours and
+ * booked slots for the chosen day, then offers only start times where the whole
+ * treatment fits without overlapping an existing booking.
+ */
+function SlotGrid({
+  staffIdForAvailability,
+  durationMins,
+  value,
+  onChange,
+}: {
+  staffIdForAvailability?: string;
+  durationMins: number;
+  value: string;
+  onChange: (iso: string) => void;
+}) {
+  // Next 14 days as selectable date chips.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    return d;
+  });
+
+  const [selectedDate, setSelectedDate] = useState<Date>(days[0]);
+  const dateKey = selectedDate.toISOString().slice(0, 10);
+
+  const { data: availability, isLoading } = trpc.staff.getAvailability.useQuery(
+    { staffId: staffIdForAvailability ?? "", date: dateKey, durationMins },
+    { enabled: !!staffIdForAvailability }
+  );
+
+  // Build candidate start times from working hours minus booked slots.
+  const slots: { iso: string; label: string }[] = [];
+  const wh = (availability?.workingHours ?? {}) as Record<string, { open: string; close: string } | undefined>;
+  const dayHours = wh[WEEKDAY_KEYS[selectedDate.getDay()]];
+  if (dayHours?.open && dayHours?.close) {
+    const open = toMinutes(dayHours.open);
+    const close = toMinutes(dayHours.close);
+    const now = new Date();
+    const booked = (availability?.bookedSlots ?? []).map((b) => ({
+      start: new Date(b.startAt).getTime(),
+      end: new Date(b.endAt).getTime(),
+    }));
+    for (let t = open; t + durationMins <= close; t += SLOT_STEP_MINS) {
+      const start = new Date(selectedDate);
+      start.setHours(Math.floor(t / 60), t % 60, 0, 0);
+      const end = new Date(start.getTime() + durationMins * 60000);
+      if (start.getTime() <= now.getTime()) continue; // no past slots
+      const clashes = booked.some((b) => start.getTime() < b.end && end.getTime() > b.start);
+      if (clashes) continue;
+      slots.push({
+        iso: start.toISOString(),
+        label: start.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" }),
+      });
+    }
+  }
+
+  return (
+    <div>
+      {/* Date chips */}
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 12, scrollbarWidth: "none" }}>
+        {days.map((d) => {
+          const key = d.toISOString().slice(0, 10);
+          const active = key === dateKey;
+          return (
+            <button
+              key={key}
+              onClick={() => { setSelectedDate(d); onChange(""); }}
+              style={{
+                flexShrink: 0, minWidth: 58, padding: "10px 8px",
+                background: active ? "rgba(201,168,92,0.1)" : "var(--onyx-800)",
+                border: `1px solid ${active ? "var(--gold-400)" : "var(--onyx-700)"}`,
+                borderRadius: 2, cursor: "pointer", textAlign: "center",
+              }}
+            >
+              <div style={{ fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: 8, letterSpacing: "0.16em", textTransform: "uppercase", color: active ? "var(--gold-400)" : "var(--onyx-500)" }}>
+                {d.toLocaleDateString("en-ZA", { weekday: "short" })}
+              </div>
+              <div style={{ fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif", fontSize: 20, fontWeight: 300, color: active ? "var(--cream-100)" : "var(--cream-400)" }}>
+                {d.getDate()}
+              </div>
+              <div style={{ fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: 7, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--onyx-500)" }}>
+                {d.toLocaleDateString("en-ZA", { month: "short" })}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Time slots */}
+      {!staffIdForAvailability ? (
+        <p style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: 14, fontStyle: "italic", color: "var(--cream-400)", padding: "12px 0" }}>
+          Choose a therapist to see available times.
+        </p>
+      ) : isLoading ? (
+        <p style={{ fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 12, color: "var(--onyx-500)", padding: "12px 0" }}>
+          Loading available times…
+        </p>
+      ) : slots.length === 0 ? (
+        <p style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: 14, fontStyle: "italic", color: "var(--cream-400)", padding: "12px 0" }}>
+          No open slots on this day — try another date.
+        </p>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))", gap: 8 }}>
+          {slots.map((s) => {
+            const active = value === s.iso;
+            return (
+              <button
+                key={s.iso}
+                onClick={() => onChange(s.iso)}
+                style={{
+                  padding: "11px 6px",
+                  background: active ? "rgba(201,168,92,0.12)" : "var(--onyx-800)",
+                  border: `1px solid ${active ? "var(--gold-400)" : "var(--onyx-700)"}`,
+                  borderRadius: 2, cursor: "pointer",
+                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                  fontSize: 13, fontWeight: active ? 600 : 400,
+                  color: active ? "var(--gold-400)" : "var(--cream-200)",
+                }}
+              >
+                {s.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BookPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -435,21 +575,11 @@ function BookPageInner() {
               borderRadius: 2, padding: "20px",
               boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
             }}>
-              <div style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-                color: "var(--onyx-500)", marginBottom: 10,
-              }}>
-                Date &amp; Time
-              </div>
-              <input
-                type="datetime-local"
-                onChange={(e) => setSelectedSlot(e.target.value)}
-                min={new Date().toISOString().slice(0, 16)}
-                style={{
-                  ...inputStyle,
-                  colorScheme: "dark",
-                }}
+              <SlotGrid
+                staffIdForAvailability={selectedStaff?.id ?? staffList?.[0]?.id}
+                durationMins={selectedService?.durationMins ?? 60}
+                value={selectedSlot}
+                onChange={setSelectedSlot}
               />
               {selectedSlot && (
                 <div style={{
