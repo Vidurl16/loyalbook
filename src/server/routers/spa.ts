@@ -1,14 +1,14 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "@/server/trpc";
+import { router, adminProcedure } from "@/server/trpc";
 
 export const spaRouter = router({
-  get: protectedProcedure
+  get: adminProcedure
     .input(z.object({ spaId: z.string() }))
     .query(async ({ ctx, input }) => {
       return ctx.prisma.spa.findUnique({ where: { id: input.spaId } });
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(
       z.object({
         spaId: z.string(),

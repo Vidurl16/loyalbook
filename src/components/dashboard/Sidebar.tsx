@@ -12,6 +12,8 @@ export const navItems = [
   { href: "/dashboard/services", label: "Treatments", icon: "🌿" },
   { href: "/dashboard/staff", label: "Therapists", icon: "🧖‍♀️" },
   { href: "/dashboard/loyalty", label: "Loyalty", icon: "✨" },
+  { href: "/dashboard/vouchers", label: "Vouchers", icon: "🎟️" },
+  { href: "/dashboard/marketing", label: "Marketing", icon: "✉️" },
   { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
   { href: "/dashboard/settings", label: "Settings", icon: "⚙️" },
 ];

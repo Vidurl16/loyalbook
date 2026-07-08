@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure, publicProcedure } from "@/server/trpc";
+import { router, adminProcedure, publicProcedure } from "@/server/trpc";
 
 export const servicesRouter = router({
   list: publicProcedure
@@ -11,7 +11,7 @@ export const servicesRouter = router({
       });
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(
       z.object({
         spaId: z.string(),
@@ -26,7 +26,7 @@ export const servicesRouter = router({
       return ctx.prisma.service.create({ data: input });
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(
       z.object({
         id: z.string(),

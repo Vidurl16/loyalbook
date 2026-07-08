@@ -60,6 +60,7 @@ model Spa {
   loyaltyConfig  LoyaltyConfig?
   notifications  Notification[]
   locations      Location[]
+  vouchers       Voucher[]
 }
 
 model Location {
@@ -75,10 +76,12 @@ model Location {
   isActive     Boolean       @default(true)
   createdAt    DateTime      @default(now())
   spa          Spa           @relation(fields: [spaId], references: [id])
-  galleryItems    GalleryItem[]
-  transformations Transformation[]
-  products        Product[]
-  orders          Order[]
+  galleryItems         GalleryItem[]
+  transformations      Transformation[]
+  products             Product[]
+  orders               Order[]
+  mysteryShopperVisits MysteryShopperVisit[]
+  reviews              Review[]
 
   @@map("locations")
 }
@@ -177,6 +180,25 @@ model OrderItem {
   @@map("order_items")
 }
 
+model Review {
+  id               String    @id @default(cuid())
+  locationId       String
+  clientId         String?
+  authorName       String
+  rating           Int       // 1–5
+  body             String
+  serviceName      String?
+  therapist        String?
+  imageUrl         String?
+  consentToPublish Boolean   @default(true)
+  isPublished      Boolean   @default(true)
+  sortOrder        Int       @default(0)
+  createdAt        DateTime  @default(now())
+  location         Location  @relation(fields: [locationId], references: [id])
+
+  @@map("reviews")
+}
+
 enum Role {
   owner
   staff
@@ -194,6 +216,8 @@ model User {
   passwordHash      String?
   dob               DateTime?
   image             String?
+  marketingOptIn    Boolean        @default(false)
+  marketingOptInAt  DateTime?
   createdAt         DateTime       @default(now())
   spa               Spa?           @relation(fields: [spaId], references: [id])
   accounts          Account[]
@@ -201,7 +225,9 @@ model User {
   staffProfile      Staff?
   appointments      Appointment[]  @relation("ClientAppointments")
   loyaltyAccount    LoyaltyAccount?
-  notifications     Notification[]
+  notifications          Notification[]
+  mysteryShopperVisits   MysteryShopperVisit[]
+  vouchers               Voucher[]
 }
 
 model Service {
@@ -315,7 +341,44 @@ model LoyaltyConfig {
   redemptionRate       Float   @default(100)  // 100 points = R10
   minRedeem            Int     @default(500)
   expiryDays           Int?                   // null = no expiry
+  voucherExpiryDays    Int     @default(90)   // minted vouchers valid for N days
+  // Tier ladder: [{ name, minLifetimeEarned, perks }] ordered ascending by threshold.
+  tiers                Json    @default("[{\"name\":\"Bronze\",\"minLifetimeEarned\":0},{\"name\":\"Silver\",\"minLifetimeEarned\":2500},{\"name\":\"Gold\",\"minLifetimeEarned\":5000},{\"name\":\"Perfect 10\",\"minLifetimeEarned\":10000}]")
   spa                  Spa     @relation(fields: [spaId], references: [id])
+}
+
+enum VoucherStatus {
+  active
+  redeemed
+  expired
+  void
+}
+
+enum VoucherDiscountType {
+  fixed    // discountValue is a rand amount off
+  percent  // discountValue is a percentage off
+}
+
+model Voucher {
+  id                  String              @id @default(cuid())
+  spaId               String
+  clientId            String
+  code                String              @unique
+  pointsSpent         Int
+  discountType        VoucherDiscountType @default(fixed)
+  discountValue       Float               // rand amount (fixed) or percent (percent)
+  status              VoucherStatus       @default(active)
+  createdAt           DateTime            @default(now())
+  expiresAt           DateTime?
+  redeemedAt          DateTime?
+  redeemedByStaffId   String?
+  appointmentId       String?
+  pointsTransactionId String?
+  spa                 Spa                 @relation(fields: [spaId], references: [id])
+  client              User                @relation(fields: [clientId], references: [id])
+
+  @@index([spaId, status])
+  @@map("vouchers")
 }
 
 enum NotificationChannel {
@@ -340,4 +403,94 @@ model Notification {
   payload Json                @default("{}")
   user    User                @relation(fields: [userId], references: [id])
   spa     Spa                 @relation(fields: [spaId], references: [id])
+}
+
+// ─── Mystery Shopper Program ──────────────────────────────────────────────────
+
+enum MysteryShopperStatus {
+  applied
+  scheduled
+  completed
+  approved
+  reimbursed
+  rejected
+}
+
+// New secret-shopper programme: verified entry, server-decided spin prize,
+// once-per-person + cooldown, owner-only visibility.
+enum MysteryEntryStatus {
+  entered
+  verified
+  selected
+  redeemed
+  expired
+}
+
+model MysteryShopperEntry {
+  id            String             @id @default(cuid())
+  spaId         String
+  clientId      String?
+  name          String
+  email         String
+  phone         String?
+  otpHash       String?
+  otpExpiresAt  DateTime?
+  verifiedAt    DateTime?
+  prize         String?
+  spunAt        DateTime?
+  consentReview Boolean            @default(false)
+  consentPhoto  Boolean            @default(false)
+  status        MysteryEntryStatus @default(entered)
+  selectedAt    DateTime?
+  redeemedAt    DateTime?
+  cooldownUntil DateTime?
+  createdAt     DateTime           @default(now())
+
+  @@unique([spaId, email])
+  @@map("mystery_shopper_entries")
+}
+
+model MysteryShopperVisit {
+  id                      String               @id @default(cuid())
+  locationId              String
+  clientId                String
+
+  status                  MysteryShopperStatus @default(applied)
+
+  // Pre-visit
+  serviceToEvaluate       String?
+  plannedVisitDate        DateTime?
+  preVisitNotes           String?
+
+  // Post-visit submission
+  receiptUrl              String?
+  receiptAmount           Float?
+  visitedAt               DateTime?
+  submittedAt             DateTime?
+
+  // Ratings (1–5)
+  overallRating           Int?
+  firstImpressionRating   Int?
+  cleanlinessRating       Int?
+  treatmentQualityRating  Int?
+  staffFriendlinessRating Int?
+  productKnowledgeRating  Int?
+  valueRating             Int?
+
+  // Written feedback
+  highlightsFeedback      String?
+  improvementFeedback     String?
+  staffFeedback           String?
+  wouldReturn             Boolean?
+
+  // Admin
+  reimbursementAmount     Float?
+  reimbursedAt            DateTime?
+  adminNotes              String?
+
+  createdAt               DateTime             @default(now())
+  client                  User                 @relation(fields: [clientId], references: [id])
+  location                Location             @relation(fields: [locationId], references: [id])
+
+  @@map("mystery_shopper_visits")
 }

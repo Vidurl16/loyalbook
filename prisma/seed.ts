@@ -11,33 +11,65 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter, log: [] });
 
 async function main() {
-  // Check if a Spa already exists
-  const existing = await prisma.spa.findFirst();
+  // Check if Perfect 10 spa already exists
+  const existing = await prisma.spa.findFirst({ where: { name: "Perfect 10" } });
   if (existing) {
+    const locations = await prisma.location.findMany({ where: { spaId: existing.id } });
     console.log(`✅ Spa already exists: ${existing.id} (${existing.name})`);
-    console.log(`\nSet in .env:\n  DEFAULT_SPA_ID="${existing.id}"\n  NEXT_PUBLIC_SPA_ID="${existing.id}"`);
+    locations.forEach((l) => console.log(`   📍 ${l.name}: ${l.id} (slug: ${l.slug})`));
+    const ballitoId = locations.find((l) => l.slug === "ballito")?.id ?? locations[0]?.id;
+    console.log(`\nSet in .env.local:\n  NEXT_PUBLIC_SPA_ID="${existing.id}"\n  NEXT_PUBLIC_LOCATION_ID="${ballitoId ?? ""}"\n`);
     return;
   }
 
+  // Create Perfect 10 spa
   const spa = await prisma.spa.create({
     data: {
-      name: "LoyalBook Spa",
-      address: "1 Wellness Lane, Cape Town",
+      name: "Perfect 10",
+      address: "KwaZulu-Natal, South Africa",
       timezone: "Africa/Johannesburg",
+      currency: "ZAR",
     },
   });
 
-  // Create default loyalty config — 10 points per R100 spent
+  // Loyalty config — 10 pts per R100 (matches "10 points per R100 spent" brand promise)
   await prisma.loyaltyConfig.create({
     data: {
       spaId: spa.id,
       pointsPerUnit: 10,
       currencyUnitAmount: 100,
-      rebookingBonus: 50,
+      rebookingBonus: 100,
       rebookingWindowDays: 56,
       birthdayBonus: 200,
       redemptionRate: 100,
       minRedeem: 500,
+    },
+  });
+
+  // Create two locations
+  const ballito = await prisma.location.create({
+    data: {
+      spaId: spa.id,
+      slug: "ballito",
+      name: "Perfect 10 Ballito",
+      address: "Ballito Junction Regional Mall, Ballito, KZN 4420",
+      phone: "+27 32 946 1234",
+      email: "ballito@perfect10.co.za",
+      timezone: "Africa/Johannesburg",
+      currency: "ZAR",
+    },
+  });
+
+  const laLucia = await prisma.location.create({
+    data: {
+      spaId: spa.id,
+      slug: "la-lucia",
+      name: "Perfect 10 La Lucia",
+      address: "La Lucia Mall, La Lucia Ridge, Umhlanga, KZN 4051",
+      phone: "+27 31 562 1234",
+      email: "lalucia@perfect10.co.za",
+      timezone: "Africa/Johannesburg",
+      currency: "ZAR",
     },
   });
 
@@ -184,9 +216,14 @@ async function main() {
     data: serviceData.map((s) => ({ ...s, spaId: spa.id })),
   });
 
-  console.log(`\n🌸 Spa created: "${spa.name}"`);
-  console.log(`✨ 10 services seeded`);
-  console.log(`\n⚠️  Add to your .env:\n  DEFAULT_SPA_ID="${spa.id}"\n  NEXT_PUBLIC_SPA_ID="${spa.id}"\n`);
+  console.log(`\nPerfect 10 seeded successfully.`);
+  console.log(`  Spa ID:          ${spa.id}`);
+  console.log(`  Ballito ID:      ${ballito.id}`);
+  console.log(`  La Lucia ID:     ${laLucia.id}`);
+  console.log(`  Services:        ${serviceData.length}`);
+  console.log(`\nAdd to .env.local:`);
+  console.log(`  NEXT_PUBLIC_SPA_ID="${spa.id}"`);
+  console.log(`  NEXT_PUBLIC_LOCATION_ID="${ballito.id}"\n`);
 }
 
 main()

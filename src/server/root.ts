@@ -9,6 +9,11 @@ import { galleryRouter } from "./routers/gallery";
 import { transformationsRouter } from "./routers/transformations";
 import { boutiqueRouter } from "./routers/boutique";
 import { spaRouter } from "./routers/spa";
+import { mysteryShoppersRouter } from "./routers/mysteryShoppers";
+import { mysteryShopperRouter } from "./routers/mysteryShopper";
+import { mediaRouter } from "./routers/media";
+import { reviewsRouter } from "./routers/reviews";
+import { emailRouter } from "./routers/email";
 
 export const appRouter = router({
   appointments: appointmentsRouter,
@@ -21,6 +26,11 @@ export const appRouter = router({
   transformations: transformationsRouter,
   boutique: boutiqueRouter,
   spa: spaRouter,
+  mysteryShoppers: mysteryShoppersRouter,
+  mysteryShopper: mysteryShopperRouter,
+  media: mediaRouter,
+  reviews: reviewsRouter,
+  email: emailRouter,
 });
 
 export type AppRouter = typeof appRouter;
