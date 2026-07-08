@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { router, protectedProcedure, adminProcedure } from "@/server/trpc";
+import { router, protectedProcedure, adminProcedure, ownerProcedure } from "@/server/trpc";
 import { computeTier, generateVoucherCode } from "@/lib/loyalty";
 
 export const loyaltyRouter = router({
@@ -44,8 +44,11 @@ export const loyaltyRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { spaId, tiers, ...rest } = input;
-      const data = { ...rest, ...(tiers ? { tiers } : {}) };
+      const { tiers, ...rest } = input;
+      // Trust the server-derived tenant over the client-supplied id where set.
+      const spaId = ctx.spaId ?? input.spaId;
+      const { spaId: _drop, ...configFields } = rest;
+      const data = { ...configFields, ...(tiers ? { tiers } : {}) };
       return ctx.prisma.loyaltyConfig.upsert({
         where: { spaId },
         update: data,
@@ -103,6 +106,16 @@ export const loyaltyRouter = router({
       const expiresAt = new Date(Date.now() + voucherExpiryDays * 86400000);
 
       return ctx.prisma.$transaction(async (tx) => {
+        // Atomic guard against double-spend: only decrement if the balance still
+        // covers it. Two concurrent redemptions can't both pass this.
+        const debit = await tx.loyaltyAccount.updateMany({
+          where: { clientId, balance: { gte: input.points } },
+          data: { balance: { decrement: input.points }, lastActivityAt: new Date() },
+        });
+        if (debit.count === 0) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Insufficient points balance." });
+        }
+
         const txn = await tx.pointsTransaction.create({
           data: {
             accountId: account.id,
@@ -110,11 +123,6 @@ export const loyaltyRouter = router({
             amount: -input.points,
             description: `Redeemed for R${discountValue} voucher`,
           },
-        });
-
-        await tx.loyaltyAccount.update({
-          where: { clientId },
-          data: { balance: { decrement: input.points }, lastActivityAt: new Date() },
         });
 
         return tx.voucher.create({
@@ -221,7 +229,7 @@ export const loyaltyRouter = router({
       };
     }),
 
-  adjustPoints: adminProcedure
+  adjustPoints: ownerProcedure
     .input(
       z.object({
         clientId: z.string(),
@@ -234,6 +242,9 @@ export const loyaltyRouter = router({
         where: { clientId: input.clientId },
       });
       if (!account) throw new Error("No loyalty account found for this client.");
+      if (ctx.spaId && account.spaId !== ctx.spaId) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Client belongs to another location." });
+      }
       if (account.balance + input.amount < 0) throw new Error("Cannot reduce balance below zero.");
 
       const updated = await ctx.prisma.loyaltyAccount.update({
@@ -260,8 +271,9 @@ export const loyaltyRouter = router({
   creditBirthdayPoints: adminProcedure
     .input(z.object({ spaId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const spaId = ctx.spaId ?? input.spaId;
       const config = await ctx.prisma.loyaltyConfig.findUnique({
-        where: { spaId: input.spaId },
+        where: { spaId },
       });
       if (!config) throw new Error("No loyalty config found");
 
@@ -270,7 +282,7 @@ export const loyaltyRouter = router({
 
       const clients = await ctx.prisma.user.findMany({
         where: {
-          spaId: input.spaId,
+          spaId,
           role: "client",
           dob: { not: null },
           loyaltyAccount: { isNot: null },
@@ -319,7 +331,7 @@ export const loyaltyRouter = router({
     }),
 
   // Admin: redeem points directly in-salon (legacy manual path, kept for admin use).
-  adminRedeem: adminProcedure
+  adminRedeem: ownerProcedure
     .input(z.object({
       clientId: z.string(),
       points: z.number().int().positive(),
@@ -330,11 +342,18 @@ export const loyaltyRouter = router({
         where: { clientId: input.clientId },
       });
       if (!account) throw new Error("No loyalty account found");
-      if (account.balance < input.points) throw new Error("Insufficient points balance");
+      if (ctx.spaId && account.spaId !== ctx.spaId) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Client belongs to another location." });
+      }
 
-      const updated = await ctx.prisma.loyaltyAccount.update({
-        where: { clientId: input.clientId },
+      // Atomic guard against concurrent over-redemption.
+      const debit = await ctx.prisma.loyaltyAccount.updateMany({
+        where: { clientId: input.clientId, balance: { gte: input.points } },
         data: { balance: { decrement: input.points }, lastActivityAt: new Date() },
+      });
+      if (debit.count === 0) throw new Error("Insufficient points balance");
+      const updated = await ctx.prisma.loyaltyAccount.findUniqueOrThrow({
+        where: { clientId: input.clientId },
       });
 
       await ctx.prisma.pointsTransaction.create({

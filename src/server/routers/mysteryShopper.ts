@@ -61,6 +61,14 @@ export const mysteryShopperRouter = router({
         throw new TRPCError({ code: "BAD_REQUEST", message: "You've already spun with this email." });
       }
 
+      // Resend throttle: at most one code per 60s per email (anti email-bomb / cost abuse).
+      if (existing?.otpSentAt && Date.now() - existing.otpSentAt.getTime() < 60_000) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "A code was just sent. Please wait a minute before requesting another.",
+        });
+      }
+
       const { code, hash, expiresAt } = await generateOtp();
 
       await ctx.prisma.mysteryShopperEntry.upsert({
@@ -72,6 +80,8 @@ export const mysteryShopperRouter = router({
           phone: input.phone,
           otpHash: hash,
           otpExpiresAt: expiresAt,
+          otpSentAt: new Date(),
+          otpAttempts: 0,
           status: "entered",
         },
         update: {
@@ -79,6 +89,8 @@ export const mysteryShopperRouter = router({
           phone: input.phone,
           otpHash: hash,
           otpExpiresAt: expiresAt,
+          otpSentAt: new Date(),
+          otpAttempts: 0,
           verifiedAt: null,
           status: "entered",
         },
@@ -107,12 +119,32 @@ export const mysteryShopperRouter = router({
       });
       if (!entry) throw new TRPCError({ code: "NOT_FOUND", message: "No entry found — please enter first." });
 
+      // Brute-force lockout: a 6-digit code is guessable within the 10-min window
+      // without a cap. After 5 wrong tries the code is voided and must be re-requested.
+      const MAX_ATTEMPTS = 5;
+      if (!entry.otpHash) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "This code is no longer valid — please request a new one." });
+      }
+      if (entry.otpAttempts >= MAX_ATTEMPTS) {
+        await ctx.prisma.mysteryShopperEntry.update({
+          where: { id: entry.id },
+          data: { otpHash: null, otpExpiresAt: null },
+        });
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many attempts — please request a new code." });
+      }
+
       const ok = await verifyOtp(input.code.trim(), entry.otpHash, entry.otpExpiresAt);
-      if (!ok) throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid or expired code." });
+      if (!ok) {
+        await ctx.prisma.mysteryShopperEntry.update({
+          where: { id: entry.id },
+          data: { otpAttempts: { increment: 1 } },
+        });
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid or expired code." });
+      }
 
       await ctx.prisma.mysteryShopperEntry.update({
         where: { id: entry.id },
-        data: { verifiedAt: new Date(), status: "verified", otpHash: null, otpExpiresAt: null },
+        data: { verifiedAt: new Date(), status: "verified", otpHash: null, otpExpiresAt: null, otpAttempts: 0 },
       });
       return { verified: true };
     }),

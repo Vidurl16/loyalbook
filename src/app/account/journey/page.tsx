@@ -53,10 +53,7 @@ export default function JourneyPage() {
   if (status === "unauthenticated") redirect("/login");
 
   const userId = (session?.user as any)?.id;
-  const { data: client } = trpc.clients.get.useQuery(
-    { id: userId! },
-    { enabled: !!userId }
-  );
+  const { data: client } = trpc.clients.me.useQuery(undefined, { enabled: !!userId });
 
   // Build grouped timeline from live data, fall back to demo
   type Entry = {

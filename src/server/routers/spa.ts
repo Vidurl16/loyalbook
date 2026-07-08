@@ -19,7 +19,8 @@ export const spaRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { spaId, ...data } = input;
+      const { spaId: _drop, ...data } = input;
+      const spaId = ctx.spaId ?? input.spaId;
       return ctx.prisma.spa.update({ where: { id: spaId }, data });
     }),
 });
