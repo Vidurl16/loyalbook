@@ -81,6 +81,7 @@ model Location {
   products             Product[]
   orders               Order[]
   mysteryShopperVisits MysteryShopperVisit[]
+  reviews              Review[]
 
   @@map("locations")
 }
@@ -177,6 +178,25 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
 
   @@map("order_items")
+}
+
+model Review {
+  id               String    @id @default(cuid())
+  locationId       String
+  clientId         String?
+  authorName       String
+  rating           Int       // 1–5
+  body             String
+  serviceName      String?
+  therapist        String?
+  imageUrl         String?
+  consentToPublish Boolean   @default(true)
+  isPublished      Boolean   @default(true)
+  sortOrder        Int       @default(0)
+  createdAt        DateTime  @default(now())
+  location         Location  @relation(fields: [locationId], references: [id])
+
+  @@map("reviews")
 }
 
 enum Role {
