@@ -8,7 +8,7 @@ export const mediaRouter = router({
   createUploadUrl: adminProcedure
     .input(
       z.object({
-        folder: z.enum(["gallery", "staff", "products", "reviews", "transformations"]),
+        folder: z.enum(["gallery", "staff", "products", "reviews"]),
         contentType: z.string(),
       })
     )

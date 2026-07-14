@@ -6,13 +6,6 @@ import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
-function getTier(pts: number) {
-  if (pts >= 15000) return { name: "Platinum", icon: "💎", color: "tier-platinum" };
-  if (pts >= 5000)  return { name: "Gold",     icon: "🥇", color: "tier-gold" };
-  if (pts >= 1000)  return { name: "Silver",   icon: "🥈", color: "tier-silver" };
-  return                   { name: "Bronze",   icon: "🥉", color: "tier-bronze" };
-}
-
 type Client = {
   id: string;
   name: string | null;
@@ -180,7 +173,7 @@ export default function ClientsPage() {
           <table className="w-full">
             <thead className="bg-[#EBEBEC] border-b border-[#D1D2D4]">
               <tr>
-                {["Guest", "Contact", "Visits", "Tier", "Points Balance", ""].map((h) => (
+                {["Guest", "Contact", "Visits", "Points Balance", ""].map((h) => (
                   <th key={h} className="text-left text-xs font-bold text-[#8D8E8F] px-5 py-3 uppercase tracking-widest">{h}</th>
                 ))}
               </tr>
@@ -188,8 +181,6 @@ export default function ClientsPage() {
             <tbody>
               {clients?.map((c) => {
                 const pts = c.loyaltyAccount?.balance ?? 0;
-                const lifetime = c.loyaltyAccount?.lifetimeEarned ?? 0;
-                const tier = getTier(lifetime);
                 return (
                   <tr key={c.id} className="border-b border-[#EBEBEC] hover:bg-[#EBEBEC]/50 transition-colors">
                     <td className="px-5 py-4">
@@ -205,11 +196,6 @@ export default function ClientsPage() {
                       {c.phone && <div className="text-[#8D8E8F] text-xs">{c.phone}</div>}
                     </td>
                     <td className="px-5 py-4 text-[#4A4A4A] text-sm">{c._count.appointments}</td>
-                    <td className="px-5 py-4">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${tier.color}`}>
-                        {tier.icon} {tier.name}
-                      </span>
-                    </td>
                     <td className="px-5 py-4">
                       <span className="bg-black text-white text-xs font-bold px-3 py-1">
                         {pts.toLocaleString()} pts
@@ -228,7 +214,7 @@ export default function ClientsPage() {
               })}
               {clients?.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center text-[#8D8E8F] py-12">No guests found.</td>
+                  <td colSpan={5} className="text-center text-[#8D8E8F] py-12">No guests found.</td>
                 </tr>
               )}
             </tbody>

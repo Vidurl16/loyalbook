@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 
-type Folder = "gallery" | "staff" | "products" | "reviews" | "transformations";
+type Folder = "gallery" | "staff" | "products" | "reviews";
 
 /**
  * Admin image uploader. Requests a signed URL from the server, PUTs the file

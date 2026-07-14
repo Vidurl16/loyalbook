@@ -1,11 +1,11 @@
 {
-  "name": "Perfect 10",
-  "short_name": "Perfect 10",
-  "description": "Luxury nail & beauty — Ballito & La Lucia, KwaZulu-Natal",
+  "name": "Viv-a-cious",
+  "short_name": "Viv-a-cious",
+  "description": "Hair & Beauty — Durban North, KwaZulu-Natal",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0e0c0a",
-  "theme_color": "#c9a85c",
+  "background_color": "#ffffff",
+  "theme_color": "#fe329c",
   "orientation": "portrait",
   "categories": ["lifestyle", "health"],
   "icons": [

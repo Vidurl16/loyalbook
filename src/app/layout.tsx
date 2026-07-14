@@ -1,32 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Abel, Marcellus, Bad_Script } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { brand, brandCssVars } from "@/lib/brand";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const abel = Abel({
+  variable: "--font-abel",
   subsets: ["latin"],
-});
-
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"],
+  weight: "400",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const marcellus = Marcellus({
+  variable: "--font-marcellus",
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: "400",
+  display: "swap",
+});
+
+const badScript = Bad_Script({
+  variable: "--font-bad-script",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
 export const viewport: Viewport = {
-  themeColor: "#c9a85c",
+  themeColor: "#fe329c",
 };
 
 export const metadata: Metadata = {
@@ -52,7 +53,7 @@ export default function RootLayout({
       <head>
         <style dangerouslySetInnerHTML={{ __html: brandCssVars() }} />
       </head>
-      <body className={`${geistSans.variable} ${cormorant.variable} ${dmSans.variable} antialiased`} style={{ paddingBottom: 58 }}>
+      <body className={`${abel.variable} ${marcellus.variable} ${badScript.variable} antialiased`} style={{ paddingBottom: 58 }}>
         <Providers>
           {children}
           <BottomNav />

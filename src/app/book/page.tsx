@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc";
+import { brand } from "@/lib/brand";
 
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
@@ -13,14 +14,27 @@ type Step = "service" | "staff" | "datetime" | "contact" | "confirm";
 const steps: Step[] = ["service", "staff", "datetime", "contact", "confirm"];
 const stepLabels = ["Treatment", "Therapist", "Date & Time", "Details", "Confirm"];
 
+const FONT_BODY = "var(--font-abel), Abel, sans-serif";
+const FONT_DISPLAY = "var(--font-marcellus), Marcellus, serif";
+const INK = "#232122";
+const INK_SOFT = "#4a4547";
+const MUTED = "#8d8e8f";
+const HAIRLINE = "#efdcd8";
+const BLUSH = "#e8bab3";
+const BLUSH_TINT = "#f7eae7";
+const BLUSH_DEEP = "#c98d82";
+const PINK = "#fe329c";
+const PINK_DARK = "#d41d7f";
+const CARD_SHADOW = "0 10px 30px rgba(35,33,34,0.07)";
+
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  background: "var(--onyx-800)",
-  border: "1px solid var(--onyx-700)",
+  background: "#ffffff",
+  border: `1px solid ${HAIRLINE}`,
   borderRadius: 2,
   padding: "13px 16px",
-  color: "var(--cream-100)",
-  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+  color: INK,
+  fontFamily: FONT_BODY,
   fontSize: 14,
   letterSpacing: "0.02em",
   outline: "none",
@@ -107,18 +121,18 @@ function SlotGrid({
               onClick={() => { setSelectedDate(d); onChange(""); }}
               style={{
                 flexShrink: 0, minWidth: 58, padding: "10px 8px",
-                background: active ? "rgba(201,168,92,0.1)" : "var(--onyx-800)",
-                border: `1px solid ${active ? "var(--gold-400)" : "var(--onyx-700)"}`,
+                background: active ? BLUSH_TINT : "#ffffff",
+                border: `1px solid ${active ? PINK : HAIRLINE}`,
                 borderRadius: 2, cursor: "pointer", textAlign: "center",
               }}
             >
-              <div style={{ fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: 8, letterSpacing: "0.16em", textTransform: "uppercase", color: active ? "var(--gold-400)" : "var(--onyx-500)" }}>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 8, letterSpacing: "0.16em", textTransform: "uppercase", color: active ? PINK_DARK : MUTED }}>
                 {d.toLocaleDateString("en-ZA", { weekday: "short" })}
               </div>
-              <div style={{ fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif", fontSize: 20, fontWeight: 300, color: active ? "var(--cream-100)" : "var(--cream-400)" }}>
+              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 20, fontWeight: 400, color: active ? INK : INK_SOFT }}>
                 {d.getDate()}
               </div>
-              <div style={{ fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", fontSize: 7, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--onyx-500)" }}>
+              <div style={{ fontFamily: FONT_BODY, fontSize: 7, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED }}>
                 {d.toLocaleDateString("en-ZA", { month: "short" })}
               </div>
             </button>
@@ -128,15 +142,15 @@ function SlotGrid({
 
       {/* Time slots */}
       {!staffIdForAvailability ? (
-        <p style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: 14, fontStyle: "italic", color: "var(--cream-400)", padding: "12px 0" }}>
+        <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: INK_SOFT, padding: "12px 0" }}>
           Choose a therapist to see available times.
         </p>
       ) : isLoading ? (
-        <p style={{ fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 12, color: "var(--onyx-500)", padding: "12px 0" }}>
+        <p style={{ fontFamily: FONT_BODY, fontSize: 12, color: MUTED, padding: "12px 0" }}>
           Loading available times…
         </p>
       ) : slots.length === 0 ? (
-        <p style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: 14, fontStyle: "italic", color: "var(--cream-400)", padding: "12px 0" }}>
+        <p style={{ fontFamily: FONT_BODY, fontSize: 14, color: INK_SOFT, padding: "12px 0" }}>
           No open slots on this day — try another date.
         </p>
       ) : (
@@ -149,12 +163,12 @@ function SlotGrid({
                 onClick={() => onChange(s.iso)}
                 style={{
                   padding: "11px 6px",
-                  background: active ? "rgba(201,168,92,0.12)" : "var(--onyx-800)",
-                  border: `1px solid ${active ? "var(--gold-400)" : "var(--onyx-700)"}`,
+                  background: active ? BLUSH_TINT : "#ffffff",
+                  border: `1px solid ${active ? PINK : HAIRLINE}`,
                   borderRadius: 2, cursor: "pointer",
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 13, fontWeight: active ? 600 : 400,
-                  color: active ? "var(--gold-400)" : "var(--cream-200)",
+                  fontFamily: FONT_BODY,
+                  fontSize: 13, fontWeight: 400,
+                  color: active ? PINK_DARK : INK_SOFT,
                 }}
               >
                 {s.label}
@@ -203,29 +217,49 @@ function BookPageInner() {
   const categories = ["All", ...Array.from(new Set(services?.map((s) => s.category) ?? []))];
   const filteredServices = services?.filter((s) => selectedCategory === "All" || s.category === selectedCategory);
 
+  const primaryButtonStyle = (enabled: boolean): React.CSSProperties => ({
+    width: "100%",
+    padding: "15px 20px",
+    background: INK,
+    border: `1px solid ${INK}`,
+    borderRadius: 2, cursor: enabled ? "pointer" : "default",
+    fontFamily: FONT_BODY,
+    fontSize: 13, fontWeight: 400,
+    letterSpacing: "0.14em", textTransform: "uppercase",
+    color: "#ffffff",
+    opacity: enabled ? 1 : 0.4,
+  });
+
+  const backButtonStyle: React.CSSProperties = {
+    background: "none", border: "none", cursor: "pointer",
+    fontFamily: FONT_BODY,
+    fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+    color: MUTED, display: "flex", alignItems: "center", gap: 6,
+  };
+
   return (
-    <main style={{ minHeight: "100vh", background: "var(--onyx-950)" }}>
+    <main style={{ minHeight: "100vh", background: "#ffffff" }}>
 
       {/* Nav */}
       <nav style={{
         position: "sticky", top: 0, zIndex: 40,
-        background: "var(--onyx-950)",
-        borderBottom: "1px solid var(--onyx-800)",
+        background: "#ffffff",
+        borderBottom: `1px solid ${HAIRLINE}`,
         padding: "16px 24px",
         display: "flex", alignItems: "center", gap: 12,
       }}>
         <Link href="/" style={{
-          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-          fontSize: 20, fontWeight: 300, fontStyle: "italic",
-          color: "var(--gold-400)", textDecoration: "none",
+          fontFamily: FONT_DISPLAY,
+          fontSize: 20, fontWeight: 400,
+          color: INK, textDecoration: "none",
         }}>
-          Perfect 10
+          {brand.name}
         </Link>
-        <span style={{ color: "var(--onyx-600)", fontSize: 12 }}>/</span>
+        <span style={{ color: BLUSH, fontSize: 12 }}>/</span>
         <span style={{
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+          fontFamily: FONT_BODY,
           fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase",
-          color: "var(--onyx-500)",
+          color: MUTED,
         }}>
           Book a Treatment
         </span>
@@ -240,13 +274,13 @@ function BookPageInner() {
               <div style={{
                 height: 2,
                 width: "100%",
-                background: i <= stepIdx ? "var(--gold-400)" : "var(--onyx-800)",
+                background: i <= stepIdx ? PINK : HAIRLINE,
                 transition: "background 0.3s",
               }} />
               <span style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                fontFamily: FONT_BODY,
                 fontSize: 8, letterSpacing: "0.2em", textTransform: "uppercase",
-                color: i <= stepIdx ? "var(--gold-400)" : "var(--onyx-600)",
+                color: i <= stepIdx ? PINK_DARK : MUTED,
                 display: "none",
               }}
                 className="step-label"
@@ -261,23 +295,23 @@ function BookPageInner() {
         {step === "service" && (
           <div>
             <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase",
-              color: "var(--gold-400)", marginBottom: 8,
+              fontFamily: FONT_BODY,
+              fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase",
+              color: PINK_DARK, marginBottom: 8,
             }}>
               Step 1 of 5
             </div>
             <h2 style={{
-              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-              fontSize: 36, fontWeight: 300, fontStyle: "italic",
-              color: "var(--cream-100)", lineHeight: 1, marginBottom: 6,
+              fontFamily: FONT_DISPLAY,
+              fontSize: 36, fontWeight: 400,
+              color: INK, lineHeight: 1.1, marginBottom: 6,
             }}>
               Choose a treatment
             </h2>
             <p style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 12, letterSpacing: "0.06em",
-              color: "var(--onyx-500)", marginBottom: 24,
+              fontFamily: FONT_BODY,
+              fontSize: 13, letterSpacing: "0.06em",
+              color: MUTED, marginBottom: 24,
             }}>
               Select the service you&apos;d like to book
             </p>
@@ -292,13 +326,13 @@ function BookPageInner() {
                     padding: "7px 14px",
                     borderRadius: 2,
                     border: selectedCategory === cat
-                      ? "1px solid var(--gold-400)"
-                      : "1px solid var(--onyx-700)",
-                    background: selectedCategory === cat ? "transparent" : "transparent",
+                      ? `1px solid ${PINK}`
+                      : `1px solid ${HAIRLINE}`,
+                    background: selectedCategory === cat ? BLUSH_TINT : "transparent",
                     cursor: "pointer",
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
-                    color: selectedCategory === cat ? "var(--gold-400)" : "var(--onyx-500)",
+                    fontFamily: FONT_BODY,
+                    fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase",
+                    color: selectedCategory === cat ? PINK_DARK : MUTED,
                     transition: "all 0.2s",
                   }}
                 >
@@ -314,46 +348,46 @@ function BookPageInner() {
                   onClick={() => { setSelectedService(svc); setStep("staff"); }}
                   style={{
                     width: "100%", textAlign: "left",
-                    background: "var(--onyx-900)",
-                    border: "1px solid var(--onyx-700)",
+                    background: "#ffffff",
+                    border: `1px solid ${HAIRLINE}`,
                     borderRadius: 2,
                     padding: "18px 20px",
                     cursor: "pointer",
-                    boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+                    boxShadow: CARD_SHADOW,
                     transition: "border-color 0.2s",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,92,0.55)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--onyx-700)")}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = PINK)}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = HAIRLINE)}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div style={{ flex: 1 }}>
                       <div style={{
-                        fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                        fontSize: 19, fontWeight: 300, fontStyle: "italic",
-                        color: "var(--cream-100)", marginBottom: 4,
+                        fontFamily: FONT_DISPLAY,
+                        fontSize: 19, fontWeight: 400,
+                        color: INK, marginBottom: 4,
                       }}>
                         {svc.name}
                       </div>
                       <div style={{
-                        fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                        fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                        color: "var(--onyx-500)", marginBottom: svc.description ? 6 : 0,
+                        fontFamily: FONT_BODY,
+                        fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                        color: BLUSH_DEEP, marginBottom: svc.description ? 6 : 0,
                       }}>
                         {svc.category} · {svc.durationMins} min
                       </div>
                       {svc.description && (
                         <div style={{
-                          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                          fontSize: 12, color: "var(--cream-400)", lineHeight: 1.6,
+                          fontFamily: FONT_BODY,
+                          fontSize: 13, color: INK_SOFT, lineHeight: 1.6,
                         }}>
                           {svc.description}
                         </div>
                       )}
                     </div>
                     <div style={{
-                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                      fontSize: 15, fontWeight: 600,
-                      color: "var(--gold-400)", marginLeft: 16, flexShrink: 0,
+                      fontFamily: FONT_BODY,
+                      fontSize: 15, fontWeight: 400,
+                      color: PINK, marginLeft: 16, flexShrink: 0,
                     }}>
                       R{svc.price}
                     </div>
@@ -363,8 +397,8 @@ function BookPageInner() {
               {filteredServices?.length === 0 && (
                 <div style={{
                   textAlign: "center", padding: "48px 20px",
-                  fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                  fontSize: 18, fontStyle: "italic", color: "var(--onyx-600)",
+                  fontFamily: FONT_DISPLAY,
+                  fontSize: 18, color: MUTED,
                 }}>
                   No treatments in this category yet.
                 </div>
@@ -378,9 +412,9 @@ function BookPageInner() {
           <div>
             {/* Selected service summary */}
             <div style={{
-              background: "var(--onyx-900)",
-              border: "1px solid var(--onyx-700)",
-              borderLeft: "2px solid var(--gold-400)",
+              background: BLUSH_TINT,
+              border: `1px solid ${HAIRLINE}`,
+              borderLeft: `2px solid ${PINK}`,
               borderRadius: 2,
               padding: "12px 16px",
               marginBottom: 28,
@@ -388,16 +422,16 @@ function BookPageInner() {
             }}>
               <div>
                 <div style={{
-                  fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                  fontSize: 16, fontWeight: 300, fontStyle: "italic",
-                  color: "var(--cream-200)",
+                  fontFamily: FONT_DISPLAY,
+                  fontSize: 16, fontWeight: 400,
+                  color: INK,
                 }}>
                   {selectedService?.name}
                 </div>
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                  color: "var(--onyx-500)", marginTop: 2,
+                  fontFamily: FONT_BODY,
+                  fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: BLUSH_DEEP, marginTop: 2,
                 }}>
                   {selectedService?.durationMins} min · R{selectedService?.price}
                 </div>
@@ -406,9 +440,9 @@ function BookPageInner() {
                 onClick={() => setStep("service")}
                 style={{
                   background: "none", border: "none", cursor: "pointer",
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                  color: "var(--gold-400)",
+                  fontFamily: FONT_BODY,
+                  fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: PINK_DARK,
                 }}
               >
                 Change
@@ -416,23 +450,23 @@ function BookPageInner() {
             </div>
 
             <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase",
-              color: "var(--gold-400)", marginBottom: 8,
+              fontFamily: FONT_BODY,
+              fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase",
+              color: PINK_DARK, marginBottom: 8,
             }}>
               Step 2 of 5
             </div>
             <h2 style={{
-              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-              fontSize: 36, fontWeight: 300, fontStyle: "italic",
-              color: "var(--cream-100)", lineHeight: 1, marginBottom: 6,
+              fontFamily: FONT_DISPLAY,
+              fontSize: 36, fontWeight: 400,
+              color: INK, lineHeight: 1.1, marginBottom: 6,
             }}>
               Choose your therapist
             </h2>
             <p style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 12, letterSpacing: "0.06em",
-              color: "var(--onyx-500)", marginBottom: 24,
+              fontFamily: FONT_BODY,
+              fontSize: 13, letterSpacing: "0.06em",
+              color: MUTED, marginBottom: 24,
             }}>
               All our therapists are certified specialists
             </p>
@@ -443,37 +477,37 @@ function BookPageInner() {
                 onClick={() => { setSelectedStaff(null); setStep("datetime"); }}
                 style={{
                   width: "100%", textAlign: "left",
-                  background: "var(--onyx-900)",
-                  border: "1px solid var(--onyx-700)",
+                  background: "#ffffff",
+                  border: `1px solid ${HAIRLINE}`,
                   borderRadius: 2,
                   padding: "16px 20px",
                   cursor: "pointer",
                   display: "flex", alignItems: "center", gap: 14,
-                  boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+                  boxShadow: CARD_SHADOW,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,92,0.55)")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--onyx-700)")}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = PINK)}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = HAIRLINE)}
               >
                 <div style={{
                   width: 36, height: 36, borderRadius: "50%",
-                  border: "1px solid var(--onyx-600)",
-                  background: "var(--onyx-800)",
+                  border: `1px solid ${HAIRLINE}`,
+                  background: "#faf6f5",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
                 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--onyx-500)" }} />
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: BLUSH }} />
                 </div>
                 <div>
                   <div style={{
-                    fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                    fontSize: 17, fontWeight: 300, fontStyle: "italic",
-                    color: "var(--cream-200)", marginBottom: 2,
+                    fontFamily: FONT_DISPLAY,
+                    fontSize: 17, fontWeight: 400,
+                    color: INK, marginBottom: 2,
                   }}>
                     Any Available Therapist
                   </div>
                   <div style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 11, color: "var(--onyx-500)",
+                    fontFamily: FONT_BODY,
+                    fontSize: 12, color: MUTED,
                   }}>
                     We&apos;ll match you with the best available specialist
                   </div>
@@ -486,41 +520,41 @@ function BookPageInner() {
                   onClick={() => { setSelectedStaff(s); setStep("datetime"); }}
                   style={{
                     width: "100%", textAlign: "left",
-                    background: "var(--onyx-900)",
-                    border: "1px solid var(--onyx-700)",
+                    background: "#ffffff",
+                    border: `1px solid ${HAIRLINE}`,
                     borderRadius: 2,
                     padding: "16px 20px",
                     cursor: "pointer",
                     display: "flex", alignItems: "center", gap: 14,
-                    boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+                    boxShadow: CARD_SHADOW,
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(201,168,92,0.55)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--onyx-700)")}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = PINK)}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = HAIRLINE)}
                 >
                   <div style={{
                     width: 36, height: 36, borderRadius: "50%",
-                    border: "1px solid rgba(201,168,92,0.4)",
-                    background: "var(--onyx-800)",
+                    border: `1px solid ${BLUSH}`,
+                    background: BLUSH_TINT,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     flexShrink: 0,
-                    fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                    fontSize: 16, fontStyle: "italic",
-                    color: "var(--gold-400)",
+                    fontFamily: FONT_DISPLAY,
+                    fontSize: 16,
+                    color: BLUSH_DEEP,
                   }}>
                     {s.user.name?.charAt(0) ?? "T"}
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{
-                      fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                      fontSize: 17, fontWeight: 300, fontStyle: "italic",
-                      color: "var(--cream-200)", marginBottom: 2,
+                      fontFamily: FONT_DISPLAY,
+                      fontSize: 17, fontWeight: 400,
+                      color: INK, marginBottom: 2,
                     }}>
                       {s.user.name}
                     </div>
                     {s.bio && (
                       <div style={{
-                        fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                        fontSize: 11, color: "var(--onyx-500)",
+                        fontFamily: FONT_BODY,
+                        fontSize: 12, color: MUTED,
                       }}>
                         {s.bio}
                       </div>
@@ -532,12 +566,7 @@ function BookPageInner() {
 
             <button
               onClick={() => setStep("service")}
-              style={{
-                marginTop: 20, background: "none", border: "none", cursor: "pointer",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                color: "var(--onyx-500)", display: "flex", alignItems: "center", gap: 6,
-              }}
+              style={{ ...backButtonStyle, marginTop: 20 }}
             >
               ← Back
             </button>
@@ -548,32 +577,32 @@ function BookPageInner() {
         {step === "datetime" && (
           <div>
             <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase",
-              color: "var(--gold-400)", marginBottom: 8,
+              fontFamily: FONT_BODY,
+              fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase",
+              color: PINK_DARK, marginBottom: 8,
             }}>
               Step 3 of 5
             </div>
             <h2 style={{
-              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-              fontSize: 36, fontWeight: 300, fontStyle: "italic",
-              color: "var(--cream-100)", lineHeight: 1, marginBottom: 6,
+              fontFamily: FONT_DISPLAY,
+              fontSize: 36, fontWeight: 400,
+              color: INK, lineHeight: 1.1, marginBottom: 6,
             }}>
               When would you like to come in?
             </h2>
             <p style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 12, letterSpacing: "0.06em",
-              color: "var(--onyx-500)", marginBottom: 24,
+              fontFamily: FONT_BODY,
+              fontSize: 13, letterSpacing: "0.06em",
+              color: MUTED, marginBottom: 24,
             }}>
               Select your preferred date and time
             </p>
 
             <div style={{
-              background: "var(--onyx-900)",
-              border: "1px solid var(--onyx-700)",
+              background: "#ffffff",
+              border: `1px solid ${HAIRLINE}`,
               borderRadius: 2, padding: "20px",
-              boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+              boxShadow: CARD_SHADOW,
             }}>
               <SlotGrid
                 staffIdForAvailability={selectedStaff?.id ?? staffList?.[0]?.id}
@@ -585,15 +614,15 @@ function BookPageInner() {
                 <div style={{
                   marginTop: 14,
                   padding: "10px 14px",
-                  background: "var(--onyx-800)",
-                  border: "1px solid rgba(201,168,92,0.32)",
-                  borderLeft: "2px solid var(--gold-400)",
+                  background: BLUSH_TINT,
+                  border: `1px solid ${BLUSH}`,
+                  borderLeft: `2px solid ${PINK}`,
                   borderRadius: 2,
                 }}>
                   <div style={{
-                    fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                    fontSize: 15, fontWeight: 300, fontStyle: "italic",
-                    color: "var(--cream-200)",
+                    fontFamily: FONT_DISPLAY,
+                    fontSize: 15, fontWeight: 400,
+                    color: INK,
                   }}>
                     {new Date(selectedSlot).toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                     {" at "}
@@ -606,29 +635,13 @@ function BookPageInner() {
             <button
               disabled={!selectedSlot}
               onClick={() => setStep("contact")}
-              style={{
-                marginTop: 16, width: "100%",
-                padding: "15px 20px",
-                background: "transparent",
-                border: "1px solid rgba(201,168,92,0.55)",
-                borderRadius: 2, cursor: selectedSlot ? "pointer" : "default",
-                fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                fontSize: 19, fontWeight: 300, fontStyle: "italic",
-                color: "var(--gold-400)",
-                boxShadow: "4px 6px 0 rgba(0,0,0,0.6)",
-                opacity: selectedSlot ? 1 : 0.4,
-              }}
+              style={{ ...primaryButtonStyle(!!selectedSlot), marginTop: 16 }}
             >
               Continue
             </button>
             <button
               onClick={() => setStep("staff")}
-              style={{
-                marginTop: 12, background: "none", border: "none", cursor: "pointer",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                color: "var(--onyx-500)", display: "flex", alignItems: "center", gap: 6,
-              }}
+              style={{ ...backButtonStyle, marginTop: 12 }}
             >
               ← Back
             </button>
@@ -639,57 +652,57 @@ function BookPageInner() {
         {step === "contact" && (
           <div>
             <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase",
-              color: "var(--gold-400)", marginBottom: 8,
+              fontFamily: FONT_BODY,
+              fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase",
+              color: PINK_DARK, marginBottom: 8,
             }}>
               Step 4 of 5
             </div>
             <h2 style={{
-              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-              fontSize: 36, fontWeight: 300, fontStyle: "italic",
-              color: "var(--cream-100)", lineHeight: 1, marginBottom: 6,
+              fontFamily: FONT_DISPLAY,
+              fontSize: 36, fontWeight: 400,
+              color: INK, lineHeight: 1.1, marginBottom: 6,
             }}>
               Your details
             </h2>
             <p style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 12, letterSpacing: "0.06em",
-              color: "var(--onyx-500)", marginBottom: 24,
+              fontFamily: FONT_BODY,
+              fontSize: 13, letterSpacing: "0.06em",
+              color: MUTED, marginBottom: 24,
             }}>
               Help us personalise your experience
             </p>
 
             {session?.user && (
               <div style={{
-                background: "var(--onyx-900)",
-                border: "1px solid var(--onyx-700)",
-                borderLeft: "2px solid var(--gold-400)",
+                background: BLUSH_TINT,
+                border: `1px solid ${HAIRLINE}`,
+                borderLeft: `2px solid ${PINK}`,
                 borderRadius: 2,
                 padding: "11px 16px",
                 marginBottom: 16,
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 11, letterSpacing: "0.04em",
-                color: "var(--cream-400)",
+                fontFamily: FONT_BODY,
+                fontSize: 12, letterSpacing: "0.04em",
+                color: INK_SOFT,
               }}>
-                Signed in as <strong style={{ color: "var(--cream-200)" }}>{session.user.email}</strong> — points will be earned on this booking.
+                Signed in as <strong style={{ color: INK }}>{session.user.email}</strong> — points will be earned on this booking.
               </div>
             )}
 
             <div style={{
-              background: "var(--onyx-900)",
-              border: "1px solid var(--onyx-700)",
+              background: "#ffffff",
+              border: `1px solid ${HAIRLINE}`,
               borderRadius: 2, padding: "20px",
-              boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+              boxShadow: CARD_SHADOW,
               display: "flex", flexDirection: "column", gap: 10,
               marginBottom: 14,
             }}>
               {(["name", "email", "phone"] as const).map((field) => (
                 <div key={field}>
                   <div style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-                    color: "var(--onyx-500)", marginBottom: 6,
+                    fontFamily: FONT_BODY,
+                    fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase",
+                    color: MUTED, marginBottom: 6,
                   }}>
                     {field === "phone" ? "Phone (optional)" : field === "name" ? "Full Name" : "Email"}
                   </div>
@@ -698,6 +711,8 @@ function BookPageInner() {
                     placeholder={field === "name" ? "Full name" : field === "email" ? "your@email.com" : "+27 000 000 0000"}
                     value={contact[field]}
                     onChange={(e) => setContact((c) => ({ ...c, [field]: e.target.value }))}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = PINK)}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = HAIRLINE)}
                     style={inputStyle}
                   />
                 </div>
@@ -705,21 +720,23 @@ function BookPageInner() {
 
               <div>
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-                  color: "var(--onyx-500)", marginBottom: 6,
+                  fontFamily: FONT_BODY,
+                  fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase",
+                  color: MUTED, marginBottom: 6,
                 }}>
-                  Skin concerns or requests <span style={{ opacity: 0.5 }}>(optional)</span>
+                  Skin concerns or requests <span style={{ opacity: 0.6 }}>(optional)</span>
                 </div>
                 <textarea
                   rows={3}
                   placeholder="e.g. sensitive skin, acne-prone, prefer unscented products…"
                   value={skinNotes}
                   onChange={(e) => setSkinNotes(e.target.value)}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = PINK)}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = HAIRLINE)}
                   style={{
                     ...inputStyle,
                     resize: "none",
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                    fontFamily: FONT_BODY,
                   }}
                 />
               </div>
@@ -728,24 +745,24 @@ function BookPageInner() {
             {/* Points redemption */}
             {loyaltyAccount && loyaltyAccount.balance > 0 && (
               <div style={{
-                background: "var(--onyx-900)",
-                border: "1px solid rgba(201,168,92,0.32)",
+                background: "#faf6f5",
+                border: `1px solid ${BLUSH}`,
                 borderRadius: 2, padding: "18px 20px",
                 marginBottom: 14,
-                boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+                boxShadow: CARD_SHADOW,
               }}>
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-                  color: "var(--gold-400)", marginBottom: 6,
+                  fontFamily: FONT_BODY,
+                  fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase",
+                  color: BLUSH_DEEP, marginBottom: 6,
                 }}>
                   Redeem Loyalty Points
                 </div>
                 <div style={{
-                  fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                  fontSize: 15, fontWeight: 300, color: "var(--cream-300)", marginBottom: 12,
+                  fontFamily: FONT_DISPLAY,
+                  fontSize: 15, fontWeight: 400, color: INK_SOFT, marginBottom: 12,
                 }}>
-                  You have <strong style={{ color: "var(--cream-100)" }}>{loyaltyAccount.balance} points</strong> available.
+                  You have <strong style={{ color: INK }}>{loyaltyAccount.balance} points</strong> available.
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <input
@@ -755,20 +772,20 @@ function BookPageInner() {
                     step={100}
                     value={pointsToRedeem}
                     onChange={(e) => setPointsToRedeem(Number(e.target.value))}
-                    style={{ flex: 1, accentColor: "var(--gold-400)" }}
+                    style={{ flex: 1, accentColor: PINK }}
                   />
                   <span style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 13, fontWeight: 600,
-                    color: "var(--gold-400)", width: 64, textAlign: "right",
+                    fontFamily: FONT_BODY,
+                    fontSize: 13, fontWeight: 400,
+                    color: PINK_DARK, width: 64, textAlign: "right",
                   }}>
                     {pointsToRedeem} pts
                   </span>
                 </div>
                 {pointsToRedeem > 0 && loyaltyConfig && (
                   <div style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 11, color: "var(--onyx-500)", marginTop: 8,
+                    fontFamily: FONT_BODY,
+                    fontSize: 12, color: MUTED, marginTop: 8,
                   }}>
                     Saving approx. R{((pointsToRedeem / loyaltyConfig.redemptionRate) * 10).toFixed(0)} on your treatment
                   </div>
@@ -779,29 +796,13 @@ function BookPageInner() {
             <button
               disabled={!contact.name || !contact.email}
               onClick={() => setStep("confirm")}
-              style={{
-                width: "100%",
-                padding: "15px 20px",
-                background: "transparent",
-                border: "1px solid rgba(201,168,92,0.55)",
-                borderRadius: 2, cursor: (contact.name && contact.email) ? "pointer" : "default",
-                fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                fontSize: 19, fontWeight: 300, fontStyle: "italic",
-                color: "var(--gold-400)",
-                boxShadow: "4px 6px 0 rgba(0,0,0,0.6)",
-                opacity: (contact.name && contact.email) ? 1 : 0.4,
-              }}
+              style={primaryButtonStyle(!!(contact.name && contact.email))}
             >
               Review Booking
             </button>
             <button
               onClick={() => setStep("datetime")}
-              style={{
-                marginTop: 12, background: "none", border: "none", cursor: "pointer",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                color: "var(--onyx-500)",
-              }}
+              style={{ ...backButtonStyle, marginTop: 12 }}
             >
               ← Back
             </button>
@@ -812,33 +813,33 @@ function BookPageInner() {
         {step === "confirm" && (
           <div>
             <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase",
-              color: "var(--gold-400)", marginBottom: 8,
+              fontFamily: FONT_BODY,
+              fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase",
+              color: PINK_DARK, marginBottom: 8,
             }}>
               Step 5 of 5
             </div>
             <h2 style={{
-              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-              fontSize: 36, fontWeight: 300, fontStyle: "italic",
-              color: "var(--cream-100)", lineHeight: 1, marginBottom: 6,
+              fontFamily: FONT_DISPLAY,
+              fontSize: 36, fontWeight: 400,
+              color: INK, lineHeight: 1.1, marginBottom: 6,
             }}>
               Confirm your booking
             </h2>
             <p style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 12, letterSpacing: "0.06em",
-              color: "var(--onyx-500)", marginBottom: 24,
+              fontFamily: FONT_BODY,
+              fontSize: 13, letterSpacing: "0.06em",
+              color: MUTED, marginBottom: 24,
             }}>
               Review the details of your treatment
             </p>
 
             {/* Summary card */}
             <div style={{
-              background: "var(--onyx-900)",
-              border: "1px solid var(--onyx-700)",
+              background: "#ffffff",
+              border: `1px solid ${HAIRLINE}`,
               borderRadius: 2, padding: "0 20px",
-              boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+              boxShadow: CARD_SHADOW,
               marginBottom: 14,
             }}>
               {[
@@ -856,19 +857,19 @@ function BookPageInner() {
                 <div key={label} style={{
                   display: "flex", justifyContent: "space-between", alignItems: "center",
                   padding: "14px 0",
-                  borderTop: i > 0 ? "1px solid var(--onyx-800)" : "none",
+                  borderTop: i > 0 ? `1px solid ${HAIRLINE}` : "none",
                 }}>
                   <span style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                    color: "var(--onyx-500)",
+                    fontFamily: FONT_BODY,
+                    fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                    color: MUTED,
                   }}>
                     {label}
                   </span>
                   <span style={{
-                    fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                    fontSize: 16, fontWeight: 300, fontStyle: "italic",
-                    color: "var(--cream-200)", textAlign: "right", maxWidth: "60%",
+                    fontFamily: FONT_DISPLAY,
+                    fontSize: 16, fontWeight: 400,
+                    color: INK, textAlign: "right", maxWidth: "60%",
                   }}>
                     {value}
                   </span>
@@ -879,19 +880,19 @@ function BookPageInner() {
               <div style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "14px 0",
-                borderTop: "1px solid var(--onyx-800)",
+                borderTop: `1px solid ${HAIRLINE}`,
               }}>
                 <span style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                  color: "var(--onyx-500)",
+                  fontFamily: FONT_BODY,
+                  fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: MUTED,
                 }}>
                   Price
                 </span>
                 <span style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 18, fontWeight: 600,
-                  color: "var(--gold-400)",
+                  fontFamily: FONT_BODY,
+                  fontSize: 18, fontWeight: 400,
+                  color: PINK,
                 }}>
                   R{selectedService?.price}
                 </span>
@@ -901,18 +902,18 @@ function BookPageInner() {
                 <div style={{
                   display: "flex", justifyContent: "space-between", alignItems: "center",
                   padding: "12px 0",
-                  borderTop: "1px solid var(--onyx-800)",
+                  borderTop: `1px solid ${HAIRLINE}`,
                 }}>
                   <span style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                    color: "var(--gold-400)",
+                    fontFamily: FONT_BODY,
+                    fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                    color: BLUSH_DEEP,
                   }}>
                     Points redeemed
                   </span>
                   <span style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 13, fontWeight: 600, color: "var(--gold-400)",
+                    fontFamily: FONT_BODY,
+                    fontSize: 13, fontWeight: 400, color: PINK_DARK,
                   }}>
                     −{pointsToRedeem} pts
                   </span>
@@ -922,19 +923,18 @@ function BookPageInner() {
               {skinNotes && (
                 <div style={{
                   padding: "14px 0",
-                  borderTop: "1px solid var(--onyx-800)",
+                  borderTop: `1px solid ${HAIRLINE}`,
                 }}>
                   <div style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase",
-                    color: "var(--onyx-600)", marginBottom: 4,
+                    fontFamily: FONT_BODY,
+                    fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
+                    color: MUTED, marginBottom: 4,
                   }}>
                     Your Notes
                   </div>
                   <div style={{
-                    fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                    fontSize: 15, fontWeight: 300, fontStyle: "italic",
-                    color: "var(--cream-400)", lineHeight: 1.5,
+                    fontFamily: FONT_BODY,
+                    fontSize: 14, color: INK_SOFT, lineHeight: 1.5,
                   }}>
                     {skinNotes}
                   </div>
@@ -945,26 +945,26 @@ function BookPageInner() {
             {/* Points earned notice */}
             {estimatedPoints > 0 && (
               <div style={{
-                background: "var(--onyx-900)",
-                border: "1px solid rgba(201,168,92,0.32)",
-                borderLeft: "2px solid var(--gold-400)",
+                background: BLUSH_TINT,
+                border: `1px solid ${BLUSH}`,
+                borderLeft: `2px solid ${PINK}`,
                 borderRadius: 2, padding: "12px 16px",
                 marginBottom: 14,
                 display: "flex", alignItems: "center", gap: 12,
               }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold-400)", flexShrink: 0 }} />
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: PINK, flexShrink: 0 }} />
                 <div>
                   <div style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-                    color: "var(--gold-400)", marginBottom: 2,
+                    fontFamily: FONT_BODY,
+                    fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase",
+                    color: BLUSH_DEEP, marginBottom: 2,
                   }}>
                     Points Incoming
                   </div>
                   <div style={{
-                    fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                    fontSize: 15, fontWeight: 300, fontStyle: "italic",
-                    color: "var(--cream-300)",
+                    fontFamily: FONT_DISPLAY,
+                    fontSize: 15, fontWeight: 400,
+                    color: INK,
                   }}>
                     ~{estimatedPoints} points credited once your treatment is complete
                   </div>
@@ -988,19 +988,7 @@ function BookPageInner() {
                   notes: skinNotes || undefined,
                 });
               }}
-              style={{
-                width: "100%",
-                padding: "15px 20px",
-                background: "transparent",
-                border: "1px solid rgba(201,168,92,0.55)",
-                borderRadius: 2,
-                cursor: (createAppointment.isPending || !session?.user) ? "default" : "pointer",
-                fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                fontSize: 19, fontWeight: 300, fontStyle: "italic",
-                color: "var(--gold-400)",
-                boxShadow: "4px 6px 0 rgba(0,0,0,0.6)",
-                opacity: (createAppointment.isPending || !session?.user) ? 0.5 : 1,
-              }}
+              style={primaryButtonStyle(!(createAppointment.isPending || !session?.user))}
             >
               {createAppointment.isPending ? "Confirming…" : "Confirm Booking"}
             </button>
@@ -1008,18 +996,18 @@ function BookPageInner() {
             {!session?.user && (
               <div style={{
                 marginTop: 12,
-                background: "var(--onyx-900)",
-                border: "1px solid var(--onyx-700)",
+                background: "#faf6f5",
+                border: `1px solid ${HAIRLINE}`,
                 borderRadius: 2,
                 padding: "12px 16px",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 12, letterSpacing: "0.04em",
-                color: "var(--cream-400)", textAlign: "center",
+                fontFamily: FONT_BODY,
+                fontSize: 13, letterSpacing: "0.04em",
+                color: INK_SOFT, textAlign: "center",
               }}>
                 Please{" "}
-                <Link href="/login" style={{ color: "var(--gold-400)", textDecoration: "none" }}>sign in</Link>
+                <Link href="/login" style={{ color: PINK, textDecoration: "none" }}>sign in</Link>
                 {" "}or{" "}
-                <Link href="/signup" style={{ color: "var(--gold-400)", textDecoration: "none" }}>create an account</Link>
+                <Link href="/signup" style={{ color: PINK, textDecoration: "none" }}>create an account</Link>
                 {" "}to complete your booking.
               </div>
             )}
@@ -1027,8 +1015,8 @@ function BookPageInner() {
             {createAppointment.error && (
               <div style={{
                 marginTop: 10,
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 12, color: "#e57373", textAlign: "center",
+                fontFamily: FONT_BODY,
+                fontSize: 12, color: "#c0392b", textAlign: "center",
               }}>
                 {createAppointment.error.message}
               </div>
@@ -1036,12 +1024,7 @@ function BookPageInner() {
 
             <button
               onClick={() => setStep("contact")}
-              style={{
-                marginTop: 12, background: "none", border: "none", cursor: "pointer",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                color: "var(--onyx-500)",
-              }}
+              style={{ ...backButtonStyle, marginTop: 12 }}
             >
               ← Back
             </button>
@@ -1055,11 +1038,6 @@ function BookPageInner() {
         @media (min-width: 640px) {
           .step-label { display: block !important; }
         }
-        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-          filter: invert(0.5) sepia(1) saturate(2) hue-rotate(5deg);
-          opacity: 0.6;
-          cursor: pointer;
-        }
       `}</style>
     </main>
   );
@@ -1070,9 +1048,9 @@ export default function BookPage() {
     <Suspense fallback={
       <div style={{
         minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-        background: "var(--onyx-950)",
-        fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-        fontSize: 18, fontStyle: "italic", color: "var(--onyx-600)",
+        background: "#ffffff",
+        fontFamily: "var(--font-marcellus), Marcellus, serif",
+        fontSize: 18, color: "#8d8e8f",
       }}>
         Loading…
       </div>

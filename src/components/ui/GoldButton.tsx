@@ -12,22 +12,23 @@ const sizes = {
   lg: { padding: "15px 36px", fontSize: "14px" },
 };
 
+/** Primary brand CTA (component name kept from the original gold theme). */
 export function GoldButton({ href, size = "md", children, style, ...props }: GoldButtonProps) {
   const baseStyle: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     gap: "8px",
-    background: "#c9a85c",
-    color: "#0e0c0a",
-    fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-    fontWeight: 500,
-    letterSpacing: "0.08em",
+    background: "var(--viv-ink, #232122)",
+    color: "#ffffff",
+    fontFamily: "var(--font-abel), Abel, sans-serif",
+    fontWeight: 400,
+    letterSpacing: "0.14em",
     textTransform: "uppercase",
     borderRadius: "2px",
-    border: "none",
+    border: "1px solid var(--viv-ink, #232122)",
     cursor: "pointer",
-    transition: "opacity 0.15s",
+    transition: "background 0.15s, border-color 0.15s",
     textDecoration: "none",
     whiteSpace: "nowrap",
     ...sizes[size],

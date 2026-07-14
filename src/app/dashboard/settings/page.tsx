@@ -62,12 +62,12 @@ export default function SettingsPage() {
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    background: "#0e0c0a",
-    border: "1px solid #2a2420",
+    background: "#faf6f5",
+    border: "1px solid #efdcd8",
     borderRadius: "2px",
     padding: "10px 12px",
     fontSize: "14px",
-    color: "#f5f0e8",
+    color: "#232122",
     fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
     outline: "none",
   };
@@ -78,20 +78,20 @@ export default function SettingsPage() {
     fontWeight: 500,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
-    color: "#8a6f3e",
+    color: "#c98d82",
     marginBottom: "8px",
     fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
   };
 
   const sectionStyle: React.CSSProperties = {
-    background: "#1a1714",
-    border: "1px solid #2a2420",
+    background: "#ffffff",
+    border: "1px solid #efdcd8",
     borderRadius: "2px",
     padding: "24px",
   };
 
   return (
-    <div className="min-h-screen flex" style={{ background: "#0e0c0a" }}>
+    <div className="min-h-screen flex" style={{ background: "#faf6f5" }}>
       <DashboardSidebar />
 
       <main className="flex-1 p-8 overflow-auto">
@@ -101,7 +101,7 @@ export default function SettingsPage() {
               fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
               fontSize: "28px",
               fontWeight: 300,
-              color: "#f5f0e8",
+              color: "#232122",
               margin: 0,
             }}
           >
@@ -111,7 +111,7 @@ export default function SettingsPage() {
             style={{
               fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
               fontSize: "13px",
-              color: "#4a4540",
+              color: "#8d8e8f",
               marginTop: "4px",
             }}
           >
@@ -120,7 +120,7 @@ export default function SettingsPage() {
         </div>
 
         {isLoading ? (
-          <p style={{ color: "#4a4540", fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "14px" }}>
+          <p style={{ color: "#8d8e8f", fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "14px" }}>
             Loading…
           </p>
         ) : (
@@ -134,7 +134,7 @@ export default function SettingsPage() {
                   fontWeight: 500,
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  color: "#f5f0e8",
+                  color: "#232122",
                   margin: "0 0 20px",
                 }}
               >
@@ -149,8 +149,8 @@ export default function SettingsPage() {
                     style={inputStyle}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    onFocus={(e) => (e.target.style.borderColor = "#c9a85c")}
-                    onBlur={(e) => (e.target.style.borderColor = "#2a2420")}
+                    onFocus={(e) => (e.target.style.borderColor = "#fe329c")}
+                    onBlur={(e) => (e.target.style.borderColor = "#efdcd8")}
                   />
                 </div>
 
@@ -161,8 +161,8 @@ export default function SettingsPage() {
                     rows={2}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    onFocus={(e) => (e.target.style.borderColor = "#c9a85c")}
-                    onBlur={(e) => (e.target.style.borderColor = "#2a2420")}
+                    onFocus={(e) => (e.target.style.borderColor = "#fe329c")}
+                    onBlur={(e) => (e.target.style.borderColor = "#efdcd8")}
                   />
                 </div>
 
@@ -175,7 +175,7 @@ export default function SettingsPage() {
                       onChange={(e) => setTimezone(e.target.value)}
                     >
                       {TIMEZONES.map((tz) => (
-                        <option key={tz} value={tz} style={{ background: "#1a1714" }}>
+                        <option key={tz} value={tz} style={{ background: "#ffffff" }}>
                           {tz}
                         </option>
                       ))}
@@ -190,7 +190,7 @@ export default function SettingsPage() {
                       onChange={(e) => setCurrency(e.target.value)}
                     >
                       {CURRENCIES.map((c) => (
-                        <option key={c} value={c} style={{ background: "#1a1714" }}>
+                        <option key={c} value={c} style={{ background: "#ffffff" }}>
                           {c}
                         </option>
                       ))}
@@ -204,11 +204,11 @@ export default function SettingsPage() {
             <div style={sectionStyle}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
-                  <p style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "14px", fontWeight: 500, color: "#f5f0e8", margin: "0 0 4px" }}>
+                  <p style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "14px", fontWeight: 500, color: "#232122", margin: "0 0 4px" }}>
                     Loyalty Programme
                   </p>
-                  <p style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "12px", color: "#4a4540", margin: 0 }}>
-                    Configure points rates, tier thresholds, and redemption rules
+                  <p style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "12px", color: "#8d8e8f", margin: 0 }}>
+                    Configure points rates and redemption rules
                   </p>
                 </div>
                 <a
@@ -218,7 +218,7 @@ export default function SettingsPage() {
                     fontSize: "12px",
                     fontWeight: 500,
                     letterSpacing: "0.06em",
-                    color: "#c9a85c",
+                    color: "#fe329c",
                     textDecoration: "none",
                     whiteSpace: "nowrap",
                   }}
@@ -234,8 +234,8 @@ export default function SettingsPage() {
                 onClick={handleSave}
                 disabled={updateSpa.isPending}
                 style={{
-                  background: "#c9a85c",
-                  color: "#0e0c0a",
+                  background: "#232122",
+                  color: "#ffffff",
                   fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
                   fontSize: "12px",
                   fontWeight: 500,
@@ -256,7 +256,7 @@ export default function SettingsPage() {
                   style={{
                     fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
                     fontSize: "13px",
-                    color: "#c9a85c",
+                    color: "#fe329c",
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",

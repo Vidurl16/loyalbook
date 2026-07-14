@@ -25,12 +25,12 @@ export function CategoryFilter({ active, onChange, categories }: CategoryFilterP
           onClick={() => onChange(f)}
           className={`gallery-filter-item${active === f ? " active" : ""}`}
           style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+            fontFamily: "var(--font-abel), Abel, sans-serif",
             fontSize: 11,
-            fontWeight: active === f ? 500 : 300,
-            letterSpacing: "0.22em",
+            fontWeight: 400,
+            letterSpacing: "0.2em",
             textTransform: "uppercase",
-            color: active === f ? "var(--gold-400)" : "var(--onyx-500)",
+            color: active === f ? "#fe329c" : "#8d8e8f",
             background: "transparent",
             border: "none",
             cursor: "pointer",

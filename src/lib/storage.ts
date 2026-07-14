@@ -29,7 +29,7 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/gif": "gif",
 };
 
-export type UploadFolder = "gallery" | "staff" | "products" | "reviews" | "transformations";
+export type UploadFolder = "gallery" | "staff" | "products" | "reviews";
 
 /**
  * Mint a signed upload URL the admin browser can PUT a file to directly (keeps

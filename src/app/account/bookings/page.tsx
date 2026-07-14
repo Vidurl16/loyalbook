@@ -7,13 +7,28 @@ import { trpc } from "@/lib/trpc";
 import { AccentLabel } from "@/components/ui/AccentLabel";
 import { GoldButton } from "@/components/ui/GoldButton";
 
-const STATUS_CONFIG: Record<string, { label: string; variant: "gold" | "muted" | "dark" }> = {
-  pending:             { label: "Awaiting Confirmation", variant: "muted" },
-  confirmed:           { label: "Confirmed",             variant: "gold" },
-  completed:           { label: "Completed",             variant: "dark" },
-  no_show:             { label: "No Show",               variant: "dark" },
-  cancelled_by_client: { label: "Cancelled",             variant: "dark" },
-  cancelled_by_spa:    { label: "Cancelled",             variant: "dark" },
+const FONT_BODY = "var(--font-abel), Abel, sans-serif";
+const FONT_DISPLAY = "var(--font-marcellus), Marcellus, serif";
+
+// Chip styling per status: confirmed = blush tint, completed = soft grey, cancelled = muted.
+const softGreyChip: React.CSSProperties = {
+  color: "#4a4547",
+  background: "#f3f2f2",
+  border: "1px solid #e4e2e2",
+};
+const mutedChip: React.CSSProperties = {
+  color: "#8d8e8f",
+  background: "#ffffff",
+  border: "1px solid #e4e2e2",
+};
+
+const STATUS_CONFIG: Record<string, { label: string; variant: "gold" | "muted" | "dark"; style?: React.CSSProperties }> = {
+  pending:             { label: "Awaiting Confirmation", variant: "gold" },
+  confirmed:           { label: "Confirmed",             variant: "muted" },
+  completed:           { label: "Completed",             variant: "dark", style: softGreyChip },
+  no_show:             { label: "No Show",               variant: "dark", style: mutedChip },
+  cancelled_by_client: { label: "Cancelled",             variant: "dark", style: mutedChip },
+  cancelled_by_spa:    { label: "Cancelled",             variant: "dark", style: mutedChip },
 };
 
 function formatDate(d: Date | string) {
@@ -68,28 +83,29 @@ export default function AccountBookingsPage() {
   };
 
   const rowStyle: React.CSSProperties = {
-    background: "#1a1714",
-    border: "1px solid #2a2420",
+    background: "#ffffff",
+    border: "1px solid #efdcd8",
     borderRadius: "2px",
     padding: "20px",
     display: "flex",
     flexDirection: "column",
     gap: "12px",
+    boxShadow: "0 10px 30px rgba(35,33,34,0.07)",
   };
 
   return (
-    <main className="min-h-screen pb-24" style={{ background: "#0e0c0a" }}>
+    <main className="min-h-screen pb-24" style={{ background: "#ffffff" }}>
       {/* Header */}
       <nav
         className="sticky top-0 z-40 flex items-center justify-between px-5 py-4"
-        style={{ background: "#0e0c0a", borderBottom: "1px solid #1a1714" }}
+        style={{ background: "#ffffff", borderBottom: "1px solid #efdcd8" }}
       >
         <Link
           href="/account"
           style={{
-            fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+            fontFamily: FONT_BODY,
             fontSize: "12px",
-            color: "#8a6f3e",
+            color: "#d41d7f",
             letterSpacing: "0.06em",
             textDecoration: "none",
           }}
@@ -98,10 +114,10 @@ export default function AccountBookingsPage() {
         </Link>
         <span
           style={{
-            fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
+            fontFamily: FONT_DISPLAY,
             fontSize: "18px",
-            fontWeight: 300,
-            color: "#f5f0e8",
+            fontWeight: 400,
+            color: "#232122",
           }}
         >
           My Bookings
@@ -116,12 +132,12 @@ export default function AccountBookingsPage() {
         <section style={{ marginBottom: "40px" }}>
           <h2
             style={{
-              fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+              fontFamily: FONT_BODY,
               fontSize: "11px",
-              fontWeight: 500,
+              fontWeight: 400,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
-              color: "#c9a85c",
+              color: "#c98d82",
               margin: "0 0 16px",
             }}
           >
@@ -131,8 +147,8 @@ export default function AccountBookingsPage() {
           {!upcoming?.length ? (
             <div
               style={{
-                background: "#1a1714",
-                border: "1px solid #2a2420",
+                background: "#faf6f5",
+                border: "1px solid #efdcd8",
                 borderRadius: "2px",
                 padding: "32px",
                 textAlign: "center",
@@ -140,10 +156,10 @@ export default function AccountBookingsPage() {
             >
               <p
                 style={{
-                  fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
+                  fontFamily: FONT_DISPLAY,
                   fontSize: "18px",
-                  fontWeight: 300,
-                  color: "#4a4540",
+                  fontWeight: 400,
+                  color: "#8d8e8f",
                   margin: "0 0 16px",
                 }}
               >
@@ -156,17 +172,17 @@ export default function AccountBookingsPage() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {upcoming.map((apt) => {
-                const cfg = STATUS_CONFIG[apt.status] ?? { label: apt.status, variant: "dark" as const };
+                const cfg = STATUS_CONFIG[apt.status] ?? { label: apt.status, variant: "dark" as const, style: mutedChip };
                 return (
                   <div key={apt.id} style={rowStyle}>
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
                       <div>
                         <p
                           style={{
-                            fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
+                            fontFamily: FONT_DISPLAY,
                             fontSize: "20px",
                             fontWeight: 400,
-                            color: "#f5f0e8",
+                            color: "#232122",
                             margin: "0 0 4px",
                           }}
                         >
@@ -175,9 +191,9 @@ export default function AccountBookingsPage() {
                         {apt.staff && (
                           <p
                             style={{
-                              fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                              fontFamily: FONT_BODY,
                               fontSize: "12px",
-                              color: "#8a6f3e",
+                              color: "#c98d82",
                               margin: 0,
                             }}
                           >
@@ -185,7 +201,7 @@ export default function AccountBookingsPage() {
                           </p>
                         )}
                       </div>
-                      <AccentLabel variant={cfg.variant}>{cfg.label}</AccentLabel>
+                      <AccentLabel variant={cfg.variant} style={cfg.style}>{cfg.label}</AccentLabel>
                     </div>
 
                     <div
@@ -194,14 +210,14 @@ export default function AccountBookingsPage() {
                         alignItems: "center",
                         gap: "16px",
                         paddingTop: "8px",
-                        borderTop: "1px solid #2a2420",
+                        borderTop: "1px solid #efdcd8",
                       }}
                     >
                       <span
                         style={{
-                          fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                          fontSize: "12px",
-                          color: "#f5f0e8",
+                          fontFamily: FONT_BODY,
+                          fontSize: "13px",
+                          color: "#232122",
                           flex: 1,
                         }}
                       >
@@ -213,14 +229,14 @@ export default function AccountBookingsPage() {
                           onClick={() => handleCancel(apt.id)}
                           disabled={cancelMine.isPending}
                           style={{
-                            fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                            fontFamily: FONT_BODY,
                             fontSize: "11px",
-                            fontWeight: 500,
+                            fontWeight: 400,
                             letterSpacing: "0.08em",
                             textTransform: "uppercase",
-                            color: "#4a4540",
+                            color: "#8d8e8f",
                             background: "transparent",
-                            border: "1px solid #2a2420",
+                            border: "1px solid #efdcd8",
                             borderRadius: "2px",
                             padding: "6px 12px",
                             cursor: "pointer",
@@ -242,12 +258,12 @@ export default function AccountBookingsPage() {
           <section>
             <h2
               style={{
-                fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                fontFamily: FONT_BODY,
                 fontSize: "11px",
-                fontWeight: 500,
+                fontWeight: 400,
                 letterSpacing: "0.15em",
                 textTransform: "uppercase",
-                color: "#4a4540",
+                color: "#8d8e8f",
                 margin: "0 0 16px",
               }}
             >
@@ -256,12 +272,14 @@ export default function AccountBookingsPage() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {past.map((apt) => {
-                const cfg = STATUS_CONFIG[apt.status] ?? { label: apt.status, variant: "dark" as const };
+                const cfg = STATUS_CONFIG[apt.status] ?? { label: apt.status, variant: "dark" as const, style: mutedChip };
                 return (
                   <div
                     key={apt.id}
                     style={{
                       ...rowStyle,
+                      background: "#faf6f5",
+                      boxShadow: "none",
                       padding: "14px 20px",
                       flexDirection: "row",
                       alignItems: "center",
@@ -271,10 +289,10 @@ export default function AccountBookingsPage() {
                     <div style={{ flex: 1 }}>
                       <p
                         style={{
-                          fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                          fontFamily: FONT_BODY,
                           fontSize: "14px",
-                          fontWeight: 500,
-                          color: "#f5f0e8",
+                          fontWeight: 400,
+                          color: "#232122",
                           margin: "0 0 2px",
                         }}
                       >
@@ -282,16 +300,16 @@ export default function AccountBookingsPage() {
                       </p>
                       <p
                         style={{
-                          fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                          fontFamily: FONT_BODY,
                           fontSize: "11px",
-                          color: "#4a4540",
+                          color: "#8d8e8f",
                           margin: 0,
                         }}
                       >
                         {formatDate(apt.startAt)}
                       </p>
                     </div>
-                    <AccentLabel variant={cfg.variant}>{cfg.label}</AccentLabel>
+                    <AccentLabel variant={cfg.variant} style={cfg.style}>{cfg.label}</AccentLabel>
                   </div>
                 );
               })}

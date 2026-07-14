@@ -27,23 +27,14 @@ const tabs = [
     ),
   },
   {
-    href: "/transformations",
-    label: "Transformations",
+    href: "/book",
+    label: "Book",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3v3M12 18v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M3 12h3M18 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" />
-        <circle cx="12" cy="12" r="4" />
-      </svg>
-    ),
-  },
-  {
-    href: "/boutique",
-    label: "Boutique",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <path d="M16 10a4 4 0 01-8 0" />
+        <rect x="3" y="4" width="18" height="17" rx="1" />
+        <line x1="3" y1="9" x2="21" y2="9" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="16" y1="2" x2="16" y2="6" />
       </svg>
     ),
   },
@@ -75,8 +66,9 @@ export function BottomNav() {
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 flex items-stretch"
       style={{
-        background: "#0e0c0a",
-        borderTop: "1px solid #1a1714",
+        background: "#ffffff",
+        borderTop: "1px solid var(--viv-border, #efdcd8)",
+        boxShadow: "0 -6px 20px rgba(35,33,34,0.05)",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
@@ -89,11 +81,11 @@ export function BottomNav() {
             key={tab.href}
             href={tab.href}
             className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2.5 transition-colors"
-            style={{ color: isActive ? "#c9a85c" : "#4a4540" }}
+            style={{ color: isActive ? "#fe329c" : "#8d8e8f" }}
           >
             <span
               style={{
-                color: isActive ? "#c9a85c" : "#4a4540",
+                color: isActive ? "#fe329c" : "#8d8e8f",
                 transition: "color 0.15s",
               }}
             >
@@ -102,11 +94,12 @@ export function BottomNav() {
             <span
               className="text-center leading-tight"
               style={{
-                fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
+                fontFamily: "var(--font-abel), Abel, sans-serif",
                 fontSize: "9px",
-                fontWeight: isActive ? 500 : 400,
-                letterSpacing: "0.04em",
-                color: isActive ? "#c9a85c" : "#4a4540",
+                fontWeight: 400,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: isActive ? "#fe329c" : "#8d8e8f",
               }}
             >
               {tab.label}

@@ -36,11 +36,12 @@ export function GalleryCard({ item, index, onTap }: GalleryCardProps) {
         borderRadius: 2,
         overflow: "hidden",
         cursor: "pointer",
-        background: "var(--onyx-800)",
+        background: "#ffffff",
+        border: "1px solid #efdcd8",
         boxShadow: hovered
-          ? "8px 12px 0 rgba(0,0,0,0.85), 0 0 0 1px rgba(201,168,92,0.28)"
-          : "6px 9px 0 rgba(0,0,0,0.72), 0 0 0 1px rgba(201,168,92,0.10)",
-        transform: hovered ? "translateY(-4px) translateX(-2px)" : "none",
+          ? "0 14px 36px rgba(35,33,34,0.12)"
+          : "0 10px 30px rgba(35,33,34,0.07)",
+        transform: hovered ? "translateY(-4px)" : "none",
         transition: "transform 0.26s cubic-bezier(0.16,1,0.3,1), box-shadow 0.26s ease",
       }}
     >
@@ -57,12 +58,12 @@ export function GalleryCard({ item, index, onTap }: GalleryCardProps) {
         {/* Category pill */}
         <div style={{
           position: "absolute", top: 8, left: 8,
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase",
-          color: "var(--gold-400)",
-          background: "rgba(14,12,10,0.78)",
+          fontFamily: "var(--font-abel), Abel, sans-serif",
+          fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
+          color: "#c98d82",
+          background: "rgba(255,255,255,0.92)",
           padding: "3px 8px", borderRadius: 2,
-          border: "1px solid rgba(201,168,92,0.28)",
+          border: "1px solid #efdcd8",
           zIndex: 5,
         }}>
           {item.category}
@@ -72,50 +73,48 @@ export function GalleryCard({ item, index, onTap }: GalleryCardProps) {
         <div style={{
           position: "absolute", bottom: 0, left: 0, right: 0,
           padding: "10px 10px 9px",
+          background: "rgba(255,255,255,0.94)",
+          borderTop: "1px solid #efdcd8",
           transform: hovered ? "translateY(0)" : "translateY(100%)",
           transition: "transform 0.22s cubic-bezier(0.16,1,0.3,1)",
           display: "flex", alignItems: "center", gap: 8,
           zIndex: 5,
         }}>
-          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,transparent,rgba(201,168,92,0.4))" }} />
+          <div style={{ flex: 1, height: 1, background: "#e8bab3" }} />
           <span style={{
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 13, fontStyle: "italic", fontWeight: 300,
-            letterSpacing: "0.1em", color: "var(--gold-400)", whiteSpace: "nowrap",
+            fontFamily: "var(--font-abel), Abel, sans-serif",
+            fontSize: 10, fontWeight: 400,
+            letterSpacing: "0.16em", textTransform: "uppercase",
+            color: "#fe329c", whiteSpace: "nowrap",
           }}>
             Book This Look
           </span>
-          <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(201,168,92,0.4),transparent)" }} />
+          <div style={{ flex: 1, height: 1, background: "#e8bab3" }} />
         </div>
       </div>
 
       {/* Caption strip */}
-      <div style={{ padding: "9px 11px 10px", borderTop: "1px solid var(--onyx-700)", position: "relative" }}>
+      <div style={{ padding: "9px 11px 10px", borderTop: "1px solid #efdcd8", position: "relative", background: "#ffffff" }}>
         <div style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: 20,
-          background: "linear-gradient(180deg,rgba(255,255,255,0.025) 0%,transparent 100%)",
-          pointerEvents: "none",
-        }} />
-        <div style={{
-          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-          fontSize: 14, fontWeight: 300, fontStyle: "italic",
-          color: "var(--cream-100)", lineHeight: 1.2, marginBottom: 4,
+          fontFamily: "var(--font-marcellus), Marcellus, serif",
+          fontSize: 14, fontWeight: 400,
+          color: "#232122", lineHeight: 1.2, marginBottom: 4,
         }}>
           {item.title}
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase",
-            color: "var(--cream-400)",
+            fontFamily: "var(--font-abel), Abel, sans-serif",
+            fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
+            color: "#8d8e8f",
           }}>
             {item.therapist}
           </div>
           <div style={{
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 15, fontWeight: 300, color: "var(--gold-400)", letterSpacing: "-0.01em",
+            fontFamily: "var(--font-abel), Abel, sans-serif",
+            fontSize: 15, fontWeight: 400, color: "#fe329c", letterSpacing: "-0.01em",
           }}>
-            <sup style={{ fontSize: 9, color: "var(--gold-500)", verticalAlign: "super" }}>R</sup>
+            <sup style={{ fontSize: 9, color: "#d41d7f", verticalAlign: "super" }}>R</sup>
             {item.price}
           </div>
         </div>

@@ -15,10 +15,10 @@ export function EditorialCard({
   return (
     <div
       style={{
-        background: "#1a1714",
+        background: "#ffffff",
         borderRadius: "2px",
-        border: goldBorder ? "1px solid #c9a85c" : "1px solid #2a2420",
-        boxShadow: shadow ? "4px 4px 0px #c9a85c" : "none",
+        border: goldBorder ? "1px solid var(--viv-pink, #fe329c)" : "1px solid var(--viv-border, #efdcd8)",
+        boxShadow: shadow ? "0 10px 30px rgba(35,33,34,0.07)" : "none",
         ...style,
       }}
       {...props}

@@ -6,6 +6,7 @@ import { CategoryFilter } from "@/components/gallery/CategoryFilter";
 import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 import { GalleryOverlay } from "@/components/gallery/GalleryOverlay";
 import type { GalleryItemData } from "@/components/gallery/GalleryCard";
+import { brand } from "@/lib/brand";
 import Link from "next/link";
 
 const LOCATION_ID = process.env.NEXT_PUBLIC_LOCATION_ID ?? "";
@@ -30,29 +31,29 @@ const CATEGORIES = ["All", "Nails", "Facials", "Lashes", "Waxing", "Massage"];
 function EmptyState({ filter }: { filter: string }) {
   return (
     <div style={{ padding: "52px 32px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <div style={{ width: 32, height: 1, background: "var(--gold-400)", opacity: 0.3, marginBottom: 24 }} />
+      <div style={{ width: 32, height: 1, background: "#e8bab3", marginBottom: 24 }} />
       <div style={{
-        fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-        fontSize: 10, letterSpacing: "0.28em", textTransform: "uppercase",
-        color: "var(--gold-400)", marginBottom: 10,
+        fontFamily: "var(--font-abel), Abel, sans-serif",
+        fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase",
+        color: "#fe329c", marginBottom: 10,
       }}>
         {filter}
       </div>
       <h2 style={{
-        fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-        fontSize: 28, fontWeight: 300, fontStyle: "italic",
-        color: "var(--cream-200)", lineHeight: 1.1, textAlign: "center", marginBottom: 14,
+        fontFamily: "var(--font-marcellus), Marcellus, serif",
+        fontSize: 28, fontWeight: 400,
+        color: "#232122", lineHeight: 1.1, textAlign: "center", marginBottom: 14,
       }}>
         Coming Soon
       </h2>
       <p style={{
-        fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-        fontSize: 15, fontWeight: 300, color: "var(--cream-400)",
+        fontFamily: "var(--font-abel), Abel, sans-serif",
+        fontSize: 15, fontWeight: 400, color: "#4a4547",
         lineHeight: 1.75, textAlign: "center", maxWidth: 260,
       }}>
         Our artists are preparing something extraordinary for this collection.
       </p>
-      <div style={{ width: 32, height: 1, background: "var(--gold-400)", opacity: 0.3, marginTop: 24 }} />
+      <div style={{ width: 32, height: 1, background: "#e8bab3", marginTop: 24 }} />
     </div>
   );
 }
@@ -81,29 +82,30 @@ export default function GalleryPage() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", background: "var(--onyx-950)" }}>
+    <main style={{ minHeight: "100vh", background: "#ffffff" }}>
       {/* Nav */}
       <nav style={{
         position: "sticky", top: 0, zIndex: 40,
-        background: "var(--onyx-950)",
-        borderBottom: "1px solid var(--onyx-700)",
+        background: "#ffffff",
+        borderBottom: "1px solid #efdcd8",
         padding: "0 20px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         height: 52,
       }}>
         <Link href="/" style={{
-          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-          fontSize: 18, fontWeight: 300, fontStyle: "italic",
-          color: "var(--gold-400)", textDecoration: "none", letterSpacing: "0.04em",
+          fontFamily: "var(--font-marcellus), Marcellus, serif",
+          fontSize: 18, fontWeight: 400,
+          color: "#232122", textDecoration: "none", letterSpacing: "0.04em",
         }}>
-          Perfect 10
+          {brand.name}
         </Link>
         <Link href="/book" style={{
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
-          color: "var(--cream-400)", textDecoration: "none",
-          padding: "6px 14px",
-          border: "1px solid var(--onyx-600)",
+          fontFamily: "var(--font-abel), Abel, sans-serif",
+          fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase",
+          color: "#ffffff", textDecoration: "none",
+          background: "#232122",
+          padding: "7px 16px",
+          border: "1px solid #232122",
           borderRadius: 2,
         }}>
           Book
@@ -113,45 +115,45 @@ export default function GalleryPage() {
       {/* Header */}
       <div style={{ padding: "40px 20px 0" }}>
         <div style={{
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          fontSize: 10, letterSpacing: "0.28em", textTransform: "uppercase",
-          color: "var(--gold-400)", marginBottom: 6,
+          fontFamily: "var(--font-abel), Abel, sans-serif",
+          fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase",
+          color: "#c98d82", marginBottom: 6,
         }}>
-          Perfect 10
+          {brand.name}
         </div>
 
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8, marginBottom: 14 }}>
           <h1 style={{
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: "clamp(34px, 9vw, 48px)", fontWeight: 300, fontStyle: "italic",
-            color: "var(--cream-100)", lineHeight: 1, letterSpacing: "0.01em",
+            fontFamily: "var(--font-marcellus), Marcellus, serif",
+            fontSize: "clamp(34px, 9vw, 48px)", fontWeight: 400,
+            color: "#232122", lineHeight: 1, letterSpacing: "0.01em",
           }}>
             The Gallery
           </h1>
           <button style={{
             width: 32, height: 32, flexShrink: 0, borderRadius: 2,
-            background: "transparent", border: "1px solid var(--onyx-600)",
+            background: "#ffffff", border: "1px solid #efdcd8",
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", marginBottom: 4,
           }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-              <circle cx="10.5" cy="10.5" r="6.5" stroke="var(--onyx-500)" strokeWidth="1.6" />
-              <path d="M15.5 15.5L21 21" stroke="var(--onyx-500)" strokeWidth="1.6" strokeLinecap="round" />
+              <circle cx="10.5" cy="10.5" r="6.5" stroke="#8d8e8f" strokeWidth="1.6" />
+              <path d="M15.5 15.5L21 21" stroke="#8d8e8f" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
           </button>
         </div>
 
         <p style={{
-          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-          fontSize: 15, fontWeight: 300, fontStyle: "italic",
-          color: "var(--cream-400)", lineHeight: 1.7, letterSpacing: "0.01em",
+          fontFamily: "var(--font-bad-script), 'Bad Script', cursive",
+          fontSize: 17,
+          color: "#4a4547", lineHeight: 1.7, letterSpacing: "0.01em",
           marginBottom: 14,
         }}>
           Every image here is a result. Tap any look to meet the artist behind it.
         </p>
 
         {/* Filter bar */}
-        <div style={{ borderBottom: "1px solid var(--onyx-700)", paddingBottom: 10 }}>
+        <div style={{ borderBottom: "1px solid #efdcd8", paddingBottom: 10 }}>
           <CategoryFilter active={filter} onChange={setFilter} />
         </div>
       </div>

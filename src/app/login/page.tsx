@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { brand } from "@/lib/brand";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,12 +28,12 @@ export default function LoginPage() {
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    background: "var(--onyx-800)",
-    border: "1px solid var(--onyx-700)",
+    background: "#ffffff",
+    border: "1px solid #efdcd8",
     borderRadius: 2,
     padding: "14px 16px",
-    color: "var(--cream-100)",
-    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+    color: "#232122",
+    fontFamily: "var(--font-abel), Abel, sans-serif",
     fontSize: 14,
     letterSpacing: "0.02em",
     outline: "none",
@@ -40,52 +41,49 @@ export default function LoginPage() {
   };
 
   return (
-    <main style={{ minHeight: "100vh", display: "flex", background: "var(--onyx-950)" }}>
+    <main style={{ minHeight: "100vh", display: "flex", background: "#ffffff" }}>
 
       {/* Left editorial panel */}
       <div style={{
         display: "none",
         width: 360, flexShrink: 0,
-        background: "var(--onyx-900)",
-        borderRight: "1px solid var(--onyx-700)",
+        background: "#faf6f5",
+        borderRight: "1px solid #efdcd8",
         padding: "52px 44px",
         flexDirection: "column", justifyContent: "space-between",
       }}
         className="lg-panel"
       >
-        <Link href="/" style={{
-          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-          fontSize: 20, fontWeight: 300, fontStyle: "italic",
-          color: "var(--gold-400)", textDecoration: "none",
-        }}>
-          Perfect 10
+        <Link href="/" style={{ display: "block" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={brand.logoUrl} alt={brand.name} style={{ width: 150, height: "auto", display: "block" }} />
         </Link>
 
         <div>
-          <div style={{ width: 28, height: 1, background: "var(--gold-400)", opacity: 0.5, marginBottom: 28 }} />
+          <div style={{ width: 28, height: 1, background: "#e8bab3", marginBottom: 28 }} />
           <blockquote style={{
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 26, fontWeight: 300, fontStyle: "italic",
-            color: "var(--cream-100)", lineHeight: 1.35, letterSpacing: "0.02em",
+            fontFamily: "var(--font-marcellus), Marcellus, serif",
+            fontSize: 26, fontWeight: 400,
+            color: "#232122", lineHeight: 1.35, letterSpacing: "0.02em",
             marginBottom: 20,
           }}>
             &ldquo;The ritual of self-care begins with showing up.&rdquo;
           </blockquote>
           <p style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase",
-            color: "var(--gold-400)",
+            fontFamily: "var(--font-bad-script), 'Bad Script', cursive",
+            fontSize: 16,
+            color: "#fe329c",
           }}>
-            Ballito · La Lucia
+            {brand.tagline}
           </p>
         </div>
 
         <div style={{
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          fontSize: 8, letterSpacing: "0.18em",
-          color: "var(--onyx-500)",
+          fontFamily: "var(--font-abel), Abel, sans-serif",
+          fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
+          color: "#8d8e8f",
         }}>
-          © {new Date().getFullYear()} Perfect 10
+          © {new Date().getFullYear()} {brand.name}
         </div>
       </div>
 
@@ -93,26 +91,22 @@ export default function LoginPage() {
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
         <div style={{ width: "100%", maxWidth: 400 }}>
 
-          <Link href="/" style={{
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 20, fontWeight: 300, fontStyle: "italic",
-            color: "var(--gold-400)", textDecoration: "none",
-            display: "block", marginBottom: 36,
-          }}>
-            Perfect 10
+          <Link href="/" style={{ display: "block", marginBottom: 36 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={brand.logoUrl} alt={brand.name} style={{ width: 160, height: "auto", display: "block" }} />
           </Link>
 
           <h1 style={{
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 32, fontWeight: 300, fontStyle: "italic",
-            color: "var(--cream-100)", marginBottom: 4, lineHeight: 1,
+            fontFamily: "var(--font-marcellus), Marcellus, serif",
+            fontSize: 32, fontWeight: 400,
+            color: "#232122", marginBottom: 4, lineHeight: 1,
           }}>
             Welcome back
           </h1>
           <p style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 12, letterSpacing: "0.08em",
-            color: "var(--onyx-500)", marginBottom: 32,
+            fontFamily: "var(--font-abel), Abel, sans-serif",
+            fontSize: 13, letterSpacing: "0.08em",
+            color: "#8d8e8f", marginBottom: 32,
           }}>
             Sign in to manage your bookings & rewards
           </p>
@@ -122,14 +116,14 @@ export default function LoginPage() {
             onClick={() => signIn("google", { callbackUrl: "/account" })}
             style={{
               width: "100%",
-              background: "var(--onyx-800)",
-              border: "1px solid var(--onyx-700)",
+              background: "#ffffff",
+              border: "1px solid #efdcd8",
               borderRadius: 2, padding: "13px 20px",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
               cursor: "pointer",
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 12, letterSpacing: "0.14em",
-              color: "var(--cream-300)",
+              fontFamily: "var(--font-abel), Abel, sans-serif",
+              fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase",
+              color: "#4a4547",
               marginBottom: 20,
               boxSizing: "border-box",
             }}
@@ -145,15 +139,15 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-            <div style={{ flex: 1, height: 1, background: "var(--onyx-700)" }} />
+            <div style={{ flex: 1, height: 1, background: "#efdcd8" }} />
             <span style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase",
-              color: "var(--onyx-500)",
+              fontFamily: "var(--font-abel), Abel, sans-serif",
+              fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
+              color: "#8d8e8f",
             }}>
               or
             </span>
-            <div style={{ flex: 1, height: 1, background: "var(--onyx-700)" }} />
+            <div style={{ flex: 1, height: 1, background: "#efdcd8" }} />
           </div>
 
           {/* Form */}
@@ -165,6 +159,8 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               style={inputStyle}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#fe329c")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#efdcd8")}
             />
             <input
               type="password"
@@ -173,11 +169,13 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               style={inputStyle}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#fe329c")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#efdcd8")}
             />
             {error && (
               <div style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 12, color: "#e57373", letterSpacing: "0.04em",
+                fontFamily: "var(--font-abel), Abel, sans-serif",
+                fontSize: 12, color: "#d41d7f", letterSpacing: "0.04em",
               }}>
                 {error}
               </div>
@@ -187,13 +185,12 @@ export default function LoginPage() {
               disabled={loading}
               style={{
                 width: "100%", padding: "15px 20px", marginTop: 6,
-                background: "transparent",
-                border: "1px solid rgba(201,168,92,0.55)",
+                background: "#232122",
+                border: "1px solid #232122",
                 borderRadius: 2, cursor: loading ? "default" : "pointer",
-                fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                fontSize: 19, fontWeight: 300, fontStyle: "italic",
-                letterSpacing: "0.08em", color: "var(--gold-400)",
-                boxShadow: "4px 6px 0 rgba(0,0,0,0.65)",
+                fontFamily: "var(--font-abel), Abel, sans-serif",
+                fontSize: 13, fontWeight: 400, textTransform: "uppercase",
+                letterSpacing: "0.14em", color: "#ffffff",
                 opacity: loading ? 0.6 : 1,
                 transition: "all 0.22s cubic-bezier(0.16,1,0.3,1)",
               }}
@@ -204,11 +201,11 @@ export default function LoginPage() {
 
           <p style={{
             textAlign: "center", marginTop: 24,
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 12, letterSpacing: "0.06em", color: "var(--onyx-500)",
+            fontFamily: "var(--font-abel), Abel, sans-serif",
+            fontSize: 13, letterSpacing: "0.06em", color: "#8d8e8f",
           }}>
             No account?{" "}
-            <Link href="/signup" style={{ color: "var(--gold-400)", textDecoration: "none" }}>
+            <Link href="/signup" style={{ color: "#fe329c", textDecoration: "none" }}>
               Join free
             </Link>
           </p>
