@@ -3,6 +3,7 @@
 import { trpc } from "@/lib/trpc";
 import Link from "next/link";
 import { useState } from "react";
+import { brand } from "@/lib/brand";
 
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
@@ -15,7 +16,7 @@ export default function LoyaltyConfigPage() {
   return (
     <div className="min-h-screen flex" style={{ background: "var(--background)" }}>
       <aside className="w-60 bg-white border-r border-stone-100 p-6 flex flex-col gap-0.5 shrink-0">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700 mb-8 block">Perfect 10</Link>
+        <Link href="/" className="font-display text-xl font-bold text-teal-700 mb-8 block">{brand.name}</Link>
         {[
           { href: "/dashboard", label: "Overview", icon: "🏠" },
           { href: "/dashboard/clients", label: "Guests", icon: "👥" },

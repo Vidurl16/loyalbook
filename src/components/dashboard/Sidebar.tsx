@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+import { brand } from "@/lib/brand";
 
 export const navItems = [
   { href: "/dashboard", label: "Overview", icon: "🏠" },
@@ -25,14 +25,12 @@ export function DashboardSidebar() {
   return (
     <aside className="w-60 bg-black text-white flex flex-col shrink-0 min-h-screen">
       <div className="p-5 border-b border-white/10">
-        <Link href="/">
-          <Image
-            src="/brand/perfect10-logo.png"
-            alt="Perfect 10"
-            width={140}
-            height={32}
-            className="h-8 w-auto brightness-0 invert"
-          />
+        <Link
+          href="/"
+          className="block text-white text-xl"
+          style={{ fontFamily: "var(--font-marcellus), Marcellus, serif", letterSpacing: "0.04em" }}
+        >
+          {brand.name}
         </Link>
         <p className="text-[10px] text-white/40 mt-1 tracking-widest uppercase">Admin Panel</p>
       </div>
@@ -46,7 +44,7 @@ export function DashboardSidebar() {
                 ? "text-white border-l-2 pl-[10px]"
                 : "text-white/50 hover:text-white"
             }`}
-            style={(item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href)) ? { borderColor: "#C9262E" } : {}}
+            style={(item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href)) ? { borderColor: "#d41d7f" } : {}}
           >
             <span className="text-base">{item.icon}</span>
             {item.label}
@@ -57,7 +55,7 @@ export function DashboardSidebar() {
         <Link
           href="/book"
           className="w-full flex items-center justify-center gap-2 text-white text-sm py-2.5 font-semibold hover:opacity-90 transition-opacity"
-          style={{ background: "#C9262E", borderRadius: 2 }}
+          style={{ background: "#d41d7f", borderRadius: 2 }}
         >
           + New Booking
         </Link>

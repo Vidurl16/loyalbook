@@ -67,7 +67,7 @@ function AdjustPointsModal({ client, onClose }: { client: Client; onClose: () =>
                 onClick={() => setMode(m)}
                 className="flex-1 py-2.5 text-sm font-semibold transition-colors"
                 style={mode === m
-                  ? { background: m === "add" ? "#000" : m === "remove" ? "#C9262E" : "#6d28d9", color: "#fff" }
+                  ? { background: m === "add" ? "#000" : m === "remove" ? "#d41d7f" : "#6d28d9", color: "#fff" }
                   : { background: "#fff", color: "#4A4A4A" }}
               >
                 {m === "add" ? "➕ Add" : m === "remove" ? "➖ Remove" : "🎁 Redeem"}
@@ -125,7 +125,7 @@ function AdjustPointsModal({ client, onClose }: { client: Client; onClose: () =>
             </div>
           )}
 
-          {error && <p className="text-[#C9262E] text-sm">{error.message}</p>}
+          {error && <p className="text-[#d41d7f] text-sm">{error.message}</p>}
 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} className="flex-1 border border-[#D1D2D4] text-[#4A4A4A] py-3 text-sm font-medium hover:bg-[#EBEBEC]">Cancel</button>
@@ -133,7 +133,7 @@ function AdjustPointsModal({ client, onClose }: { client: Client; onClose: () =>
               type="submit"
               disabled={isPending || (mode !== "add" && pts > balance)}
               className="flex-1 text-white py-3 text-sm font-semibold disabled:opacity-50 transition-opacity"
-              style={{ background: mode === "add" ? "#000" : mode === "remove" ? "#C9262E" : "#6d28d9" }}
+              style={{ background: mode === "add" ? "#000" : mode === "remove" ? "#d41d7f" : "#6d28d9" }}
             >
               {isPending ? "Saving…" : mode === "add" ? "Add Points" : mode === "remove" ? "Remove Points" : `Redeem ${pts > 0 ? `${pts} pts (R${randValue})` : "Points"}`}
             </button>

@@ -8,7 +8,7 @@ import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
 const COLORS = [
-  "#C9262E", "#000000", "#4A4A4A", "#8D8E8F",
+  "#d41d7f", "#000000", "#4A4A4A", "#8D8E8F",
   "#6366F1", "#EC4899", "#F97316", "#06B6D4", "#84CC16", "#10B981",
 ];
 
@@ -49,12 +49,12 @@ export default function StaffPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {staff.map((member) => (
               <div key={member.id} className="bg-white border border-[#D1D2D4] overflow-hidden">
-                <div className="h-1.5" style={{ backgroundColor: member.color ?? "#C9262E" }} />
+                <div className="h-1.5" style={{ backgroundColor: member.color ?? "#d41d7f" }} />
                 <div className="p-6">
                   <div className="flex items-start gap-4">
                     <div
                       className="w-12 h-12 flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                      style={{ backgroundColor: member.color ?? "#C9262E" }}
+                      style={{ backgroundColor: member.color ?? "#d41d7f" }}
                     >
                       {(member.user?.name ?? "?")[0]?.toUpperCase()}
                     </div>
@@ -119,7 +119,7 @@ export default function StaffPage() {
                         <button
                           onClick={() => { setEditingId(member.id); setEditBio(member.bio ?? ""); setEditColor(member.color ?? COLORS[0]!); }}
                           className="text-sm font-semibold hover:underline"
-                          style={{ color: "#C9262E" }}
+                          style={{ color: "#d41d7f" }}
                         >Edit profile</button>
                         <Link
                           href={`/dashboard/staff/${member.id}`}

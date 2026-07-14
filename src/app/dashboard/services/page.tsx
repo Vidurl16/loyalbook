@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
+import { brand } from "@/lib/brand";
 
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
@@ -80,7 +81,7 @@ export default function ServicesPage() {
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-stone-200 flex flex-col">
         <div className="p-6 border-b border-stone-100">
-          <h1 className="font-display text-xl text-stone-800">🌸 Perfect 10</h1>
+          <h1 className="font-display text-xl text-stone-800">🌸 {brand.name}</h1>
           <p className="text-xs text-stone-400 mt-1">Spa Management</p>
         </div>
         <nav className="flex-1 p-4 space-y-1">

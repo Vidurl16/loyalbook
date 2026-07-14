@@ -11,8 +11,8 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   confirmed: { label: "Confirmed", color: "#2563eb" },
   completed: { label: "Completed", color: "#16a34a" },
   no_show: { label: "No Show", color: "#dc2626" },
-  cancelled_by_client: { label: "Cancelled (Client)", color: "#C9262E" },
-  cancelled_by_spa: { label: "Cancelled (Spa)", color: "#C9262E" },
+  cancelled_by_client: { label: "Cancelled (Client)", color: "#d41d7f" },
+  cancelled_by_spa: { label: "Cancelled (Spa)", color: "#d41d7f" },
 };
 
 const STATUSES = ["", "pending", "confirmed", "completed", "no_show", "cancelled_by_client", "cancelled_by_spa"];
@@ -212,7 +212,7 @@ export default function BookingsPage() {
                                   <button
                                     onClick={() => handleAction(booking.id, "cancelled_by_spa", booking.client?.name ?? "")}
                                     className="text-xs px-2 py-1 text-white hover:opacity-90 transition-opacity"
-                                    style={{ background: "#C9262E" }}
+                                    style={{ background: "#d41d7f" }}
                                   >
                                     Cancel
                                   </button>
@@ -248,7 +248,7 @@ export default function BookingsPage() {
                 onClick={executeAction}
                 disabled={updateStatus.isPending}
                 className="flex-1 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
-                style={{ background: "#C9262E" }}
+                style={{ background: "#d41d7f" }}
               >
                 {updateStatus.isPending ? "Updating…" : "Confirm"}
               </button>

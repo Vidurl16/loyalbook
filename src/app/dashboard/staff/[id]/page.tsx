@@ -12,8 +12,8 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   confirmed: { label: "Confirmed", color: "#2563eb" },
   completed: { label: "Completed", color: "#16a34a" },
   no_show: { label: "No Show", color: "#dc2626" },
-  cancelled_by_client: { label: "Cancelled", color: "#C9262E" },
-  cancelled_by_spa: { label: "Cancelled (Spa)", color: "#C9262E" },
+  cancelled_by_client: { label: "Cancelled", color: "#d41d7f" },
+  cancelled_by_spa: { label: "Cancelled (Spa)", color: "#d41d7f" },
 };
 
 type Period = "day" | "week" | "month" | "year";
@@ -73,7 +73,7 @@ export default function TherapistDetailPage() {
               <div className="flex items-center gap-4">
                 <div
                   className="w-14 h-14 flex items-center justify-center text-white text-xl font-semibold"
-                  style={{ background: "#C9262E" }}
+                  style={{ background: "#d41d7f" }}
                 >
                   {data.staff?.user?.name?.charAt(0) ?? "?"}
                 </div>
@@ -171,7 +171,7 @@ export default function TherapistDetailPage() {
                       </div>
                       <span
                         className="text-xs text-white px-2 py-0.5 font-semibold"
-                        style={{ background: "#C9262E" }}
+                        style={{ background: "#d41d7f" }}
                       >
                         ×{s.count}
                       </span>

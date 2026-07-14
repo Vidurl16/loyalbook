@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import Link from "next/link";
 import { useState } from "react";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
+import { brand } from "@/lib/brand";
 
 const LOCATION_ID = process.env.NEXT_PUBLIC_LOCATION_ID!;
 
@@ -36,7 +37,7 @@ export default function GalleryAdminPage() {
   return (
     <div className="min-h-screen flex" style={{ background: "var(--background)" }}>
       <aside className="w-60 bg-white border-r border-stone-100 p-6 flex flex-col gap-0.5 shrink-0">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700 mb-8 block">Perfect 10</Link>
+        <Link href="/" className="font-display text-xl font-bold text-teal-700 mb-8 block">{brand.name}</Link>
         {NAV.map((item) => (
           <Link key={item.href} href={item.href} className={`flex items-center gap-2.5 text-sm rounded-xl px-3 py-2.5 transition-colors ${item.href === "/dashboard/gallery" ? "bg-teal-50 text-teal-700 font-medium" : "text-stone-500 hover:text-teal-700 hover:bg-stone-50"}`}>
             <span>{item.icon}</span>{item.label}

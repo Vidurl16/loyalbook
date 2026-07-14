@@ -54,7 +54,7 @@ export default function DashboardPage() {
               {new Date().toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
             </p>
           </div>
-          <Link href="/dashboard/analytics" className="text-sm font-semibold text-white px-5 py-2 hover:opacity-90 transition-opacity" style={{ background: "#C9262E", borderRadius: 2 }}>
+          <Link href="/dashboard/analytics" className="text-sm font-semibold text-white px-5 py-2 hover:opacity-90 transition-opacity" style={{ background: "#d41d7f", borderRadius: 2 }}>
             View Analytics →
           </Link>
         </div>
@@ -89,7 +89,7 @@ export default function DashboardPage() {
               <div className="text-center py-10">
                 <div className="text-3xl mb-2">🌸</div>
                 <p className="text-[#8D8E8F] text-sm">No treatments scheduled for today.</p>
-                <Link href="/book" className="inline-block mt-3 text-sm hover:underline" style={{ color: "#C9262E" }}>+ Add booking</Link>
+                <Link href="/book" className="inline-block mt-3 text-sm hover:underline" style={{ color: "#d41d7f" }}>+ Add booking</Link>
               </div>
             ) : (
               <div className="space-y-2">
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                         <button
                           onClick={() => updateStatus.mutate({ id: apt.id, status: "completed" })}
                           className="text-xs text-white px-2 py-0.5 hover:opacity-80 transition-opacity"
-                          style={{ background: "#C9262E", borderRadius: 2 }}
+                          style={{ background: "#d41d7f", borderRadius: 2 }}
                         >
                           ✓ Done
                         </button>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
                         {c.dob ? new Date(c.dob).toLocaleDateString("en-ZA", { day: "numeric", month: "short" }) : ""}
                       </div>
                     </div>
-                    <Link href="/dashboard/clients" className="text-xs font-semibold hover:underline" style={{ color: "#C9262E" }}>Send bonus</Link>
+                    <Link href="/dashboard/clients" className="text-xs font-semibold hover:underline" style={{ color: "#d41d7f" }}>Send bonus</Link>
                   </div>
                 ))}
               </div>

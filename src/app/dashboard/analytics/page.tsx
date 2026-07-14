@@ -36,7 +36,7 @@ function StatCard({ label, value, sub, accent }: { label: string; value: string 
   return (
     <div className="bg-white border border-[#D1D2D4] p-6">
       <p className="text-xs font-semibold text-[#8D8E8F] uppercase tracking-widest mb-2">{label}</p>
-      <p className="text-3xl font-bold" style={{ color: accent ? "#C9262E" : "#000000" }}>{value}</p>
+      <p className="text-3xl font-bold" style={{ color: accent ? "#d41d7f" : "#000000" }}>{value}</p>
       {sub && <p className="text-xs text-[#8D8E8F] mt-1.5">{sub}</p>}
     </div>
   );
@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
                 onClick={() => setPeriod(p)}
                 className="px-4 py-1.5 text-sm font-semibold transition-colors"
                 style={period === p
-                  ? { background: "#C9262E", color: "#fff" }
+                  ? { background: "#d41d7f", color: "#fff" }
                   : { color: "#4A4A4A", background: "transparent" }}
               >
                 {PERIOD_LABELS[p]}
@@ -131,7 +131,7 @@ export default function AnalyticsPage() {
             <div className="space-y-4">
               {[
                 { label: "Total Points Issued", value: (pointsEconomy?.totalIssued ?? 0).toLocaleString() + " pts", color: "#000" },
-                { label: "Points Redeemed", value: (pointsEconomy?.totalRedeemed ?? 0).toLocaleString() + " pts", color: "#C9262E" },
+                { label: "Points Redeemed", value: (pointsEconomy?.totalRedeemed ?? 0).toLocaleString() + " pts", color: "#d41d7f" },
                 { label: "Outstanding Balance", value: (pointsEconomy?.totalOutstanding ?? 0).toLocaleString() + " pts", color: "#22c55e" },
                 { label: "Active Members", value: (pointsEconomy?.memberCount ?? 0).toLocaleString(), color: "#3b82f6" },
               ].map((row) => (
@@ -151,7 +151,7 @@ export default function AnalyticsPage() {
                       className="h-full"
                       style={{
                         width: `${Math.round((pointsEconomy.totalRedeemed / pointsEconomy.totalIssued) * 100)}%`,
-                        background: "#C9262E",
+                        background: "#d41d7f",
                       }}
                     />
                   </div>
@@ -187,7 +187,7 @@ export default function AnalyticsPage() {
                         className="h-full"
                         style={{
                           width: `${Math.round((item.count / maxServiceCount) * 100)}%`,
-                          background: "#C9262E",
+                          background: "#d41d7f",
                         }}
                       />
                     </div>
