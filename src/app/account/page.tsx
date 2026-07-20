@@ -48,10 +48,7 @@ export default function AccountPage() {
   if (status === "unauthenticated") redirect("/login");
 
   const userId = (session?.user as any)?.id;
-  const { data: client } = trpc.clients.get.useQuery(
-    { id: userId },
-    { enabled: !!userId }
-  );
+  const { data: client } = trpc.clients.me.useQuery(undefined, { enabled: !!userId });
 
   const lifetime = client?.loyaltyAccount?.lifetimeEarned ?? 0;
   const balance  = client?.loyaltyAccount?.balance ?? 0;

@@ -5,9 +5,8 @@
  * Usage:
  *   ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=yourpassword node node_modules/.bin/jiti create-admin.ts
  *
- * Defaults (if env vars not set):
- *   email:    admin@perfect10lalucia.co.za
- *   password: Perfect10Admin!
+ * ADMIN_PASSWORD is required — there is no default (avoids a known credential).
+ * ADMIN_EMAIL defaults to admin@perfect10lalucia.co.za if not set.
  */
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -19,8 +18,12 @@ const prisma = new PrismaClient({ adapter, log: [] });
 
 async function main() {
   const email    = process.env.ADMIN_EMAIL    ?? "admin@perfect10lalucia.co.za";
-  const password = process.env.ADMIN_PASSWORD ?? "Perfect10Admin!";
+  const password = process.env.ADMIN_PASSWORD;
   const name     = process.env.ADMIN_NAME     ?? "Perfect 10 Admin";
+
+  if (!password || password.length < 8) {
+    throw new Error("ADMIN_PASSWORD env var is required (min 8 chars). No default is allowed.");
+  }
 
   const spa = await prisma.spa.findFirst();
   if (!spa) throw new Error("No spa found — run seed.ts first.");

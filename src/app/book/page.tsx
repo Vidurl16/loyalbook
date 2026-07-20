@@ -178,7 +178,6 @@ function BookPageInner() {
   const [selectedSlot, setSelectedSlot] = useState<string>("");
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [skinNotes, setSkinNotes] = useState("");
-  const [pointsToRedeem, setPointsToRedeem] = useState(0);
 
   const { data: services } = trpc.services.list.useQuery({ spaId: SPA_ID });
   const { data: staffList } = trpc.staff.list.useQuery(
@@ -725,54 +724,23 @@ function BookPageInner() {
               </div>
             </div>
 
-            {/* Points redemption */}
+            {/* Loyalty note — points are redeemed as vouchers on the Rewards page, then shown in-salon */}
             {loyaltyAccount && loyaltyAccount.balance > 0 && (
               <div style={{
                 background: "var(--onyx-900)",
                 border: "1px solid rgba(201,168,92,0.32)",
-                borderRadius: 2, padding: "18px 20px",
+                borderLeft: "2px solid var(--gold-400)",
+                borderRadius: 2, padding: "14px 18px",
                 marginBottom: 14,
-                boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
               }}>
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-                  color: "var(--gold-400)", marginBottom: 6,
-                }}>
-                  Redeem Loyalty Points
-                </div>
-                <div style={{
                   fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                  fontSize: 15, fontWeight: 300, color: "var(--cream-300)", marginBottom: 12,
+                  fontSize: 15, fontWeight: 300, fontStyle: "italic", color: "var(--cream-300)", lineHeight: 1.5,
                 }}>
-                  You have <strong style={{ color: "var(--cream-100)" }}>{loyaltyAccount.balance} points</strong> available.
+                  You have <strong style={{ color: "var(--cream-100)" }}>{loyaltyAccount.balance} points</strong>. Redeem them for a
+                  voucher on your <Link href="/account/rewards" style={{ color: "var(--gold-400)" }}>Rewards</Link> page, then show
+                  the code in-salon.
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <input
-                    type="range"
-                    min={0}
-                    max={loyaltyAccount.balance}
-                    step={100}
-                    value={pointsToRedeem}
-                    onChange={(e) => setPointsToRedeem(Number(e.target.value))}
-                    style={{ flex: 1, accentColor: "var(--gold-400)" }}
-                  />
-                  <span style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 13, fontWeight: 600,
-                    color: "var(--gold-400)", width: 64, textAlign: "right",
-                  }}>
-                    {pointsToRedeem} pts
-                  </span>
-                </div>
-                {pointsToRedeem > 0 && loyaltyConfig && (
-                  <div style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 11, color: "var(--onyx-500)", marginTop: 8,
-                  }}>
-                    Saving approx. R{((pointsToRedeem / loyaltyConfig.redemptionRate) * 10).toFixed(0)} on your treatment
-                  </div>
-                )}
               </div>
             )}
 
@@ -897,27 +865,6 @@ function BookPageInner() {
                 </span>
               </div>
 
-              {pointsToRedeem > 0 && (
-                <div style={{
-                  display: "flex", justifyContent: "space-between", alignItems: "center",
-                  padding: "12px 0",
-                  borderTop: "1px solid var(--onyx-800)",
-                }}>
-                  <span style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-                    color: "var(--gold-400)",
-                  }}>
-                    Points redeemed
-                  </span>
-                  <span style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 13, fontWeight: 600, color: "var(--gold-400)",
-                  }}>
-                    −{pointsToRedeem} pts
-                  </span>
-                </div>
-              )}
 
               {skinNotes && (
                 <div style={{
@@ -986,7 +933,6 @@ function BookPageInner() {
                   startAt: start.toISOString(),
                   endAt: end.toISOString(),
                   notes: skinNotes || undefined,
-                  pointsRedeemed: pointsToRedeem,
                 });
               }}
               style={{

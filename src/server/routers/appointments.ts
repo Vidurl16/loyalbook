@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "@/server/trpc";
+import { TRPCError } from "@trpc/server";
+import { router, protectedProcedure, adminProcedure } from "@/server/trpc";
 
 export const appointmentsRouter = router({
-  list: protectedProcedure
+  list: adminProcedure
     .input(z.object({ spaId: z.string(), date: z.string().optional() }))
     .query(async ({ ctx, input }) => {
       return ctx.prisma.appointment.findMany({
@@ -20,7 +21,7 @@ export const appointmentsRouter = router({
       });
     }),
 
-  listAll: protectedProcedure
+  listAll: adminProcedure
     .input(z.object({
       spaId: z.string(),
       from: z.string().optional(),
@@ -50,6 +51,36 @@ export const appointmentsRouter = router({
       });
     }),
 
+  // Self-only: the signed-in client's own appointments.
+  myAppointments: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.appointment.findMany({
+      where: { clientId: ctx.session.user.id },
+      include: {
+        service: true,
+        staff: { include: { user: { select: { name: true } } } },
+      },
+      orderBy: { startAt: "desc" },
+      take: 50,
+    });
+  }),
+
+  // Self-only: a client cancels their own upcoming booking.
+  cancelMine: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const appt = await ctx.prisma.appointment.findUnique({ where: { id: input.id } });
+      if (!appt || appt.clientId !== ctx.session.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      if (!["pending", "confirmed"].includes(appt.status)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "This booking can no longer be cancelled." });
+      }
+      return ctx.prisma.appointment.update({
+        where: { id: input.id },
+        data: { status: "cancelled_by_client" },
+      });
+    }),
+
   create: protectedProcedure
     .input(
       z.object({
@@ -59,7 +90,6 @@ export const appointmentsRouter = router({
         startAt: z.string(),
         endAt: z.string(),
         notes: z.string().optional(),
-        pointsRedeemed: z.number().default(0),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -104,7 +134,6 @@ export const appointmentsRouter = router({
           startAt: new Date(input.startAt),
           endAt: new Date(input.endAt),
           notes: input.notes,
-          pointsRedeemed: input.pointsRedeemed,
         },
         include: { service: true, staff: { include: { user: true } } },
       });
@@ -112,7 +141,7 @@ export const appointmentsRouter = router({
       return appointment;
     }),
 
-  updateStatus: protectedProcedure
+  updateStatus: adminProcedure
     .input(
       z.object({
         id: z.string(),
@@ -126,83 +155,70 @@ export const appointmentsRouter = router({
         include: { client: { include: { loyaltyAccount: true } }, service: true },
       });
 
-      // Credit points when appointment is completed
+      // Credit points when appointment is completed — idempotently.
       if (input.status === "completed") {
         const config = await ctx.prisma.loyaltyConfig.findUnique({
           where: { spaId: appointment.spaId },
         });
 
         if (config && appointment.client.loyaltyAccount) {
-          const pointsEarned = Math.floor(
-            (appointment.service.price / config.currencyUnitAmount) * config.pointsPerUnit
-          );
+          // Idempotency guard: never credit the same appointment twice.
+          const alreadyEarned = await ctx.prisma.pointsTransaction.findFirst({
+            where: { appointmentId: appointment.id, type: "earned" },
+          });
 
-          // Check rebooking bonus eligibility
-          const recentCompleted = await ctx.prisma.appointment.findFirst({
-            where: {
-              clientId: appointment.clientId,
-              spaId: appointment.spaId,
-              status: "completed",
-              id: { not: appointment.id },
-              startAt: {
-                gte: new Date(Date.now() - config.rebookingWindowDays * 86400000),
+          if (!alreadyEarned) {
+            const pointsEarned = Math.floor(
+              (appointment.service.price / config.currencyUnitAmount) * config.pointsPerUnit
+            );
+
+            // Check rebooking bonus eligibility
+            const recentCompleted = await ctx.prisma.appointment.findFirst({
+              where: {
+                clientId: appointment.clientId,
+                spaId: appointment.spaId,
+                status: "completed",
+                id: { not: appointment.id },
+                startAt: {
+                  gte: new Date(Date.now() - config.rebookingWindowDays * 86400000),
+                },
               },
-            },
-          });
+            });
 
-          const bonusPoints = recentCompleted ? config.rebookingBonus : 0;
-          const totalPoints = pointsEarned + bonusPoints;
+            const bonusPoints = recentCompleted ? config.rebookingBonus : 0;
+            const totalPoints = pointsEarned + bonusPoints;
 
-          await ctx.prisma.loyaltyAccount.update({
-            where: { id: appointment.client.loyaltyAccount.id },
-            data: {
-              balance: { increment: totalPoints },
-              lifetimeEarned: { increment: totalPoints },
-              lastActivityAt: new Date(),
-            },
-          });
+            await ctx.prisma.loyaltyAccount.update({
+              where: { id: appointment.client.loyaltyAccount.id },
+              data: {
+                balance: { increment: totalPoints },
+                lifetimeEarned: { increment: totalPoints },
+                lastActivityAt: new Date(),
+              },
+            });
 
-          await ctx.prisma.pointsTransaction.create({
-            data: {
-              accountId: appointment.client.loyaltyAccount.id,
-              appointmentId: appointment.id,
-              type: "earned",
-              amount: pointsEarned,
-              description: `Earned from ${appointment.service.name}`,
-            },
-          });
-
-          if (bonusPoints > 0) {
             await ctx.prisma.pointsTransaction.create({
               data: {
                 accountId: appointment.client.loyaltyAccount.id,
                 appointmentId: appointment.id,
-                type: "rebooking_bonus",
-                amount: bonusPoints,
-                description: "Rebooking bonus reward",
+                type: "earned",
+                amount: pointsEarned,
+                description: `Earned from ${appointment.service.name}`,
               },
             });
-          }
-        }
-      }
 
-      // Refund redeemed points if cancelled by client
-      if (input.status === "cancelled_by_client" && appointment.pointsRedeemed > 0) {
-        const loyaltyAccount = appointment.client.loyaltyAccount;
-        if (loyaltyAccount) {
-          await ctx.prisma.loyaltyAccount.update({
-            where: { id: loyaltyAccount.id },
-            data: { balance: { increment: appointment.pointsRedeemed } },
-          });
-          await ctx.prisma.pointsTransaction.create({
-            data: {
-              accountId: loyaltyAccount.id,
-              appointmentId: appointment.id,
-              type: "refunded",
-              amount: appointment.pointsRedeemed,
-              description: "Points refunded due to cancellation",
-            },
-          });
+            if (bonusPoints > 0) {
+              await ctx.prisma.pointsTransaction.create({
+                data: {
+                  accountId: appointment.client.loyaltyAccount.id,
+                  appointmentId: appointment.id,
+                  type: "rebooking_bonus",
+                  amount: bonusPoints,
+                  description: "Rebooking bonus reward",
+                },
+              });
+            }
+          }
         }
       }
 

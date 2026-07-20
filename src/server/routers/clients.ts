@@ -1,8 +1,24 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "@/server/trpc";
+import { router, adminProcedure, protectedProcedure } from "@/server/trpc";
 
 export const clientsRouter = router({
-  list: protectedProcedure
+  // Self-only: the signed-in client's own hub (profile, loyalty, appointments).
+  // Replaces client-facing use of `get` so a client can't read anyone else.
+  me: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.user.findUnique({
+      where: { id: ctx.session.user.id },
+      include: {
+        loyaltyAccount: { include: { transactions: { orderBy: { createdAt: "desc" }, take: 20 } } },
+        appointments: {
+          include: { service: true, staff: { include: { user: true } } },
+          orderBy: { startAt: "desc" },
+          take: 20,
+        },
+      },
+    });
+  }),
+
+  list: adminProcedure
     .input(z.object({ spaId: z.string(), search: z.string().optional() }))
     .query(async ({ ctx, input }) => {
       return ctx.prisma.user.findMany({
@@ -24,7 +40,7 @@ export const clientsRouter = router({
       });
     }),
 
-  get: protectedProcedure
+  get: adminProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       return ctx.prisma.user.findUnique({
@@ -40,7 +56,7 @@ export const clientsRouter = router({
       });
     }),
 
-  upcomingBirthdays: protectedProcedure
+  upcomingBirthdays: adminProcedure
     .input(z.object({ spaId: z.string() }))
     .query(async ({ ctx, input }) => {
       const today = new Date();

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { router, protectedProcedure, adminProcedure } from "@/server/trpc";
+import { router, protectedProcedure, adminProcedure, ownerProcedure } from "@/server/trpc";
 import { computeTier, generateVoucherCode } from "@/lib/loyalty";
 
 export const loyaltyRouter = router({
@@ -103,6 +103,16 @@ export const loyaltyRouter = router({
       const expiresAt = new Date(Date.now() + voucherExpiryDays * 86400000);
 
       return ctx.prisma.$transaction(async (tx) => {
+        // Atomic conditional decrement — guards against a race that could
+        // over-redeem or drive the balance negative under concurrent requests.
+        const dec = await tx.loyaltyAccount.updateMany({
+          where: { clientId, balance: { gte: input.points } },
+          data: { balance: { decrement: input.points }, lastActivityAt: new Date() },
+        });
+        if (dec.count !== 1) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Insufficient points balance." });
+        }
+
         const txn = await tx.pointsTransaction.create({
           data: {
             accountId: account.id,
@@ -110,11 +120,6 @@ export const loyaltyRouter = router({
             amount: -input.points,
             description: `Redeemed for R${discountValue} voucher`,
           },
-        });
-
-        await tx.loyaltyAccount.update({
-          where: { clientId },
-          data: { balance: { decrement: input.points }, lastActivityAt: new Date() },
         });
 
         return tx.voucher.create({
@@ -221,7 +226,7 @@ export const loyaltyRouter = router({
       };
     }),
 
-  adjustPoints: adminProcedure
+  adjustPoints: ownerProcedure
     .input(
       z.object({
         clientId: z.string(),
@@ -319,7 +324,7 @@ export const loyaltyRouter = router({
     }),
 
   // Admin: redeem points directly in-salon (legacy manual path, kept for admin use).
-  adminRedeem: adminProcedure
+  adminRedeem: ownerProcedure
     .input(z.object({
       clientId: z.string(),
       points: z.number().int().positive(),

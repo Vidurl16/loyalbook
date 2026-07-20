@@ -37,12 +37,9 @@ export default function AccountBookingsPage() {
   if (status === "unauthenticated") redirect("/login");
 
   const userId = (session?.user as { id?: string })?.id;
-  const { data: client, refetch } = trpc.clients.get.useQuery(
-    { id: userId! },
-    { enabled: !!userId }
-  );
+  const { data: client, refetch } = trpc.clients.me.useQuery(undefined, { enabled: !!userId });
 
-  const updateStatus = trpc.appointments.updateStatus.useMutation({
+  const cancelMine = trpc.appointments.cancelMine.useMutation({
     onSuccess: () => refetch(),
   });
 
@@ -63,7 +60,7 @@ export default function AccountBookingsPage() {
 
   const handleCancel = (id: string) => {
     if (confirm("Cancel this appointment?")) {
-      updateStatus.mutate({ id, status: "cancelled_by_client" });
+      cancelMine.mutate({ id });
     }
   };
 
@@ -211,7 +208,7 @@ export default function AccountBookingsPage() {
                       {["pending", "confirmed"].includes(apt.status) && (
                         <button
                           onClick={() => handleCancel(apt.id)}
-                          disabled={updateStatus.isPending}
+                          disabled={cancelMine.isPending}
                           style={{
                             fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
                             fontSize: "11px",
