@@ -37,20 +37,23 @@ export default function AccountBookingsPage() {
   if (status === "unauthenticated") redirect("/login");
 
   const userId = (session?.user as { id?: string })?.id;
-  const { data: client, refetch } = trpc.clients.me.useQuery(undefined, { enabled: !!userId });
+  const { data: appointments, refetch } = trpc.appointments.myAppointments.useQuery(
+    { take: 100 },
+    { enabled: !!userId }
+  );
 
   const cancelMine = trpc.appointments.cancelMine.useMutation({
     onSuccess: () => refetch(),
   });
 
-  const upcoming = client?.appointments
+  const upcoming = appointments
     ?.filter((a) =>
       new Date(a.startAt) >= new Date() &&
       ["pending", "confirmed"].includes(a.status)
     )
     .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
 
-  const past = client?.appointments
+  const past = appointments
     ?.filter((a) =>
       new Date(a.startAt) < new Date() ||
       ["completed", "no_show", "cancelled_by_client", "cancelled_by_spa"].includes(a.status)

@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { router, adminProcedure, protectedProcedure } from "@/server/trpc";
+import { router, protectedProcedure, adminProcedure } from "@/server/trpc";
 
 export const clientsRouter = router({
-  // Self-only: the signed-in client's own hub (profile, loyalty, appointments).
-  // Replaces client-facing use of `get` so a client can't read anyone else.
+  // Customer self-service: the caller's OWN profile, loyalty account and recent activity.
+  // Never accepts an id — a client can only ever read themselves.
   me: protectedProcedure.query(async ({ ctx }) => {
     return ctx.prisma.user.findUnique({
       where: { id: ctx.session.user.id },
@@ -12,7 +12,7 @@ export const clientsRouter = router({
         appointments: {
           include: { service: true, staff: { include: { user: true } } },
           orderBy: { startAt: "desc" },
-          take: 20,
+          take: 10,
         },
       },
     });

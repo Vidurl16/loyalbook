@@ -5,8 +5,7 @@ import { sendEmail, emailLayout } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
-// Constant-time comparison to avoid leaking the secret via response timing.
-function safeEqual(a: string, b: string): boolean {
+function safeEqual(a: string, b: string) {
   const ab = Buffer.from(a);
   const bb = Buffer.from(b);
   return ab.length === bb.length && timingSafeEqual(ab, bb);

@@ -7,8 +7,9 @@ export const emailRouter = router({
   audienceCount: adminProcedure
     .input(z.object({ spaId: z.string() }))
     .query(async ({ ctx, input }) => {
+      const spaId = ctx.spaId ?? input.spaId;
       return ctx.prisma.user.count({
-        where: { spaId: input.spaId, role: "client", marketingOptIn: true, email: { not: null } },
+        where: { spaId, role: "client", marketingOptIn: true, email: { not: null } },
       });
     }),
 
@@ -16,8 +17,9 @@ export const emailRouter = router({
   sendCampaign: adminProcedure
     .input(z.object({ spaId: z.string(), subject: z.string().min(1), body: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
+      const spaId = ctx.spaId ?? input.spaId;
       const recipients = await ctx.prisma.user.findMany({
-        where: { spaId: input.spaId, role: "client", marketingOptIn: true, email: { not: null } },
+        where: { spaId, role: "client", marketingOptIn: true, email: { not: null } },
         select: { id: true, email: true, name: true },
       });
 
@@ -33,7 +35,7 @@ export const emailRouter = router({
           await ctx.prisma.notification.create({
             data: {
               userId: r.id,
-              spaId: input.spaId,
+              spaId,
               type: "campaign",
               channel: "email",
               status: "sent",
@@ -46,7 +48,7 @@ export const emailRouter = router({
           await ctx.prisma.notification.create({
             data: {
               userId: r.id,
-              spaId: input.spaId,
+              spaId,
               type: "campaign",
               channel: "email",
               status: "failed",
