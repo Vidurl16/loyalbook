@@ -8,7 +8,7 @@ new Vercel project from this repo and setting the env vars below.
 
 | Var | Purpose |
 |-----|---------|
-| `DATABASE_URL` | Postgres connection string (Supabase). Per-salon, unique. |
+| `DATABASE_URL` | Postgres connection string (Neon or Supabase). Per-salon, unique. To share one server between salons, append `?schema=<salon>`; migrations and the app both honour it. |
 | `NEXTAUTH_URL` | Deployment URL (e.g. `https://perfect10.co.za`). |
 | `NEXTAUTH_SECRET` | `openssl rand -base64 32`. |
 | `DEFAULT_SPA_ID` | Seeded Spa id for this salon (server-side tenant). |
@@ -16,17 +16,14 @@ new Vercel project from this repo and setting the env vars below.
 | `NEXT_PUBLIC_SPA_ID` | Same Spa id, exposed to the client. |
 | `NEXT_PUBLIC_LOCATION_ID` | Same Location id, exposed to the client. |
 
-## Image uploads (Supabase Storage)
+## Image uploads (Vercel Blob)
 
 | Var | Purpose |
 |-----|---------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL. |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service-role key (server-only — never public). |
-| `SUPABASE_STORAGE_BUCKET` | Optional; defaults to `media`. |
+| `BLOB_READ_WRITE_TOKEN` | Set automatically when a Blob store is connected to the project (`vercel blob create-store <name>`). |
 
-Create a **public** storage bucket named `media` in Supabase (folders
-`gallery/`, `staff/`, `products/`, `reviews/`, `transformations/` are created
-automatically on upload).
+Admins upload straight from the browser to Blob via `/api/media/upload`;
+photos are resized client-side before upload.
 
 ## Email (Resend)
 

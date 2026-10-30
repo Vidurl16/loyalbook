@@ -1,22 +1,11 @@
 "use client";
 
+import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 import { trpc } from "@/lib/trpc";
-import Link from "next/link";
 import { useState } from "react";
 
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
 
-const NAV = [
-  { href: "/dashboard", label: "Overview", icon: "🏠" },
-  { href: "/dashboard/clients", label: "Guests", icon: "👥" },
-  { href: "/dashboard/services", label: "Treatments", icon: "🌿" },
-  { href: "/dashboard/staff", label: "Therapists", icon: "🧖‍♀️" },
-  { href: "/dashboard/loyalty", label: "Loyalty", icon: "✨" },
-  { href: "/dashboard/vouchers", label: "Vouchers", icon: "🎟️" },
-  { href: "/dashboard/marketing", label: "Marketing", icon: "✉️" },
-  { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
-  { href: "/dashboard/settings", label: "Settings", icon: "⚙️" },
-];
 
 export default function MarketingPage() {
   const { data: audience } = trpc.email.audienceCount.useQuery({ spaId: SPA_ID });
@@ -29,15 +18,8 @@ export default function MarketingPage() {
   });
 
   return (
-    <div className="min-h-screen flex" style={{ background: "var(--background)" }}>
-      <aside className="w-60 bg-white border-r border-stone-100 p-6 flex flex-col gap-0.5 shrink-0">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700 mb-8 block">Perfect 10</Link>
-        {NAV.map((item) => (
-          <Link key={item.href} href={item.href} className={`flex items-center gap-2.5 text-sm rounded-xl px-3 py-2.5 transition-colors ${item.href === "/dashboard/marketing" ? "bg-teal-50 text-teal-700 font-medium" : "text-stone-500 hover:text-teal-700 hover:bg-stone-50"}`}>
-            <span>{item.icon}</span>{item.label}
-          </Link>
-        ))}
-      </aside>
+    <div className="min-h-screen flex" style={{ background: "#faf6f5" }}>
+      <DashboardSidebar />
 
       <main className="flex-1 p-8 max-w-2xl">
         <h1 className="font-display text-2xl font-bold text-stone-900 mb-2">Email Marketing</h1>
@@ -80,7 +62,7 @@ export default function MarketingPage() {
             type="submit"
             disabled={send.isPending || !subject || !body}
             className="px-6 py-3 text-sm font-semibold text-white rounded-lg disabled:opacity-40"
-            style={{ background: "#0d9488" }}
+            style={{ background: "#232122" }}
           >
             {send.isPending ? "Sending…" : `Send to ${audience ?? 0} clients`}
           </button>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendEmail, emailLayout } from "@/lib/email";
+import { brand } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
@@ -51,17 +52,17 @@ export async function GET(req: Request) {
     if (recent) continue;
 
     const html = emailLayout(
-      `<p style="color:#c9bca4;font-family:Arial,sans-serif;font-size:15px;line-height:1.7;">
-         ${c.name ? `Hi ${c.name},` : "Hello,"} we&apos;ve missed you at Perfect 10.
+      `<p style="color:#4a4547;font-family:Arial,sans-serif;font-size:15px;line-height:1.7;">
+         ${c.name ? `Hi ${c.name},` : "Hello,"} we&apos;ve missed you at ${brand.name}.
        </p>
-       <p style="color:#c9bca4;font-family:Arial,sans-serif;font-size:15px;line-height:1.7;">
+       <p style="color:#4a4547;font-family:Arial,sans-serif;font-size:15px;line-height:1.7;">
          It&apos;s been a little while since your last visit — treat yourself to something lovely.
          Your loyalty points are waiting.
        </p>`
     );
 
     try {
-      await sendEmail({ to: c.email, subject: "We've missed you at Perfect 10", html });
+      await sendEmail({ to: c.email, subject: `We've missed you at ${brand.name}`, html });
       await prisma.notification.create({
         data: { userId: c.id, spaId, type: "winback", channel: "email", status: "sent", sentAt: new Date() },
       });

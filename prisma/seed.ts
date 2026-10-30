@@ -5,28 +5,27 @@
  */
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { createDbAdapter } from "../src/lib/dbAdapter";
+import { brand } from "../src/lib/brand";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter, log: [] });
+const ADDRESS = "34 Beachway Place, Durban North, KwaZulu-Natal";
+
+const prisma = new PrismaClient({ adapter: createDbAdapter(), log: [] });
 
 async function main() {
-  // Check if Perfect 10 spa already exists
-  const existing = await prisma.spa.findFirst({ where: { name: "Perfect 10" } });
+  const existing = await prisma.spa.findFirst({ where: { name: brand.name } });
   if (existing) {
     const locations = await prisma.location.findMany({ where: { spaId: existing.id } });
     console.log(`✅ Spa already exists: ${existing.id} (${existing.name})`);
     locations.forEach((l) => console.log(`   📍 ${l.name}: ${l.id} (slug: ${l.slug})`));
-    const ballitoId = locations.find((l) => l.slug === "ballito")?.id ?? locations[0]?.id;
-    console.log(`\nSet in .env.local:\n  NEXT_PUBLIC_SPA_ID="${existing.id}"\n  NEXT_PUBLIC_LOCATION_ID="${ballitoId ?? ""}"\n`);
+    console.log(`\nSet in .env:\n  NEXT_PUBLIC_SPA_ID="${existing.id}"\n  NEXT_PUBLIC_LOCATION_ID="${locations[0]?.id ?? ""}"\n`);
     return;
   }
 
-  // Create Perfect 10 spa
   const spa = await prisma.spa.create({
     data: {
-      name: "Perfect 10",
-      address: "KwaZulu-Natal, South Africa",
+      name: brand.name,
+      address: ADDRESS,
       timezone: "Africa/Johannesburg",
       currency: "ZAR",
     },
@@ -46,34 +45,18 @@ async function main() {
     },
   });
 
-  // Create two locations
-  const ballito = await prisma.location.create({
+  const location = await prisma.location.create({
     data: {
       spaId: spa.id,
-      slug: "ballito",
-      name: "Perfect 10 Ballito",
-      address: "Ballito Junction Regional Mall, Ballito, KZN 4420",
-      phone: "+27 32 946 1234",
-      email: "ballito@perfect10.co.za",
+      slug: "durban-north",
+      name: `${brand.name} Durban North`,
+      address: ADDRESS,
       timezone: "Africa/Johannesburg",
       currency: "ZAR",
     },
   });
 
-  const laLucia = await prisma.location.create({
-    data: {
-      spaId: spa.id,
-      slug: "la-lucia",
-      name: "Perfect 10 La Lucia",
-      address: "La Lucia Mall, La Lucia Ridge, Umhlanga, KZN 4051",
-      phone: "+27 31 562 1234",
-      email: "lalucia@perfect10.co.za",
-      timezone: "Africa/Johannesburg",
-      currency: "ZAR",
-    },
-  });
-
-  // Seed Perfect 10 La Lucia services (actual treatment menu 2025/2026)
+  // Placeholder treatment menu until the salon supplies its own; editable in the admin.
   const serviceData = [
     // --- Nimue Facials ---
     { name: "Therapeutic Treatment", category: "Nimue Facials", durationMins: 60, price: 510, description: "Nimue therapeutic facial tailored to your skin type. Includes deep cleanse, exfoliation, and targeted serum application." },
@@ -216,14 +199,13 @@ async function main() {
     data: serviceData.map((s) => ({ ...s, spaId: spa.id })),
   });
 
-  console.log(`\nPerfect 10 seeded successfully.`);
+  console.log(`\n${brand.name} seeded successfully.`);
   console.log(`  Spa ID:          ${spa.id}`);
-  console.log(`  Ballito ID:      ${ballito.id}`);
-  console.log(`  La Lucia ID:     ${laLucia.id}`);
+  console.log(`  Location ID:     ${location.id}`);
   console.log(`  Services:        ${serviceData.length}`);
-  console.log(`\nAdd to .env.local:`);
+  console.log(`\nAdd to .env:`);
   console.log(`  NEXT_PUBLIC_SPA_ID="${spa.id}"`);
-  console.log(`  NEXT_PUBLIC_LOCATION_ID="${ballito.id}"\n`);
+  console.log(`  NEXT_PUBLIC_LOCATION_ID="${location.id}"\n`);
 }
 
 main()

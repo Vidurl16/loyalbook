@@ -4,6 +4,7 @@ import { randomInt } from "crypto";
 import { router, publicProcedure, ownerProcedure } from "@/server/trpc";
 import { generateOtp, verifyOtp } from "@/lib/otp";
 import { sendEmail, emailLayout } from "@/lib/email";
+import { brand } from "@/lib/brand";
 
 type Prize = { label: string; weight: number; win: boolean };
 
@@ -98,9 +99,9 @@ export const mysteryShopperRouter = router({
 
       await sendEmail({
         to: email,
-        subject: "Your Perfect 10 verification code",
+        subject: `Your ${brand.name} verification code`,
         html: emailLayout(
-          `<p style="color:#c9bca4;font-family:Arial,sans-serif;">Your mystery-shopper verification code is:</p>
+          `<p style="color:#4a4547;font-family:Arial,sans-serif;">Your mystery-shopper verification code is:</p>
            <p style="font-size:30px;letter-spacing:8px;color:#f5f0e8;font-family:Arial,sans-serif;margin:16px 0;">${code}</p>
            <p style="color:#8a7d68;font-size:13px;font-family:Arial,sans-serif;">This code expires in 10 minutes.</p>`
         ),

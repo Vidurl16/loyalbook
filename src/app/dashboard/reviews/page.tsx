@@ -1,25 +1,12 @@
 "use client";
 
+import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 import { trpc } from "@/lib/trpc";
-import Link from "next/link";
 import { useState } from "react";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
 
 const LOCATION_ID = process.env.NEXT_PUBLIC_LOCATION_ID!;
 
-const NAV = [
-  { href: "/dashboard", label: "Overview", icon: "🏠" },
-  { href: "/dashboard/clients", label: "Guests", icon: "👥" },
-  { href: "/dashboard/services", label: "Treatments", icon: "🌿" },
-  { href: "/dashboard/staff", label: "Therapists", icon: "🧖‍♀️" },
-  { href: "/dashboard/gallery", label: "Gallery", icon: "🖼️" },
-  { href: "/dashboard/reviews", label: "Reviews", icon: "⭐" },
-  { href: "/dashboard/loyalty", label: "Loyalty", icon: "✨" },
-  { href: "/dashboard/vouchers", label: "Vouchers", icon: "🎟️" },
-  { href: "/dashboard/marketing", label: "Marketing", icon: "✉️" },
-  { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
-  { href: "/dashboard/settings", label: "Settings", icon: "⚙️" },
-];
 
 const empty = { authorName: "", rating: 5, body: "", serviceName: "", therapist: "", imageUrl: "", consentToPublish: true };
 
@@ -34,15 +21,8 @@ export default function ReviewsAdminPage() {
   const del = trpc.reviews.delete.useMutation({ onSuccess: invalidate });
 
   return (
-    <div className="min-h-screen flex" style={{ background: "var(--background)" }}>
-      <aside className="w-60 bg-white border-r border-stone-100 p-6 flex flex-col gap-0.5 shrink-0">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700 mb-8 block">Perfect 10</Link>
-        {NAV.map((item) => (
-          <Link key={item.href} href={item.href} className={`flex items-center gap-2.5 text-sm rounded-xl px-3 py-2.5 transition-colors ${item.href === "/dashboard/reviews" ? "bg-teal-50 text-teal-700 font-medium" : "text-stone-500 hover:text-teal-700 hover:bg-stone-50"}`}>
-            <span>{item.icon}</span>{item.label}
-          </Link>
-        ))}
-      </aside>
+    <div className="min-h-screen flex" style={{ background: "#faf6f5" }}>
+      <DashboardSidebar />
 
       <main className="flex-1 p-8 max-w-3xl">
         <h1 className="font-display text-2xl font-bold text-stone-900 mb-2">Client Reviews</h1>
@@ -68,7 +48,7 @@ export default function ReviewsAdminPage() {
             <input type="checkbox" checked={form.consentToPublish} onChange={(e) => setForm((f) => ({ ...f, consentToPublish: e.target.checked }))} />
             I have this client&apos;s permission to publish their review and photo.
           </label>
-          <button type="submit" disabled={create.isPending || !form.consentToPublish} className="col-span-2 py-3 text-sm font-semibold text-white rounded-lg disabled:opacity-40" style={{ background: "#0d9488" }}>
+          <button type="submit" disabled={create.isPending || !form.consentToPublish} className="col-span-2 py-3 text-sm font-semibold text-white rounded-lg disabled:opacity-40" style={{ background: "#232122" }}>
             {create.isPending ? "Adding…" : "Add review"}
           </button>
         </form>

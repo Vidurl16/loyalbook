@@ -1,304 +1,106 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc";
-import { AccentLabel } from "@/components/ui/AccentLabel";
-import { GoldButton } from "@/components/ui/GoldButton";
+import { formatDay, formatLongDay, formatTime } from "@/lib/format";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { CardListSkeleton } from "@/components/ui/Skeleton";
 
-const STATUS_CONFIG: Record<string, { label: string; variant: "gold" | "muted" | "dark" }> = {
-  pending:             { label: "Awaiting Confirmation", variant: "muted" },
-  confirmed:           { label: "Confirmed",             variant: "gold" },
-  completed:           { label: "Completed",             variant: "dark" },
-  no_show:             { label: "No Show",               variant: "dark" },
-  cancelled_by_client: { label: "Cancelled",             variant: "dark" },
-  cancelled_by_spa:    { label: "Cancelled",             variant: "dark" },
-};
-
-function formatDate(d: Date | string) {
-  return new Date(d).toLocaleDateString("en-ZA", {
-    weekday: "short",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-function formatTime(d: Date | string) {
-  return new Date(d).toLocaleTimeString("en-ZA", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+const OPEN = ["pending", "confirmed"];
 
 export default function AccountBookingsPage() {
   const { data: session, status } = useSession();
-  if (status === "unauthenticated") redirect("/login");
+  if (status === "unauthenticated") redirect("/login?callbackUrl=/account/bookings");
 
-  const userId = (session?.user as { id?: string })?.id;
-  const { data: appointments, refetch } = trpc.appointments.myAppointments.useQuery(
-    { take: 100 },
-    { enabled: !!userId }
-  );
+  const { data: appointments, refetch } = trpc.appointments.myAppointments.useQuery({ take: 100 }, { enabled: !!session?.user });
+  const cancelMine = trpc.appointments.cancelMine.useMutation({ onSuccess: () => refetch() });
 
-  const cancelMine = trpc.appointments.cancelMine.useMutation({
-    onSuccess: () => refetch(),
-  });
-
-  const upcoming = appointments
-    ?.filter((a) =>
-      new Date(a.startAt) >= new Date() &&
-      ["pending", "confirmed"].includes(a.status)
-    )
-    .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
-
-  const past = appointments
-    ?.filter((a) =>
-      new Date(a.startAt) < new Date() ||
-      ["completed", "no_show", "cancelled_by_client", "cancelled_by_spa"].includes(a.status)
-    )
-    .sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime())
+  const [now] = useState(() => Date.now());
+  const upcoming = (appointments ?? [])
+    .filter((a) => new Date(a.startAt).getTime() >= now && OPEN.includes(a.status))
+    .sort((a, b) => +new Date(a.startAt) - +new Date(b.startAt));
+  const history = (appointments ?? [])
+    .filter((a) => new Date(a.startAt).getTime() < now || !OPEN.includes(a.status))
+    .sort((a, b) => +new Date(b.startAt) - +new Date(a.startAt))
     .slice(0, 20);
 
-  const handleCancel = (id: string) => {
-    if (confirm("Cancel this appointment?")) {
-      cancelMine.mutate({ id });
-    }
-  };
-
-  const rowStyle: React.CSSProperties = {
-    background: "#1a1714",
-    border: "1px solid #2a2420",
-    borderRadius: "2px",
-    padding: "20px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  };
+  function cancel(id: string) {
+    if (window.confirm("Cancel this appointment?")) cancelMine.mutate({ id });
+  }
 
   return (
-    <main className="min-h-screen pb-24" style={{ background: "#0e0c0a" }}>
-      {/* Header */}
-      <nav
-        className="sticky top-0 z-40 flex items-center justify-between px-5 py-4"
-        style={{ background: "#0e0c0a", borderBottom: "1px solid #1a1714" }}
-      >
-        <Link
-          href="/account"
-          style={{
-            fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-            fontSize: "12px",
-            color: "#8a6f3e",
-            letterSpacing: "0.06em",
-            textDecoration: "none",
-          }}
-        >
-          ← Account
-        </Link>
-        <span
-          style={{
-            fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
-            fontSize: "18px",
-            fontWeight: 300,
-            color: "#f5f0e8",
-          }}
-        >
-          My Bookings
-        </span>
-        <GoldButton href="/book" size="sm">
-          Book
-        </GoldButton>
-      </nav>
+    <main className="container-x max-w-3xl pb-16 pt-8 md:pt-12">
+      <header className="mb-8 flex items-end justify-between">
+        <div>
+          <Link href="/account" className="btn-ghost mb-3">
+            ← Account
+          </Link>
+          <h1 className="display-lg">My bookings</h1>
+        </div>
+      </header>
 
-      <div className="px-4 pt-6" style={{ maxWidth: "640px", margin: "0 auto" }}>
-        {/* Upcoming */}
-        <section style={{ marginBottom: "40px" }}>
-          <h2
-            style={{
-              fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              color: "#c9a85c",
-              margin: "0 0 16px",
-            }}
-          >
-            Upcoming
-          </h2>
-
-          {!upcoming?.length ? (
-            <div
-              style={{
-                background: "#1a1714",
-                border: "1px solid #2a2420",
-                borderRadius: "2px",
-                padding: "32px",
-                textAlign: "center",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
-                  fontSize: "18px",
-                  fontWeight: 300,
-                  color: "#4a4540",
-                  margin: "0 0 16px",
-                }}
-              >
-                No upcoming bookings
-              </p>
-              <GoldButton href="/book" size="sm">
-                Book a Treatment
-              </GoldButton>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {upcoming.map((apt) => {
-                const cfg = STATUS_CONFIG[apt.status] ?? { label: apt.status, variant: "dark" as const };
-                return (
-                  <div key={apt.id} style={rowStyle}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
-                      <div>
-                        <p
-                          style={{
-                            fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
-                            fontSize: "20px",
-                            fontWeight: 400,
-                            color: "#f5f0e8",
-                            margin: "0 0 4px",
-                          }}
-                        >
-                          {apt.service?.name ?? "Treatment"}
-                        </p>
-                        {apt.staff && (
-                          <p
-                            style={{
-                              fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                              fontSize: "12px",
-                              color: "#8a6f3e",
-                              margin: 0,
-                            }}
-                          >
-                            with {apt.staff.user?.name ?? "therapist"}
-                          </p>
-                        )}
-                      </div>
-                      <AccentLabel variant={cfg.variant}>{cfg.label}</AccentLabel>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "16px",
-                        paddingTop: "8px",
-                        borderTop: "1px solid #2a2420",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                          fontSize: "12px",
-                          color: "#f5f0e8",
-                          flex: 1,
-                        }}
-                      >
-                        {formatDate(apt.startAt)} · {formatTime(apt.startAt)}
-                      </span>
-
-                      {["pending", "confirmed"].includes(apt.status) && (
-                        <button
-                          onClick={() => handleCancel(apt.id)}
-                          disabled={cancelMine.isPending}
-                          style={{
-                            fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                            fontSize: "11px",
-                            fontWeight: 500,
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase",
-                            color: "#4a4540",
-                            background: "transparent",
-                            border: "1px solid #2a2420",
-                            borderRadius: "2px",
-                            padding: "6px 12px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </div>
+      <section>
+        <h2 className="eyebrow mb-4">Upcoming</h2>
+        {!appointments ? (
+          <CardListSkeleton rows={2} />
+        ) : upcoming.length === 0 ? (
+          <div className="card flex flex-col items-center p-8 text-center">
+            <p className="font-display text-[20px] text-ink">No upcoming treatments.</p>
+            <Link href="/book" className="btn-primary mt-5">
+              Book a treatment
+            </Link>
+          </div>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {upcoming.map((a) => (
+              <li key={a.id} className="card p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="font-display text-[20px] leading-tight text-ink">{a.service?.name ?? "Treatment"}</h3>
+                    {a.staff?.user?.name && <p className="mt-1 text-[12px] uppercase tracking-[0.16em] text-blush-deep">with {a.staff.user.name}</p>}
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        {/* Past */}
-        {!!past?.length && (
-          <section>
-            <h2
-              style={{
-                fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                fontSize: "11px",
-                fontWeight: 500,
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                color: "#4a4540",
-                margin: "0 0 16px",
-              }}
-            >
-              History
-            </h2>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {past.map((apt) => {
-                const cfg = STATUS_CONFIG[apt.status] ?? { label: apt.status, variant: "dark" as const };
-                return (
-                  <div
-                    key={apt.id}
-                    style={{
-                      ...rowStyle,
-                      padding: "14px 20px",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: "16px",
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <p
-                        style={{
-                          fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                          fontSize: "14px",
-                          fontWeight: 500,
-                          color: "#f5f0e8",
-                          margin: "0 0 2px",
-                        }}
-                      >
-                        {apt.service?.name ?? "Treatment"}
-                      </p>
-                      <p
-                        style={{
-                          fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                          fontSize: "11px",
-                          color: "#4a4540",
-                          margin: 0,
-                        }}
-                      >
-                        {formatDate(apt.startAt)}
-                      </p>
-                    </div>
-                    <AccentLabel variant={cfg.variant}>{cfg.label}</AccentLabel>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+                  <StatusBadge status={a.status} />
+                </div>
+                <div className="mt-4 flex items-center justify-between border-t border-hairline pt-4">
+                  <span className="text-[14px] text-ink">
+                    {formatLongDay(a.startAt)} · {formatTime(a.startAt)}
+                  </span>
+                  <button type="button" onClick={() => cancel(a.id)} disabled={cancelMine.isPending} className="btn-ghost">
+                    Cancel
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
-      </div>
+      </section>
+
+      {history.length > 0 && (
+        <section className="mt-10">
+          <h2 className="eyebrow mb-4">History</h2>
+          <ul className="card divide-y divide-hairline">
+            {history.map((a) => (
+              <li key={a.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                <div className="min-w-0">
+                  <p className="truncate text-[15px] text-ink">{a.service?.name ?? "Treatment"}</p>
+                  <p className="text-[12px] text-muted">{formatDay(a.startAt)}</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-4">
+                  {a.status === "completed" && a.service && (
+                    <Link href={`/book?service=${a.service.id}&step=therapist`} className="btn-ghost text-pink-dark hover:text-pink">
+                      Rebook
+                    </Link>
+                  )}
+                  <StatusBadge status={a.status} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }

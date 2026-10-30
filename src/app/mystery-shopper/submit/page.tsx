@@ -8,12 +8,12 @@ import { trpc } from "@/lib/trpc";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  background: "var(--onyx-800)",
-  border: "1px solid var(--onyx-700)",
+  background: "#ffffff",
+  border: "1px solid #efdcd8",
   borderRadius: 2,
   padding: "13px 16px",
-  color: "var(--cream-100)",
-  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+  color: "#232122",
+  fontFamily: "var(--font-abel), Abel, sans-serif",
   fontSize: 14,
   letterSpacing: "0.02em",
   outline: "none",
@@ -42,7 +42,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
             background: "none", border: "none", cursor: "pointer", padding: 2,
           }}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill={star <= value ? "var(--gold-400)" : "none"} stroke="var(--gold-400)" strokeWidth="1.5">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill={star <= value ? "#fe329c" : "none"} stroke={star <= value ? "#fe329c" : "#e8bab3"} strokeWidth="1.5">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
           </svg>
         </button>
@@ -97,20 +97,20 @@ function SubmitPageInner() {
 
   if (!visitId) {
     return (
-      <main style={{ minHeight: "100vh", background: "var(--onyx-950)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <main style={{ minHeight: "100vh", background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
         <div style={{ textAlign: "center" }}>
           <div style={{
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 24, fontStyle: "italic", color: "var(--cream-400)", marginBottom: 16,
+            fontFamily: "var(--font-marcellus), Marcellus, serif",
+            fontSize: 24, color: "#4a4547", marginBottom: 16,
           }}>
             No visit ID found.
           </div>
           <Link href="/mystery-shopper/apply" style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
-            color: "var(--gold-400)", textDecoration: "none",
+            fontFamily: "var(--font-abel), Abel, sans-serif",
+            fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase",
+            color: "#fe329c", textDecoration: "none",
           }}>
-            Apply first →
+            Register your visit first →
           </Link>
         </div>
       </main>
@@ -119,48 +119,47 @@ function SubmitPageInner() {
 
   if (done) {
     return (
-      <main style={{ minHeight: "100vh", background: "var(--onyx-950)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <main style={{ minHeight: "100vh", background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
         <div style={{ maxWidth: 400, textAlign: "center" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
             <div style={{
               width: 56, height: 56, borderRadius: "50%",
-              border: "1.5px solid rgba(201,168,92,0.55)",
-              background: "var(--onyx-900)",
+              border: "1.5px solid #fe329c",
+              background: "#f7eae7",
               display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "4px 6px 0 rgba(0,0,0,0.6)",
             }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12l5 5L19 7" stroke="var(--gold-400)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 12l5 5L19 7" stroke="#fe329c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
           </div>
           <div style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 8, letterSpacing: "0.32em", textTransform: "uppercase",
-            color: "var(--gold-400)", marginBottom: 10,
+            fontFamily: "var(--font-abel), Abel, sans-serif",
+            fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase",
+            color: "#c98d82", marginBottom: 10,
           }}>
             Review Submitted
           </div>
           <h1 style={{
-            fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-            fontSize: 36, fontWeight: 300, fontStyle: "italic",
-            color: "var(--cream-100)", lineHeight: 1, marginBottom: 14,
+            fontFamily: "var(--font-marcellus), Marcellus, serif",
+            fontSize: 36, fontWeight: 400,
+            color: "#232122", lineHeight: 1, marginBottom: 14,
           }}>
             Thank you.
           </h1>
           <p style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 13, color: "var(--cream-400)", lineHeight: 1.7, marginBottom: 28,
+            fontFamily: "var(--font-abel), Abel, sans-serif",
+            fontSize: 14, color: "#4a4547", lineHeight: 1.7, marginBottom: 28,
           }}>
             Your review has been received. We&apos;ll review your submission and process
             your reimbursement within 3–5 business days.
           </p>
           <Link href="/account" style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
-            color: "var(--gold-400)", textDecoration: "none",
+            fontFamily: "var(--font-abel), Abel, sans-serif",
+            fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase",
+            color: "#fe329c", textDecoration: "none",
             padding: "10px 24px",
-            border: "1px solid rgba(201,168,92,0.45)",
+            border: "1px solid #fe329c",
             borderRadius: 2, display: "inline-block",
           }}>
             Back to Account
@@ -171,41 +170,25 @@ function SubmitPageInner() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", background: "var(--onyx-950)" }}>
-      <nav style={{
-        position: "sticky", top: 0, zIndex: 40,
-        background: "var(--onyx-950)",
-        borderBottom: "1px solid var(--onyx-800)",
-        padding: "16px 24px",
-        display: "flex", alignItems: "center", gap: 12,
-      }}>
-        <Link href="/mystery-shopper" style={{
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase",
-          color: "var(--onyx-500)", textDecoration: "none",
-        }}>
-          ← Mystery Shopper
-        </Link>
-      </nav>
-
+    <main style={{ minHeight: "100vh", background: "#faf6f5" }}>
       <div style={{ maxWidth: 560, margin: "0 auto", padding: "36px 24px 80px" }}>
         <div style={{
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase",
-          color: "var(--gold-400)", marginBottom: 8,
+          fontFamily: "var(--font-abel), Abel, sans-serif",
+          fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase",
+          color: "#c98d82", marginBottom: 8,
         }}>
           Submit Your Visit
         </div>
         <h1 style={{
-          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-          fontSize: 36, fontWeight: 300, fontStyle: "italic",
-          color: "var(--cream-100)", lineHeight: 1, marginBottom: 6,
+          fontFamily: "var(--font-marcellus), Marcellus, serif",
+          fontSize: 36, fontWeight: 400,
+          color: "#232122", lineHeight: 1, marginBottom: 6,
         }}>
           Share your experience.
         </h1>
         <p style={{
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          fontSize: 12, color: "var(--onyx-500)", marginBottom: 32,
+          fontFamily: "var(--font-abel), Abel, sans-serif",
+          fontSize: 13, color: "#8d8e8f", marginBottom: 32,
         }}>
           Upload your receipt and give us your honest, detailed feedback.
         </p>
@@ -230,24 +213,24 @@ function SubmitPageInner() {
         >
           {/* Receipt section */}
           <div style={{
-            background: "var(--onyx-900)",
-            border: "1px solid var(--onyx-700)",
+            background: "#ffffff",
+            border: "1px solid #efdcd8",
             borderRadius: 2, padding: "20px",
-            boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+            boxShadow: "0 10px 30px rgba(35,33,34,0.07)",
           }}>
             <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-              color: "var(--gold-400)", marginBottom: 14,
+              fontFamily: "var(--font-abel), Abel, sans-serif",
+              fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase",
+              color: "#c98d82", marginBottom: 14,
             }}>
               Receipt & Visit Details
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase",
-                  color: "var(--onyx-500)", marginBottom: 6,
+                  fontFamily: "var(--font-abel), Abel, sans-serif",
+                  fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: "#8d8e8f", marginBottom: 6,
                 }}>
                   Receipt link (Google Drive, Dropbox, or similar)
                 </div>
@@ -260,8 +243,8 @@ function SubmitPageInner() {
                   style={inputStyle}
                 />
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 10, color: "var(--onyx-600)", marginTop: 5,
+                  fontFamily: "var(--font-abel), Abel, sans-serif",
+                  fontSize: 11, color: "#8d8e8f", marginTop: 5,
                 }}>
                   Upload your receipt to Google Drive and share the link (set to "Anyone with the link can view")
                 </div>
@@ -269,9 +252,9 @@ function SubmitPageInner() {
               <div style={{ display: "flex", gap: 12 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase",
-                    color: "var(--onyx-500)", marginBottom: 6,
+                    fontFamily: "var(--font-abel), Abel, sans-serif",
+                    fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                    color: "#8d8e8f", marginBottom: 6,
                   }}>
                     Receipt amount (R)
                   </div>
@@ -288,9 +271,9 @@ function SubmitPageInner() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase",
-                    color: "var(--onyx-500)", marginBottom: 6,
+                    fontFamily: "var(--font-abel), Abel, sans-serif",
+                    fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                    color: "#8d8e8f", marginBottom: 6,
                   }}>
                     Date of visit
                   </div>
@@ -300,7 +283,7 @@ function SubmitPageInner() {
                     onChange={(e) => setForm((f) => ({ ...f, visitedAt: e.target.value }))}
                     max={new Date().toISOString().slice(0, 10)}
                     required
-                    style={{ ...inputStyle, colorScheme: "dark" }}
+                    style={{ ...inputStyle, colorScheme: "light" }}
                   />
                 </div>
               </div>
@@ -309,15 +292,15 @@ function SubmitPageInner() {
 
           {/* Ratings */}
           <div style={{
-            background: "var(--onyx-900)",
-            border: "1px solid var(--onyx-700)",
+            background: "#ffffff",
+            border: "1px solid #efdcd8",
             borderRadius: 2, padding: "20px",
-            boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+            boxShadow: "0 10px 30px rgba(35,33,34,0.07)",
           }}>
             <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-              color: "var(--gold-400)", marginBottom: 18,
+              fontFamily: "var(--font-abel), Abel, sans-serif",
+              fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase",
+              color: "#c98d82", marginBottom: 18,
             }}>
               Rate Your Experience
             </div>
@@ -325,9 +308,9 @@ function SubmitPageInner() {
               {RATING_LABELS.map(({ key, label }) => (
                 <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                   <span style={{
-                    fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                    fontSize: 16, fontWeight: 300, fontStyle: "italic",
-                    color: "var(--cream-300)",
+                    fontFamily: "var(--font-marcellus), Marcellus, serif",
+                    fontSize: 16, fontWeight: 400,
+                    color: "#4a4547",
                   }}>
                     {label}
                   </span>
@@ -342,26 +325,26 @@ function SubmitPageInner() {
 
           {/* Written feedback */}
           <div style={{
-            background: "var(--onyx-900)",
-            border: "1px solid var(--onyx-700)",
+            background: "#ffffff",
+            border: "1px solid #efdcd8",
             borderRadius: 2, padding: "20px",
-            boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
+            boxShadow: "0 10px 30px rgba(35,33,34,0.07)",
           }}>
             <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-              color: "var(--gold-400)", marginBottom: 14,
+              fontFamily: "var(--font-abel), Abel, sans-serif",
+              fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase",
+              color: "#c98d82", marginBottom: 14,
             }}>
               Written Feedback
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase",
-                  color: "var(--onyx-500)", marginBottom: 6,
+                  fontFamily: "var(--font-abel), Abel, sans-serif",
+                  fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: "#8d8e8f", marginBottom: 6,
                 }}>
-                  What went well? <span style={{ color: "#e57373" }}>*</span>
+                  What went well? <span style={{ color: "#d41d7f" }}>*</span>
                 </div>
                 <textarea
                   rows={4}
@@ -374,11 +357,11 @@ function SubmitPageInner() {
               </div>
               <div>
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase",
-                  color: "var(--onyx-500)", marginBottom: 6,
+                  fontFamily: "var(--font-abel), Abel, sans-serif",
+                  fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: "#8d8e8f", marginBottom: 6,
                 }}>
-                  What could be improved? <span style={{ opacity: 0.5 }}>(optional)</span>
+                  What could be improved? <span style={{ opacity: 0.6 }}>(optional)</span>
                 </div>
                 <textarea
                   rows={3}
@@ -390,11 +373,11 @@ function SubmitPageInner() {
               </div>
               <div>
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase",
-                  color: "var(--onyx-500)", marginBottom: 6,
+                  fontFamily: "var(--font-abel), Abel, sans-serif",
+                  fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: "#8d8e8f", marginBottom: 6,
                 }}>
-                  Notes on specific staff members <span style={{ opacity: 0.5 }}>(optional)</span>
+                  Notes on specific staff members <span style={{ opacity: 0.6 }}>(optional)</span>
                 </div>
                 <textarea
                   rows={2}
@@ -408,11 +391,11 @@ function SubmitPageInner() {
               {/* Would return */}
               <div>
                 <div style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase",
-                  color: "var(--onyx-500)", marginBottom: 10,
+                  fontFamily: "var(--font-abel), Abel, sans-serif",
+                  fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase",
+                  color: "#8d8e8f", marginBottom: 10,
                 }}>
-                  Would you return as a regular client? <span style={{ color: "#e57373" }}>*</span>
+                  Would you return as a regular client? <span style={{ color: "#d41d7f" }}>*</span>
                 </div>
                 <div style={{ display: "flex", gap: 10 }}>
                   {[{ label: "Yes, absolutely", val: true }, { label: "No", val: false }].map(({ label, val }) => (
@@ -422,14 +405,14 @@ function SubmitPageInner() {
                       onClick={() => setForm((f) => ({ ...f, wouldReturn: val }))}
                       style={{
                         flex: 1, padding: "10px",
-                        background: "transparent",
+                        background: form.wouldReturn === val ? "#f7eae7" : "#ffffff",
                         border: form.wouldReturn === val
-                          ? "1px solid rgba(201,168,92,0.8)"
-                          : "1px solid var(--onyx-700)",
+                          ? "1px solid #fe329c"
+                          : "1px solid #efdcd8",
                         borderRadius: 2, cursor: "pointer",
-                        fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                        fontSize: 11, letterSpacing: "0.1em",
-                        color: form.wouldReturn === val ? "var(--gold-400)" : "var(--onyx-500)",
+                        fontFamily: "var(--font-abel), Abel, sans-serif",
+                        fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase",
+                        color: form.wouldReturn === val ? "#d41d7f" : "#8d8e8f",
                         transition: "all 0.15s",
                       }}
                     >
@@ -443,8 +426,8 @@ function SubmitPageInner() {
 
           {submit.error && (
             <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 12, color: "#e57373",
+              fontFamily: "var(--font-abel), Abel, sans-serif",
+              fontSize: 12, color: "#d41d7f",
             }}>
               {submit.error.message}
             </div>
@@ -456,13 +439,13 @@ function SubmitPageInner() {
             style={{
               width: "100%",
               padding: "15px 20px",
-              background: "transparent",
-              border: "1px solid rgba(201,168,92,0.55)",
+              background: "#232122",
+              border: "1px solid #232122",
               borderRadius: 2, cursor: (canSubmit && !submit.isPending) ? "pointer" : "default",
-              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-              fontSize: 19, fontWeight: 300, fontStyle: "italic",
-              color: "var(--gold-400)",
-              boxShadow: "4px 6px 0 rgba(0,0,0,0.6)",
+              fontFamily: "var(--font-abel), Abel, sans-serif",
+              fontSize: 13, fontWeight: 400, textTransform: "uppercase",
+              letterSpacing: "0.14em",
+              color: "#ffffff",
               opacity: (canSubmit && !submit.isPending) ? 1 : 0.4,
             }}
           >
@@ -477,8 +460,8 @@ function SubmitPageInner() {
 export default function SubmitPage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: "100vh", background: "var(--onyx-950)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ fontFamily: "var(--font-cormorant), serif", fontSize: 18, fontStyle: "italic", color: "var(--onyx-600)" }}>Loading…</span>
+      <div style={{ minHeight: "100vh", background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontFamily: "var(--font-marcellus), Marcellus, serif", fontSize: 18, color: "#8d8e8f" }}>Loading…</span>
       </div>
     }>
       <SubmitPageInner />

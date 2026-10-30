@@ -4,10 +4,9 @@
  */
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { createDbAdapter } from "./src/lib/dbAdapter";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter, log: [] });
+const prisma = new PrismaClient({ adapter: createDbAdapter(), log: [] });
 
 async function main() {
   const spa = await prisma.spa.findFirst();
@@ -15,8 +14,11 @@ async function main() {
 
   const allServices = await prisma.service.findMany({ where: { spaId: spa.id, isActive: true } });
 
+  // "Facials" covers every facial line (Nimue Facials, Environ Facials, …).
+  const inCategory = (cat: string, serviceCategory: string) =>
+    serviceCategory === cat || (cat === "Facials" && serviceCategory.endsWith("Facials"));
   const byCategory = (cats: string[]) =>
-    allServices.filter((s) => cats.includes(s.category)).map((s) => s.id);
+    allServices.filter((s) => cats.some((c) => inCategory(c, s.category))).map((s) => s.id);
 
   const therapists = [
     {
@@ -87,9 +89,14 @@ async function main() {
   let created = 0;
 
   for (const t of therapists) {
-    const existingUser = await prisma.user.findUnique({ where: { email: t.email } });
-    if (existingUser) {
-      console.log(`⏭️  Skipping ${t.name} (already exists)`);
+    const existingUser = await prisma.user.findUnique({ where: { email: t.email }, include: { staffProfile: true } });
+    if (existingUser?.staffProfile) {
+      const serviceIds = byCategory(t.categories);
+      await prisma.staffService.createMany({
+        data: serviceIds.map((serviceId) => ({ staffId: existingUser.staffProfile!.id, serviceId })),
+        skipDuplicates: true,
+      });
+      console.log(`🔁 Relinked ${t.name} (${serviceIds.length} services)`);
       continue;
     }
 

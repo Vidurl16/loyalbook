@@ -1,391 +1,164 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { trpc } from "@/lib/trpc";
+import { useState } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+import { trpc } from "@/lib/trpc";
+import { formatDay, formatDayTime, formatRand, formatTime, greeting } from "@/lib/format";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { Skeleton } from "@/components/ui/Skeleton";
 
-const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
-
-const TIERS = [
-  { id: "bronze",  label: "Bronze",     min: 0,     max: 2499,    hex: "#c8864a" },
-  { id: "silver",  label: "Silver",     min: 2500,  max: 4999,    hex: "#cbc4b8" },
-  { id: "gold",    label: "Gold",       min: 5000,  max: 9999,    hex: "#c9a85c" },
-  { id: "perfect", label: "Perfect 10", min: 10000, max: Infinity, hex: "#f5f0e4" },
-];
-
-function getTier(pts: number) {
-  return TIERS.find((t) => pts >= t.min && pts <= t.max) ?? TIERS[0];
-}
-
-const STATUS_CONFIG: Record<string, { label: string; gold?: boolean }> = {
-  pending:             { label: "Awaiting Confirmation" },
-  confirmed:           { label: "Confirmed", gold: true },
-  completed:           { label: "Completed" },
-  no_show:             { label: "No Show" },
-  cancelled_by_client: { label: "Cancelled" },
-  cancelled_by_spa:    { label: "Cancelled" },
-};
-
-function StatusBadge({ status }: { status: string }) {
-  const cfg = STATUS_CONFIG[status] ?? { label: status };
-  return (
-    <span style={{
-      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-      fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase",
-      padding: "3px 8px", borderRadius: 2,
-      color: cfg.gold ? "var(--gold-400)" : "var(--onyx-500)",
-      background: cfg.gold ? "rgba(201,168,92,0.1)" : "var(--onyx-800)",
-      border: `1px solid ${cfg.gold ? "rgba(201,168,92,0.3)" : "var(--onyx-700)"}`,
-    }}>
-      {cfg.label}
-    </span>
-  );
-}
+const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID ?? "";
+const OPEN = ["pending", "confirmed"];
 
 export default function AccountPage() {
   const { data: session, status } = useSession();
-  if (status === "unauthenticated") redirect("/login");
+  if (status === "unauthenticated") redirect("/login?callbackUrl=/account");
 
-  const userId = (session?.user as any)?.id;
-  const { data: client } = trpc.clients.me.useQuery(undefined, { enabled: !!userId });
+  const { data: me } = trpc.clients.me.useQuery(undefined, { enabled: !!session?.user });
+  const { data: config } = trpc.loyalty.getConfig.useQuery({ spaId: SPA_ID }, { enabled: !!session?.user });
 
-  const lifetime = client?.loyaltyAccount?.lifetimeEarned ?? 0;
-  const balance  = client?.loyaltyAccount?.balance ?? 0;
-  const tier = getTier(lifetime);
-  const nextTier = TIERS[TIERS.findIndex((t) => t.id === tier.id) + 1];
+  const [now] = useState(() => Date.now());
+  const appointments = me?.appointments ?? [];
+  const upcoming = appointments
+    .filter((a) => new Date(a.startAt).getTime() >= now && OPEN.includes(a.status))
+    .sort((a, b) => +new Date(a.startAt) - +new Date(b.startAt));
+  const past = appointments
+    .filter((a) => new Date(a.startAt).getTime() < now || a.status === "completed")
+    .sort((a, b) => +new Date(b.startAt) - +new Date(a.startAt));
+  const next = upcoming[0];
+  const rebook = Array.from(new Map(past.filter((a) => a.status === "completed").map((a) => [a.service.id, a])).values()).slice(0, 3);
 
-  const upcoming = client?.appointments?.filter((a) =>
-    new Date(a.startAt) >= new Date() && ["pending", "confirmed"].includes(a.status)
-  ).sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
-
-  const past = client?.appointments?.filter((a) =>
-    new Date(a.startAt) < new Date() || a.status === "completed"
-  ).sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime()).slice(0, 5);
-
-  const progressPct = nextTier
-    ? Math.min(100, ((lifetime - tier.min) / (nextTier.min - tier.min)) * 100)
-    : 100;
+  const balance = me?.loyaltyAccount?.balance ?? 0;
+  const minRedeem = config?.minRedeem ?? 500;
+  const randValue = config ? Math.round((balance / config.redemptionRate) * config.currencyUnitAmount) : 0;
+  const progress = Math.min(balance / minRedeem, 1);
+  const firstName = session?.user?.name?.split(" ")[0];
 
   return (
-    <main style={{ minHeight: "100vh", background: "var(--onyx-950)" }}>
+    <main className="container-x max-w-3xl pb-16 pt-8 md:pt-12">
+      <header className="mb-8">
+        <p className="eyebrow mb-2">My account</p>
+        <h1 className="display-lg">
+          {greeting(new Date(now))}
+          {firstName ? `, ${firstName}.` : "."}
+        </h1>
+      </header>
 
-      {/* Nav */}
-      <nav style={{
-        position: "sticky", top: 0, zIndex: 40,
-        background: "var(--onyx-950)",
-        borderBottom: "1px solid var(--onyx-800)",
-        padding: "16px 24px",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-      }}>
-        <Link href="/" style={{
-          fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-          fontSize: 20, fontWeight: 300, fontStyle: "italic",
-          color: "var(--gold-400)", textDecoration: "none",
-        }}>
-          Perfect 10
-        </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <Link href="/book" style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
-            color: "var(--gold-400)", textDecoration: "none",
-            padding: "8px 16px",
-            border: "1px solid rgba(201,168,92,0.45)",
-            borderRadius: 2,
-          }}>
-            Book
-          </Link>
-          <span style={{
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            fontSize: 12, color: "var(--onyx-500)",
-          }}>
-            {session?.user?.name}
-          </span>
-        </div>
-      </nav>
-
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "32px 20px 80px" }}>
-
-        {/* Loyalty card */}
-        <div style={{
-          background: "var(--onyx-900)",
-          border: "1px solid var(--onyx-700)",
-          borderRadius: 2,
-          padding: "28px 24px",
-          marginBottom: 20,
-          boxShadow: "6px 8px 0 rgba(0,0,0,0.65)",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          {/* Subtle decorative lines */}
-          <div style={{
-            position: "absolute", top: 0, right: 0, bottom: 0, width: 1,
-            background: "linear-gradient(180deg,rgba(201,168,92,0.2) 0%,transparent 100%)",
-            pointerEvents: "none",
-          }} />
-
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-            <div>
-              <div style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase",
-                color: "var(--onyx-500)", marginBottom: 6,
-              }}>
-                Points Balance
-              </div>
-              <div style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 44, fontWeight: 600,
-                color: "var(--cream-100)", lineHeight: 1,
-              }}>
-                {balance.toLocaleString()}
-              </div>
-              <div style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 11, color: "var(--onyx-500)", marginTop: 4,
-              }}>
-                Lifetime earned: {lifetime.toLocaleString()} pts
-              </div>
-            </div>
-            <div style={{
-              textAlign: "right",
-            }}>
-              <div style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase",
-                color: "var(--onyx-500)", marginBottom: 4,
-              }}>
-                Tier
-              </div>
-              <div style={{
-                fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                fontSize: 18, fontWeight: 300, fontStyle: "italic",
-                color: tier.hex,
-              }}>
-                {tier.label}
-              </div>
-            </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <section className="card flex flex-col p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Next visit</p>
+            {next && <StatusBadge status={next.status} />}
           </div>
-
-          {/* Tier progress bar */}
-          {nextTier && (
-            <div style={{ marginBottom: 20 }}>
-              <div style={{
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-                marginBottom: 6,
-              }}>
-                <span style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 9, letterSpacing: "0.14em", color: "var(--onyx-600)",
-                }}>
-                  {tier.label}
-                </span>
-                <span style={{
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontSize: 9, letterSpacing: "0.14em", color: "var(--onyx-600)",
-                }}>
-                  {nextTier.label} at {nextTier.min.toLocaleString()} pts
-                </span>
-              </div>
-              <div style={{
-                height: 2, background: "var(--onyx-800)", borderRadius: 1, overflow: "hidden",
-              }}>
-                <div style={{
-                  height: "100%",
-                  background: "var(--gold-400)",
-                  width: `${progressPct}%`,
-                  transition: "width 0.6s ease",
-                }} />
-              </div>
-              <div style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 9, color: "var(--onyx-600)", marginTop: 4,
-              }}>
-                {Math.max(0, nextTier.min - lifetime).toLocaleString()} pts to {nextTier.label}
-              </div>
+          {!me ? (
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
             </div>
-          )}
-
-          {/* CTA row */}
-          <div style={{ display: "flex", gap: 10 }}>
-            <Link href="/account/rewards" style={{
-              flex: 1, textAlign: "center",
-              padding: "10px",
-              background: "transparent",
-              border: "1px solid rgba(201,168,92,0.45)",
-              borderRadius: 2, textDecoration: "none",
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
-              color: "var(--gold-400)",
-            }}>
-              Loyalty Hub
-            </Link>
-            <Link href="/account/journey" style={{
-              flex: 1, textAlign: "center",
-              padding: "10px",
-              background: "transparent",
-              border: "1px solid var(--onyx-700)",
-              borderRadius: 2, textDecoration: "none",
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
-              color: "var(--cream-400)",
-            }}>
-              My Journey
-            </Link>
-            <Link href="/account/bookings" style={{
-              flex: 1, textAlign: "center",
-              padding: "10px",
-              background: "transparent",
-              border: "1px solid var(--onyx-700)",
-              borderRadius: 2, textDecoration: "none",
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
-              color: "var(--cream-400)",
-            }}>
-              Bookings
-            </Link>
-          </div>
-        </div>
-
-        {/* Upcoming treatments */}
-        <section style={{ marginBottom: 28 }}>
-          <div style={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            marginBottom: 14,
-          }}>
-            <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.28em", textTransform: "uppercase",
-              color: "var(--gold-400)",
-            }}>
-              Upcoming Treatments
-            </div>
-            <Link href="/book" style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 9, letterSpacing: "0.14em",
-              color: "var(--onyx-500)", textDecoration: "none",
-            }}>
-              + Book new
-            </Link>
-          </div>
-
-          {!upcoming || upcoming.length === 0 ? (
-            <div style={{
-              background: "var(--onyx-900)",
-              border: "1px solid var(--onyx-700)",
-              borderRadius: 2, padding: "32px 24px",
-              textAlign: "center",
-              boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
-            }}>
-              <div style={{
-                fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                fontSize: 18, fontWeight: 300, fontStyle: "italic",
-                color: "var(--onyx-600)", marginBottom: 14,
-              }}>
-                No upcoming treatments scheduled.
+          ) : next ? (
+            <>
+              <h2 className="font-display text-[24px] leading-tight text-ink">{next.service.name}</h2>
+              <p className="mt-1 text-[14px] text-ink-soft">
+                {next.staff ? `with ${next.staff.user.name} · ` : ""}
+                {formatDayTime(next.startAt)}
+              </p>
+              <div className="mt-auto flex items-center justify-between pt-6">
+                <span className="font-display text-[20px] text-ink">{formatRand(next.service.price)}</span>
+                <Link href="/account/bookings" className="btn-ghost text-pink-dark hover:text-pink">
+                  Manage →
+                </Link>
               </div>
-              <Link href="/book" style={{
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase",
-                color: "var(--gold-400)", textDecoration: "none",
-                padding: "9px 20px",
-                border: "1px solid rgba(201,168,92,0.45)",
-                borderRadius: 2, display: "inline-block",
-              }}>
-                Book Now
-              </Link>
-            </div>
+            </>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {upcoming.map((apt) => (
-                <div key={apt.id} style={{
-                  background: "var(--onyx-900)",
-                  border: "1px solid var(--onyx-700)",
-                  borderRadius: 2, padding: "16px 20px",
-                  display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-                  boxShadow: "4px 5px 0 rgba(0,0,0,0.55)",
-                }}>
-                  <div>
-                    <div style={{
-                      fontFamily: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-                      fontSize: 18, fontWeight: 300, fontStyle: "italic",
-                      color: "var(--cream-100)", marginBottom: 4,
-                    }}>
-                      {apt.service.name}
-                    </div>
-                    <div style={{
-                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                      fontSize: 11, color: "var(--onyx-500)",
-                    }}>
-                      {apt.staff ? `with ${apt.staff.user.name} · ` : ""}
-                      {new Date(apt.startAt).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })}
-                      {" at "}
-                      {new Date(apt.startAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" })}
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-                    <StatusBadge status={apt.status} />
-                    <span style={{
-                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                      fontSize: 12, fontWeight: 600, color: "var(--gold-400)",
-                    }}>
-                      R{apt.service.price}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <>
+              <h2 className="font-display text-[22px] leading-tight text-ink">Nothing booked yet.</h2>
+              <p className="mt-1 text-[14px] text-ink-soft">Pick a treatment, a therapist and a time in under a minute.</p>
+              <Link href="/book" className="btn-primary mt-6 w-full">
+                Book a treatment
+              </Link>
+            </>
           )}
         </section>
 
-        {/* Recent treatments */}
-        {past && past.length > 0 && (
-          <section>
-            <div style={{
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              fontSize: 8, letterSpacing: "0.28em", textTransform: "uppercase",
-              color: "var(--onyx-600)", marginBottom: 14,
-            }}>
-              Recent Treatments
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {past.map((apt) => (
-                <div key={apt.id} style={{
-                  background: "var(--onyx-900)",
-                  border: "1px solid var(--onyx-800)",
-                  borderRadius: 2, padding: "12px 20px",
-                  display: "flex", justifyContent: "space-between", alignItems: "center",
-                }}>
-                  <div>
-                    <div style={{
-                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                      fontSize: 13, color: "var(--cream-300)",
-                    }}>
-                      {apt.service.name}
-                    </div>
-                    <div style={{
-                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                      fontSize: 10, color: "var(--onyx-600)", marginTop: 2,
-                    }}>
-                      {new Date(apt.startAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <Link href={`/book?category=${encodeURIComponent(apt.service.category)}`} style={{
-                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                      fontSize: 9, letterSpacing: "0.14em",
-                      color: "var(--gold-400)", textDecoration: "none",
-                    }}>
-                      Rebook
-                    </Link>
-                    <StatusBadge status={apt.status} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        <section className="card flex flex-col bg-ink p-6 text-paper">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-paper/60">Points</p>
+          {!me ? (
+            <Skeleton className="mt-3 h-12 w-32 bg-paper/10" />
+          ) : (
+            <>
+              <div className="mt-2 flex items-baseline gap-3">
+                <span className="font-display text-[44px] leading-none">{balance.toLocaleString("en-ZA")}</span>
+                <span className="text-[13px] text-paper/70">≈ {formatRand(randValue)}</span>
+              </div>
+              <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-paper/15">
+                <div className="h-full rounded-full bg-pink transition-[width] duration-700 ease-out-soft" style={{ width: `${progress * 100}%` }} />
+              </div>
+              <p className="mt-2 text-[12px] text-paper/70">
+                {balance >= minRedeem ? "You can redeem a voucher now." : `${(minRedeem - balance).toLocaleString("en-ZA")} points to your next voucher.`}
+              </p>
+            </>
+          )}
+          <Link href="/account/rewards" className="btn mt-auto w-full border-paper/40 pt-3.5 text-paper hover:border-paper hover:bg-paper hover:text-ink">
+            Rewards
+          </Link>
+        </section>
+      </div>
+
+      {rebook.length > 0 && (
+        <section className="mt-10">
+          <h2 className="eyebrow mb-4">Book again</h2>
+          <div className="flex flex-col gap-2">
+            {rebook.map((a) => (
+              <Link
+                key={a.service.id}
+                href={`/book?service=${a.service.id}&step=therapist${a.staff ? `&staff=${a.staff.id}` : ""}`}
+                className="card-interactive flex items-center justify-between px-5 py-4"
+              >
+                <span>
+                  <span className="block font-display text-[17px] text-ink">{a.service.name}</span>
+                  <span className="block text-[12px] text-muted">
+                    Last visit {formatDay(a.startAt)}
+                    {a.staff ? ` with ${a.staff.user.name}` : ""}
+                  </span>
+                </span>
+                <span className="btn-ghost text-pink-dark">Rebook →</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {past.length > 0 && (
+        <section className="mt-10">
+          <div className="mb-4 flex items-baseline justify-between">
+            <h2 className="eyebrow">Recent treatments</h2>
+            <Link href="/account/bookings" className="btn-ghost">
+              All bookings →
+            </Link>
+          </div>
+          <ul className="card divide-y divide-hairline">
+            {past.slice(0, 4).map((a) => (
+              <li key={a.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                <span>
+                  <span className="block text-[15px] text-ink">{a.service.name}</span>
+                  <span className="block text-[12px] text-muted">
+                    {formatDay(a.startAt)} · {formatTime(a.startAt)}
+                  </span>
+                </span>
+                <StatusBadge status={a.status} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <div className="mt-12 flex items-center justify-between border-t border-hairline pt-6 text-[12px] text-muted">
+        <span>{session?.user?.email}</span>
+        <button type="button" onClick={() => signOut({ callbackUrl: "/" })} className="btn-ghost">
+          Sign out
+        </button>
       </div>
     </main>
   );

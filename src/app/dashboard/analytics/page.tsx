@@ -34,9 +34,9 @@ const PERIOD_LABELS: Record<Period, string> = {
 
 function StatCard({ label, value, sub, accent }: { label: string; value: string | number; sub?: string; accent?: boolean }) {
   return (
-    <div className="bg-white border border-[#D1D2D4] p-6">
+    <div className="bg-white border border-[#efdcd8] p-6">
       <p className="text-xs font-semibold text-[#8D8E8F] uppercase tracking-widest mb-2">{label}</p>
-      <p className="text-3xl font-bold" style={{ color: accent ? "#C9262E" : "#000000" }}>{value}</p>
+      <p className="text-3xl font-bold" style={{ color: accent ? "#d41d7f" : "#000000" }}>{value}</p>
       {sub && <p className="text-xs text-[#8D8E8F] mt-1.5">{sub}</p>}
     </div>
   );
@@ -58,7 +58,7 @@ export default function AnalyticsPage() {
   const maxTherapistCount = therapists?.[0]?.count ?? 1;
 
   return (
-    <div className="min-h-screen flex bg-[#EBEBEC]">
+    <div className="min-h-screen flex bg-[#faf6f5]">
       <DashboardSidebar />
 
       <main className="flex-1 p-8 overflow-auto">
@@ -69,14 +69,14 @@ export default function AnalyticsPage() {
             <p className="text-[#8D8E8F] text-sm mt-1">Revenue, bookings & loyalty insights</p>
           </div>
           {/* Period selector */}
-          <div className="flex gap-1 bg-white border border-[#D1D2D4] p-1">
+          <div className="flex gap-1 bg-white border border-[#efdcd8] p-1">
             {(["day", "week", "month", "year"] as Period[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
                 className="px-4 py-1.5 text-sm font-semibold transition-colors"
                 style={period === p
-                  ? { background: "#C9262E", color: "#fff" }
+                  ? { background: "#d41d7f", color: "#fff" }
                   : { color: "#4A4A4A", background: "transparent" }}
               >
                 {PERIOD_LABELS[p]}
@@ -97,7 +97,7 @@ export default function AnalyticsPage() {
         {/* Row 2: Booking status + Points economy */}
         <div className="grid grid-cols-2 gap-6 mb-6">
           {/* Booking status breakdown */}
-          <div className="bg-white border border-[#D1D2D4] p-6">
+          <div className="bg-white border border-[#efdcd8] p-6">
             <h3 className="font-bold text-black text-sm uppercase tracking-widest mb-5">Booking Status — {PERIOD_LABELS[period]}</h3>
             {!statusBreakdown || statusBreakdown.length === 0 ? (
               <p className="text-[#8D8E8F] text-sm">No bookings in this period.</p>
@@ -111,7 +111,7 @@ export default function AnalyticsPage() {
                         <span className="font-medium text-[#4A4A4A]">{STATUS_LABELS[item.status] ?? item.status}</span>
                         <span className="text-[#8D8E8F]">{item.count} ({pct}%)</span>
                       </div>
-                      <div className="h-2 bg-[#EBEBEC]">
+                      <div className="h-2 bg-[#faf6f5]">
                         <div
                           className="h-full transition-all"
                           style={{ width: `${pct}%`, background: STATUS_COLORS[item.status] ?? "#8D8E8F" }}
@@ -126,16 +126,16 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Points Economy */}
-          <div className="bg-white border border-[#D1D2D4] p-6">
+          <div className="bg-white border border-[#efdcd8] p-6">
             <h3 className="font-bold text-black text-sm uppercase tracking-widest mb-5">Loyalty Economy</h3>
             <div className="space-y-4">
               {[
                 { label: "Total Points Issued", value: (pointsEconomy?.totalIssued ?? 0).toLocaleString() + " pts", color: "#000" },
-                { label: "Points Redeemed", value: (pointsEconomy?.totalRedeemed ?? 0).toLocaleString() + " pts", color: "#C9262E" },
+                { label: "Points Redeemed", value: (pointsEconomy?.totalRedeemed ?? 0).toLocaleString() + " pts", color: "#d41d7f" },
                 { label: "Outstanding Balance", value: (pointsEconomy?.totalOutstanding ?? 0).toLocaleString() + " pts", color: "#22c55e" },
                 { label: "Active Members", value: (pointsEconomy?.memberCount ?? 0).toLocaleString(), color: "#3b82f6" },
               ].map((row) => (
-                <div key={row.label} className="flex justify-between items-center border-b border-[#EBEBEC] pb-3 last:border-0 last:pb-0">
+                <div key={row.label} className="flex justify-between items-center border-b border-[#faf6f5] pb-3 last:border-0 last:pb-0">
                   <span className="text-sm text-[#4A4A4A]">{row.label}</span>
                   <span className="font-bold text-sm" style={{ color: row.color }}>{row.value}</span>
                 </div>
@@ -146,12 +146,12 @@ export default function AnalyticsPage() {
                     <span>Redemption rate</span>
                     <span>{Math.round((pointsEconomy.totalRedeemed / pointsEconomy.totalIssued) * 100)}%</span>
                   </div>
-                  <div className="h-2 bg-[#EBEBEC]">
+                  <div className="h-2 bg-[#faf6f5]">
                     <div
                       className="h-full"
                       style={{
                         width: `${Math.round((pointsEconomy.totalRedeemed / pointsEconomy.totalIssued) * 100)}%`,
-                        background: "#C9262E",
+                        background: "#d41d7f",
                       }}
                     />
                   </div>
@@ -164,7 +164,7 @@ export default function AnalyticsPage() {
         {/* Row 3: Top treatments + Therapist performance */}
         <div className="grid grid-cols-2 gap-6">
           {/* Top Treatments */}
-          <div className="bg-white border border-[#D1D2D4] p-6">
+          <div className="bg-white border border-[#efdcd8] p-6">
             <h3 className="font-bold text-black text-sm uppercase tracking-widest mb-5">Top Treatments (All Time)</h3>
             {!topServices || topServices.length === 0 ? (
               <p className="text-[#8D8E8F] text-sm">No completed treatments yet.</p>
@@ -182,12 +182,12 @@ export default function AnalyticsPage() {
                       </span>
                       <span className="text-[#8D8E8F] shrink-0">{item.count}×</span>
                     </div>
-                    <div className="h-1.5 bg-[#EBEBEC]">
+                    <div className="h-1.5 bg-[#faf6f5]">
                       <div
                         className="h-full"
                         style={{
                           width: `${Math.round((item.count / maxServiceCount) * 100)}%`,
-                          background: "#C9262E",
+                          background: "#d41d7f",
                         }}
                       />
                     </div>
@@ -198,7 +198,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Therapist Performance */}
-          <div className="bg-white border border-[#D1D2D4] p-6">
+          <div className="bg-white border border-[#efdcd8] p-6">
             <h3 className="font-bold text-black text-sm uppercase tracking-widest mb-5">Therapist Performance — {PERIOD_LABELS[period]}</h3>
             {!therapists || therapists.length === 0 ? (
               <p className="text-[#8D8E8F] text-sm">No completed treatments in this period.</p>
@@ -213,7 +213,7 @@ export default function AnalyticsPage() {
                       </span>
                       <span className="text-[#8D8E8F]">{t.count} treatments · R {t.revenue.toLocaleString()}</span>
                     </div>
-                    <div className="h-1.5 bg-[#EBEBEC]">
+                    <div className="h-1.5 bg-[#faf6f5]">
                       <div
                         className="h-full"
                         style={{

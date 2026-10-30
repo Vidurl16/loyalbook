@@ -1,7 +1,8 @@
 import { Resend } from "resend";
+import { brand } from "@/lib/brand";
 
 const apiKey = process.env.RESEND_API_KEY;
-const FROM = process.env.EMAIL_FROM ?? "Perfect 10 <onboarding@resend.dev>";
+const FROM = process.env.EMAIL_FROM ?? `${brand.name} <onboarding@resend.dev>`;
 
 let resend: Resend | null = null;
 function client(): Resend | null {
@@ -35,11 +36,11 @@ export async function sendEmail({ to, subject, html }: SendEmailArgs): Promise<{
 /** Minimal branded email shell. */
 export function emailLayout(bodyHtml: string): string {
   return `
-  <div style="background:#0e0c0a;padding:32px 0;font-family:Georgia,serif;">
-    <div style="max-width:520px;margin:0 auto;background:#16120f;border:1px solid rgba(201,168,92,0.2);border-radius:4px;overflow:hidden;">
-      <div style="height:3px;background:linear-gradient(90deg,#b8922e,#c9a85c,#dfc07a,#c9a85c,#b8922e);"></div>
-      <div style="padding:32px 28px;color:#f5f0e8;">
-        <div style="font-size:20px;font-style:italic;color:#c9a85c;margin-bottom:20px;">Perfect 10</div>
+  <div style="background:#faf6f5;padding:32px 0;font-family:'Century Gothic',Helvetica,Arial,sans-serif;">
+    <div style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #efdcd8;border-radius:4px;overflow:hidden;">
+      <div style="height:3px;background:${brand.accent};"></div>
+      <div style="padding:32px 28px;color:#232122;">
+        <div style="font-size:20px;font-style:italic;color:${brand.accent};margin-bottom:20px;">${brand.name}</div>
         ${bodyHtml}
       </div>
     </div>

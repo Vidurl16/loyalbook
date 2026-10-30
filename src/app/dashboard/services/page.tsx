@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 
@@ -18,19 +16,8 @@ const CATEGORY_ICONS: Record<string, string> = {
   Nails: "💅",
 };
 
-const navItems = [
-  { href: "/dashboard", label: "Overview", icon: "🏠" },
-  { href: "/dashboard/clients", label: "Guests", icon: "👥" },
-  { href: "/dashboard/services", label: "Treatments", icon: "🌿" },
-  { href: "/dashboard/staff", label: "Therapists", icon: "🧖‍♀️" },
-  { href: "/dashboard/loyalty", label: "Loyalty", icon: "✨" },
-  { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
-  { href: "/dashboard/settings", label: "Settings", icon: "⚙️" },
-];
 
 export default function ServicesPage() {
-  const { data: session } = useSession();
-  const pathname = usePathname();
   const utils = trpc.useUtils();
 
   const { data: services, isLoading } = trpc.services.list.useQuery(
@@ -78,31 +65,7 @@ export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-stone-50 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-stone-200 flex flex-col">
-        <div className="p-6 border-b border-stone-100">
-          <h1 className="font-display text-xl text-stone-800">🌸 Perfect 10</h1>
-          <p className="text-xs text-stone-400 mt-1">Spa Management</p>
-        </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pathname === item.href
-                  ? "bg-teal-50 text-teal-700"
-                  : "text-stone-600 hover:bg-stone-50"
-              }`}
-            >
-              <span>{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-stone-100">
-          <p className="text-xs text-stone-500">{session?.user?.name ?? "Staff"}</p>
-        </div>
-      </aside>
+      <DashboardSidebar />
 
       {/* Main */}
       <main className="flex-1 p-8 overflow-auto">

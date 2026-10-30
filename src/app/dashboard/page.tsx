@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const remainingToday = (todayAppts?.length ?? 0) - completedToday;
 
   return (
-    <div className="min-h-screen flex bg-[#EBEBEC]">
+    <div className="min-h-screen flex bg-[#faf6f5]">
       <DashboardSidebar />
 
       {/* Main */}
@@ -54,7 +54,7 @@ export default function DashboardPage() {
               {new Date().toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
             </p>
           </div>
-          <Link href="/dashboard/analytics" className="text-sm font-semibold text-white px-5 py-2 hover:opacity-90 transition-opacity" style={{ background: "#C9262E", borderRadius: 2 }}>
+          <Link href="/dashboard/analytics" className="text-sm font-semibold text-white px-5 py-2 hover:opacity-90 transition-opacity" style={{ background: "#d41d7f", borderRadius: 2 }}>
             View Analytics →
           </Link>
         </div>
@@ -67,7 +67,7 @@ export default function DashboardPage() {
             { label: "Points Issued", value: (economy?.totalIssued ?? 0).toLocaleString(), sub: "All time", icon: "✨" },
             { label: "Points Outstanding", value: (economy?.totalOutstanding ?? 0).toLocaleString(), sub: "Member balances", icon: "🏅" },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white border border-[#D1D2D4] p-5">
+            <div key={stat.label} className="bg-white border border-[#efdcd8] p-5">
               <div className="flex justify-between items-start mb-3">
                 <span className="text-xs text-[#8D8E8F] font-semibold uppercase tracking-widest">{stat.label}</span>
                 <span className="text-lg">{stat.icon}</span>
@@ -80,7 +80,7 @@ export default function DashboardPage() {
 
         {/* Today's schedule + birthdays */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white border border-[#D1D2D4] p-6">
+          <div className="lg:col-span-2 bg-white border border-[#efdcd8] p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-semibold text-black">Today&apos;s Treatments</h2>
               <span className="text-xs text-[#8D8E8F]">{todayAppts?.length ?? 0} scheduled</span>
@@ -89,12 +89,12 @@ export default function DashboardPage() {
               <div className="text-center py-10">
                 <div className="text-3xl mb-2">🌸</div>
                 <p className="text-[#8D8E8F] text-sm">No treatments scheduled for today.</p>
-                <Link href="/book" className="inline-block mt-3 text-sm hover:underline" style={{ color: "#C9262E" }}>+ Add booking</Link>
+                <Link href="/book" className="inline-block mt-3 text-sm hover:underline" style={{ color: "#d41d7f" }}>+ Add booking</Link>
               </div>
             ) : (
               <div className="space-y-2">
                 {todayAppts.map((apt) => (
-                  <div key={apt.id} className="flex items-center justify-between py-3 border-b border-[#EBEBEC] last:border-0 gap-3">
+                  <div key={apt.id} className="flex items-center justify-between py-3 border-b border-[#faf6f5] last:border-0 gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="text-xl shrink-0">{CATEGORY_ICONS[apt.service?.category] ?? "✨"}</span>
                       <div className="min-w-0">
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                         <button
                           onClick={() => updateStatus.mutate({ id: apt.id, status: "completed" })}
                           className="text-xs text-white px-2 py-0.5 hover:opacity-80 transition-opacity"
-                          style={{ background: "#C9262E", borderRadius: 2 }}
+                          style={{ background: "#d41d7f", borderRadius: 2 }}
                         >
                           ✓ Done
                         </button>
@@ -126,7 +126,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Upcoming birthdays */}
-          <div className="bg-white border border-[#D1D2D4] p-6">
+          <div className="bg-white border border-[#efdcd8] p-6">
             <h2 className="font-semibold text-black mb-5">🎂 Upcoming Birthdays</h2>
             {!birthdays || birthdays.length === 0 ? (
               <p className="text-[#8D8E8F] text-sm">No birthdays in the next 30 days.</p>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
                         {c.dob ? new Date(c.dob).toLocaleDateString("en-ZA", { day: "numeric", month: "short" }) : ""}
                       </div>
                     </div>
-                    <Link href="/dashboard/clients" className="text-xs font-semibold hover:underline" style={{ color: "#C9262E" }}>Send bonus</Link>
+                    <Link href="/dashboard/clients" className="text-xs font-semibold hover:underline" style={{ color: "#d41d7f" }}>Send bonus</Link>
                   </div>
                 ))}
               </div>

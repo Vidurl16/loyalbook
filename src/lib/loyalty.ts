@@ -6,7 +6,7 @@ const DEFAULT_TIERS: TierDef[] = [
   { name: "Bronze", minLifetimeEarned: 0 },
   { name: "Silver", minLifetimeEarned: 2500 },
   { name: "Gold", minLifetimeEarned: 5000 },
-  { name: "Perfect 10", minLifetimeEarned: 10000 },
+  { name: "Platinum", minLifetimeEarned: 10000 },
 ];
 
 /** Parse the tiers JSON from LoyaltyConfig, sorted ascending, with a safe fallback. */
@@ -49,8 +49,8 @@ export function computeTier(lifetimeEarned: number, tiersRaw: unknown) {
 // Unambiguous alphabet — no O/0/I/1 to avoid mis-reads at the till.
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-/** Generate a human-typable voucher code, e.g. P10-7KF9-QM3X. */
-export function generateVoucherCode(prefix = "P10"): string {
+/** Generate a human-typable voucher code, e.g. VIV-7KF9-QM3X. */
+export function generateVoucherCode(prefix = process.env.NEXT_PUBLIC_BRAND_VOUCHER_PREFIX ?? "VIV"): string {
   const block = () =>
     Array.from({ length: 4 }, () => CODE_ALPHABET[randomInt(0, CODE_ALPHABET.length)]).join("");
   return `${prefix}-${block()}-${block()}`;
