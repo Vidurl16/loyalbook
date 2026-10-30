@@ -9,7 +9,6 @@ import { galleryRouter } from "./routers/gallery";
 import { spaRouter } from "./routers/spa";
 import { mysteryShoppersRouter } from "./routers/mysteryShoppers";
 import { mysteryShopperRouter } from "./routers/mysteryShopper";
-import { mediaRouter } from "./routers/media";
 import { reviewsRouter } from "./routers/reviews";
 import { emailRouter } from "./routers/email";
 
@@ -24,7 +23,6 @@ export const appRouter = router({
   spa: spaRouter,
   mysteryShoppers: mysteryShoppersRouter,
   mysteryShopper: mysteryShopperRouter,
-  media: mediaRouter,
   reviews: reviewsRouter,
   email: emailRouter,
 });

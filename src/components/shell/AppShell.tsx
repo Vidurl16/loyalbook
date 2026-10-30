@@ -2,12 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import { SiteHeader } from "./SiteHeader";
-import { SiteFooter } from "./SiteFooter";
 import { TabBar } from "./TabBar";
 
 const AUTH_ROUTES = ["/login", "/signup"];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, footer }: { children: React.ReactNode; footer: React.ReactNode }) {
   const pathname = usePathname();
 
   if (pathname.startsWith("/dashboard")) return <>{children}</>;
@@ -20,7 +19,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div key={pathname} className={`page-in flex-1 ${isAuth ? "" : "pb-[76px] md:pb-0"}`}>
         {children}
       </div>
-      {!isAuth && <SiteFooter />}
+      {!isAuth && footer}
       {!isAuth && <TabBar />}
     </div>
   );

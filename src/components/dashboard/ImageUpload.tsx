@@ -1,15 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { trpc } from "@/lib/trpc";
+import { upload } from "@vercel/blob/client";
 
-type Folder = "gallery" | "staff" | "products" | "reviews";
+type Folder = "gallery" | "staff" | "products" | "reviews" | "site";
 
-/**
- * Admin image uploader. Requests a signed URL from the server, PUTs the file
- * straight to Supabase Storage, then hands the public URL back to the caller to
- * persist on the row. Keeps large uploads off the Next.js server.
- */
+const MAX_EDGE = 1800;
+
+/** Phone photos are 5–10 MB; resizing in the browser keeps the gallery fast and uploads quick. */
+async function shrinkImage(file: File): Promise<Blob> {
+  if (file.type === "image/gif" || !("createImageBitmap" in window)) return file;
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  if (scale === 1 && file.size < 1_500_000) return file;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  return new Promise((resolve) => canvas.toBlob((b) => resolve(b ?? file), "image/jpeg", 0.86));
+}
+
 export function ImageUpload({
   folder,
   value,
@@ -23,25 +33,21 @@ export function ImageUpload({
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
-  const createUploadUrl = trpc.media.createUploadUrl.useMutation();
 
   async function handleFile(file: File) {
     setError("");
     setUploading(true);
     try {
-      const { signedUrl, publicUrl } = await createUploadUrl.mutateAsync({
-        folder,
-        contentType: file.type,
+      const body = await shrinkImage(file);
+      const name = file.name.replace(/\.[^.]+$/, "") + (body.type === "image/jpeg" ? ".jpg" : "");
+      const blob = await upload(`${folder}/${name}`, body, {
+        access: "public",
+        handleUploadUrl: "/api/media/upload",
+        contentType: body.type || file.type,
       });
-      const res = await fetch(signedUrl, {
-        method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      if (!res.ok) throw new Error("Upload failed. Please try again.");
-      onUploaded(publicUrl);
+      onUploaded(blob.url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed.");
+      setError(e instanceof Error ? e.message : "Upload failed. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -49,35 +55,27 @@ export function ImageUpload({
 
   return (
     <div>
-      <div style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--gold-400)", marginBottom: 8 }}>
-        {label}
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        <div style={{
-          width: 72, height: 72, flexShrink: 0,
-          border: "1px solid var(--onyx-700)", borderRadius: 2,
-          background: "var(--onyx-800)", overflow: "hidden",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
+      <div className="mb-2 text-[11px] uppercase tracking-[0.14em] text-[#c98d82]">{label}</div>
+      <div className="flex items-center gap-4">
+        <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center overflow-hidden rounded-sm border border-[#efdcd8] bg-[#faf6f5]">
           {value ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={value} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src={value} alt="" className="h-full w-full object-cover" />
           ) : (
-            <span style={{ fontSize: 20, color: "var(--onyx-500)" }}>+</span>
+            <span className="text-xl text-[#8d8e8f]">+</span>
           )}
         </div>
-        <label style={{
-          cursor: uploading ? "default" : "pointer",
-          fontSize: 12, letterSpacing: "0.06em", color: "var(--cream-200)",
-          border: "1px solid var(--onyx-700)", borderRadius: 2, padding: "8px 14px",
-          background: "var(--onyx-800)", opacity: uploading ? 0.6 : 1,
-        }}>
-          {uploading ? "Uploading…" : value ? "Replace image" : "Upload image"}
+        <label
+          className={`rounded-sm border border-[#efdcd8] bg-white px-3.5 py-2 text-[12px] tracking-[0.06em] text-[#232122] ${
+            uploading ? "opacity-60" : "cursor-pointer hover:border-[#232122]"
+          }`}
+        >
+          {uploading ? "Uploading…" : value ? "Replace photo" : "Upload photo"}
           <input
             type="file"
             accept="image/*"
             disabled={uploading}
-            style={{ display: "none" }}
+            className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) handleFile(f);
@@ -85,7 +83,7 @@ export function ImageUpload({
           />
         </label>
       </div>
-      {error && <div style={{ marginTop: 8, fontSize: 11, color: "#e57373" }}>{error}</div>}
+      {error && <div className="mt-2 text-[11px] text-[#d41d7f]">{error}</div>}
     </div>
   );
 }

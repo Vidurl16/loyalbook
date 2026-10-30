@@ -3,7 +3,9 @@ import { Abel, Marcellus } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppShell } from "@/components/shell/AppShell";
+import { SiteFooter } from "@/components/shell/SiteFooter";
 import { brand, brandCssVars } from "@/lib/brand";
+import { getSalonProfile } from "@/lib/salonProfile";
 
 const abel = Abel({
   variable: "--font-abel",
@@ -39,7 +41,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const profile = await getSalonProfile();
+
   return (
     <html lang="en" className={`${abel.variable} ${marcellus.variable}`}>
       <head>
@@ -47,7 +51,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="min-h-dvh">
         <Providers>
-          <AppShell>{children}</AppShell>
+          <AppShell footer={<SiteFooter profile={profile} />}>{children}</AppShell>
         </Providers>
       </body>
     </html>

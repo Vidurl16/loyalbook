@@ -4,6 +4,7 @@ import { brand } from "@/lib/brand";
 import { Avatar } from "@/components/ui/Avatar";
 import { Stars } from "@/components/ui/Stars";
 import { formatRand } from "@/lib/format";
+import { getSalonProfile, type SalonProfile } from "@/lib/salonProfile";
 
 export const dynamic = "force-dynamic";
 
@@ -51,42 +52,30 @@ async function loadReviews() {
   });
 }
 
-async function loadLocation() {
-  if (!LOCATION_ID) return null;
-  return prisma.location.findUnique({ where: { id: LOCATION_ID }, select: { address: true, phone: true, email: true } });
-}
-
 export default async function HomePage() {
-  const [categories, team, reviews, location] = await Promise.all([loadCategories(), loadTeam(), loadReviews(), loadLocation()]);
+  const [categories, team, reviews, profile] = await Promise.all([loadCategories(), loadTeam(), loadReviews(), getSalonProfile()]);
 
   return (
     <main>
-      <Hero />
+      <Hero profile={profile} />
       <Treatments categories={categories} />
       <Team team={team} />
       {reviews.length > 0 && <Reviews reviews={reviews} />}
       <MembersBand />
-      <Visit address={location?.address} phone={location?.phone} />
+      <Visit profile={profile} />
     </main>
   );
 }
 
-function Hero() {
+function Hero({ profile }: { profile: SalonProfile }) {
   return (
     <section className="container-x grid gap-10 py-10 md:min-h-[calc(100dvh-64px)] md:grid-cols-2 md:items-center md:py-16">
       <div className="order-2 md:order-1">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={brand.logoUrl} alt={brand.name} className="mb-10 h-auto w-[200px] md:w-[240px]" />
-        <p className="eyebrow mb-5">Durban North · KwaZulu-Natal</p>
-        <h1 className="display-xl">
-          Where beauty
-          <br />
-          comes alive.
-        </h1>
-        <p className="mt-6 max-w-md text-[16px] leading-relaxed text-ink-soft">
-          Nails, skin, brows and body treatments by a team who know your name. Browse the full menu, pick your
-          therapist, choose a time, and earn points on every visit.
-        </p>
+        <img src={brand.logoUrl} alt={profile.name} className="mb-10 h-auto w-[200px] md:w-[240px]" />
+        <p className="eyebrow mb-5">{profile.address.split(",").slice(-2).join(" ·")}</p>
+        <h1 className="display-xl whitespace-pre-line">{profile.headline}</h1>
+        <p className="mt-6 max-w-md text-[16px] leading-relaxed text-ink-soft">{profile.intro}</p>
         <div className="mt-9 flex flex-col gap-3 sm:flex-row">
           <Link href="/book" className="btn-primary">
             Book a treatment
@@ -105,7 +94,7 @@ function Hero() {
       <div className="order-1 md:order-2">
         <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-shell md:aspect-[4/5]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/about-us.jpg" alt="" className="h-full w-full object-cover" />
+          <img src={profile.heroImageUrl} alt="" className="h-full w-full object-cover" />
         </div>
       </div>
     </section>
@@ -237,26 +226,32 @@ function MembersBand() {
   );
 }
 
-function Visit({ address, phone }: { address?: string | null; phone?: string | null }) {
-  const shownAddress = address ?? "34 Beachway Place, Durban North";
-  const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${brand.name} ${shownAddress}`)}`;
+function Visit({ profile }: { profile: SalonProfile }) {
+  const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${profile.name} ${profile.address}`)}`;
+  const suburb = profile.address.split(",").map((s) => s.trim()).filter(Boolean).at(-2) ?? profile.address;
   return (
     <section className="border-t border-hairline">
       <div className="container-x grid gap-10 py-16 md:grid-cols-2 md:py-24">
         <div>
           <p className="eyebrow mb-3">Visit</p>
-          <h2 className="display-lg">Find us in Durban North.</h2>
-          <address className="mt-6 text-[16px] not-italic leading-relaxed text-ink-soft">
-            {shownAddress}
-            {phone && (
+          <h2 className="display-lg">Find us in {suburb}.</h2>
+          <address className="mt-6 whitespace-pre-line text-[16px] not-italic leading-relaxed text-ink-soft">
+            {profile.address}
+            {profile.phone && (
               <>
                 <br />
-                <a href={`tel:${phone.replace(/\s+/g, "")}`} className="hover:text-ink">
-                  {phone}
+                <a href={`tel:${profile.phone.replace(/\s+/g, "")}`} className="hover:text-ink">
+                  {profile.phone}
                 </a>
               </>
             )}
           </address>
+          {profile.hours && (
+            <div className="mt-6">
+              <p className="eyebrow mb-2">Hours</p>
+              <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-soft">{profile.hours}</p>
+            </div>
+          )}
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <a href={mapsHref} target="_blank" rel="noreferrer" className="btn-outline">
               Open in Maps

@@ -1,280 +1,162 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
+import type { Spa } from "@prisma/client";
 import { DashboardSidebar } from "@/components/dashboard/Sidebar";
+import { ImageUpload } from "@/components/dashboard/ImageUpload";
 import { trpc } from "@/lib/trpc";
+import { websiteFromSettings, type WebsiteSettings } from "@/lib/websiteSettings";
 
-const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID!;
+const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID ?? "";
 
-const TIMEZONES = [
-  "Africa/Johannesburg",
-  "Africa/Cairo",
-  "Africa/Lagos",
-  "Europe/London",
-  "Europe/Paris",
-  "America/New_York",
-  "America/Los_Angeles",
-  "Asia/Dubai",
-  "Asia/Singapore",
-  "Australia/Sydney",
-];
+const TIMEZONES = ["Africa/Johannesburg", "Africa/Cairo", "Africa/Lagos", "Europe/London", "Europe/Paris", "Asia/Dubai"];
+const CURRENCIES = ["ZAR", "USD", "EUR", "GBP", "AED"];
 
-const CURRENCIES = ["ZAR", "USD", "EUR", "GBP", "AED", "SGD", "AUD"];
+type Prize = { label: string; weight: number; win: boolean };
+
+const input = "w-full rounded-sm border border-[#efdcd8] bg-[#faf6f5] px-3 py-2.5 text-[14px] text-[#232122] outline-none focus:border-[#fe329c]";
+const label = "mb-2 block text-[11px] uppercase tracking-[0.1em] text-[#c98d82]";
+
+function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-sm border border-[#efdcd8] bg-white p-6">
+      <h3 className="text-[13px] uppercase tracking-[0.1em] text-[#232122]">{title}</h3>
+      {hint && <p className="mt-1 text-[12px] text-[#8d8e8f]">{hint}</p>}
+      <div className="mt-5 flex flex-col gap-4">{children}</div>
+    </section>
+  );
+}
 
 export default function SettingsPage() {
   useSession({ required: true });
-
-  const { data: spa, isLoading } = trpc.spa.get.useQuery(
-    { spaId: SPA_ID },
-    { enabled: !!SPA_ID }
-  );
-
-  const updateSpa = trpc.spa.update.useMutation();
-
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [timezone, setTimezone] = useState("Africa/Johannesburg");
-  const [currency, setCurrency] = useState("ZAR");
-  const [saved, setSaved] = useState(false);
-
-  // Populate from DB once loaded
-  useEffect(() => {
-    if (spa) {
-      setName(spa.name ?? "");
-      setAddress(spa.address ?? "");
-      setTimezone(spa.timezone ?? "Africa/Johannesburg");
-      setCurrency(spa.currency ?? "ZAR");
-    }
-  }, [spa]);
-
-  const handleSave = async () => {
-    await updateSpa.mutateAsync({
-      spaId: SPA_ID,
-      name,
-      address,
-      timezone,
-      currency,
-    });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    background: "#faf6f5",
-    border: "1px solid #efdcd8",
-    borderRadius: "2px",
-    padding: "10px 12px",
-    fontSize: "14px",
-    color: "#232122",
-    fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-    outline: "none",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    fontSize: "11px",
-    fontWeight: 500,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    color: "#c98d82",
-    marginBottom: "8px",
-    fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-  };
-
-  const sectionStyle: React.CSSProperties = {
-    background: "#ffffff",
-    border: "1px solid #efdcd8",
-    borderRadius: "2px",
-    padding: "24px",
-  };
+  const { data: spa, isLoading } = trpc.spa.get.useQuery({ spaId: SPA_ID }, { enabled: !!SPA_ID });
 
   return (
-    <div className="min-h-screen flex" style={{ background: "#faf6f5" }}>
+    <div className="flex min-h-screen bg-[#faf6f5]">
       <DashboardSidebar />
-
-      <main className="flex-1 p-8 overflow-auto">
+      <main className="flex-1 overflow-auto p-8">
         <div className="mb-8">
-          <h2
-            style={{
-              fontFamily: "var(--font-cormorant), Cormorant Garamond, serif",
-              fontSize: "28px",
-              fontWeight: 300,
-              color: "#232122",
-              margin: 0,
-            }}
-          >
-            Settings
-          </h2>
-          <p
-            style={{
-              fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-              fontSize: "13px",
-              color: "#8d8e8f",
-              marginTop: "4px",
-            }}
-          >
-            Configure your spa details and preferences
-          </p>
+          <h2 className="font-display text-[28px] text-[#232122]">Settings</h2>
+          <p className="mt-1 text-[13px] text-[#8d8e8f]">Everything clients see on the website is edited here, no developer needed.</p>
         </div>
-
-        {isLoading ? (
-          <p style={{ color: "#8d8e8f", fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "14px" }}>
-            Loading…
-          </p>
-        ) : (
-          <div style={{ maxWidth: "640px", display: "flex", flexDirection: "column", gap: "24px" }}>
-            {/* Spa Details */}
-            <div style={sectionStyle}>
-              <h3
-                style={{
-                  fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: "#232122",
-                  margin: "0 0 20px",
-                }}
-              >
-                Spa Details
-              </h3>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div>
-                  <label style={labelStyle}>Spa Name</label>
-                  <input
-                    type="text"
-                    style={inputStyle}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    onFocus={(e) => (e.target.style.borderColor = "#fe329c")}
-                    onBlur={(e) => (e.target.style.borderColor = "#efdcd8")}
-                  />
-                </div>
-
-                <div>
-                  <label style={labelStyle}>Address</label>
-                  <textarea
-                    style={{ ...inputStyle, resize: "vertical" }}
-                    rows={2}
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    onFocus={(e) => (e.target.style.borderColor = "#fe329c")}
-                    onBlur={(e) => (e.target.style.borderColor = "#efdcd8")}
-                  />
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  <div>
-                    <label style={labelStyle}>Timezone</label>
-                    <select
-                      style={{ ...inputStyle, cursor: "pointer" }}
-                      value={timezone}
-                      onChange={(e) => setTimezone(e.target.value)}
-                    >
-                      {TIMEZONES.map((tz) => (
-                        <option key={tz} value={tz} style={{ background: "#ffffff" }}>
-                          {tz}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={labelStyle}>Currency</label>
-                    <select
-                      style={{ ...inputStyle, cursor: "pointer" }}
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
-                    >
-                      {CURRENCIES.map((c) => (
-                        <option key={c} value={c} style={{ background: "#ffffff" }}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Loyalty link */}
-            <div style={sectionStyle}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div>
-                  <p style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "14px", fontWeight: 500, color: "#232122", margin: "0 0 4px" }}>
-                    Loyalty Programme
-                  </p>
-                  <p style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "12px", color: "#8d8e8f", margin: 0 }}>
-                    Configure points rates and redemption rules
-                  </p>
-                </div>
-                <a
-                  href="/dashboard/loyalty"
-                  style={{
-                    fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                    fontSize: "12px",
-                    fontWeight: 500,
-                    letterSpacing: "0.06em",
-                    color: "#fe329c",
-                    textDecoration: "none",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Configure →
-                </a>
-              </div>
-            </div>
-
-            {/* Save */}
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <button
-                onClick={handleSave}
-                disabled={updateSpa.isPending}
-                style={{
-                  background: "#232122",
-                  color: "#ffffff",
-                  fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                  fontSize: "12px",
-                  fontWeight: 500,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  padding: "12px 28px",
-                  borderRadius: "2px",
-                  border: "none",
-                  cursor: updateSpa.isPending ? "not-allowed" : "pointer",
-                  opacity: updateSpa.isPending ? 0.6 : 1,
-                }}
-              >
-                {updateSpa.isPending ? "Saving…" : "Save Changes"}
-              </button>
-
-              {saved && (
-                <span
-                  style={{
-                    fontFamily: "var(--font-dm-sans), DM Sans, sans-serif",
-                    fontSize: "13px",
-                    color: "#fe329c",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                  }}
-                >
-                  ✓ Saved
-                </span>
-              )}
-
-              {updateSpa.isError && (
-                <span style={{ fontFamily: "var(--font-dm-sans), DM Sans, sans-serif", fontSize: "13px", color: "#ef4444" }}>
-                  Failed to save. Try again.
-                </span>
-              )}
-            </div>
-          </div>
-        )}
+        {isLoading || !spa ? <p className="text-[14px] text-[#8d8e8f]">Loading…</p> : <SettingsForm key={spa.id} spa={spa} />}
       </main>
     </div>
+  );
+}
+
+function SettingsForm({ spa }: { spa: Spa }) {
+  const utils = trpc.useUtils();
+  const updateSpa = trpc.spa.update.useMutation({ onSuccess: () => utils.spa.get.invalidate() });
+
+  const [details, setDetails] = useState({ name: spa.name ?? "", address: spa.address ?? "", timezone: spa.timezone, currency: spa.currency });
+  const [website, setWebsite] = useState<WebsiteSettings>(() => websiteFromSettings(spa.settings));
+  const [prizes, setPrizes] = useState<Prize[]>(() => {
+    const raw = (spa.settings as { mysteryPrizes?: Prize[] } | null)?.mysteryPrizes;
+    return Array.isArray(raw) ? raw : [];
+  });
+  const [saved, setSaved] = useState(false);
+
+  async function save() {
+    await updateSpa.mutateAsync({ spaId: SPA_ID, ...details, website, mysteryPrizes: prizes });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  }
+
+  const setW = (k: keyof WebsiteSettings) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setWebsite((w) => ({ ...w, [k]: e.target.value }));
+
+  return (
+          <div className="flex max-w-2xl flex-col gap-6">
+            <Section title="Salon details">
+              <div>
+                <label className={label}>Salon name</label>
+                <input className={input} value={details.name} onChange={(e) => setDetails((d) => ({ ...d, name: e.target.value }))} />
+              </div>
+              <div>
+                <label className={label}>Address</label>
+                <textarea className={input} rows={2} value={details.address} onChange={(e) => setDetails((d) => ({ ...d, address: e.target.value }))} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={label}>Timezone</label>
+                  <select className={input} value={details.timezone} onChange={(e) => setDetails((d) => ({ ...d, timezone: e.target.value }))}>
+                    {TIMEZONES.map((tz) => (
+                      <option key={tz}>{tz}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={label}>Currency</label>
+                  <select className={input} value={details.currency} onChange={(e) => setDetails((d) => ({ ...d, currency: e.target.value }))}>
+                    {CURRENCIES.map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </Section>
+
+            <Section title="Website" hint="Home page wording, contact details and the hero photo.">
+              <div>
+                <label className={label}>Headline</label>
+                <textarea className={input} rows={2} value={website.headline} onChange={setW("headline")} />
+                <p className="mt-1 text-[11px] text-[#8d8e8f]">Press Enter to control the line break.</p>
+              </div>
+              <div>
+                <label className={label}>Introduction</label>
+                <textarea className={input} rows={3} value={website.intro} onChange={setW("intro")} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={label}>Phone</label>
+                  <input className={input} value={website.phone} onChange={setW("phone")} placeholder="+27 31 000 0000" />
+                </div>
+                <div>
+                  <label className={label}>Instagram handle</label>
+                  <input className={input} value={website.instagram} onChange={setW("instagram")} placeholder="vivacious_hairandbeauty" />
+                </div>
+              </div>
+              <div>
+                <label className={label}>Opening hours</label>
+                <textarea className={input} rows={3} value={website.hours} onChange={setW("hours")} placeholder={"Mon–Fri 08:30–17:30\nSat 08:00–14:00\nSun closed"} />
+              </div>
+              <ImageUpload folder="site" label="Hero photo" value={website.heroImageUrl} onUploaded={(url) => setWebsite((w) => ({ ...w, heroImageUrl: url }))} />
+            </Section>
+
+            <Section title="Mystery shopper rewards" hint="What an entrant can be drawn for. Weight is how likely it is relative to the others. Leave empty to use the defaults.">
+              {prizes.map((p, i) => (
+                <div key={i} className="grid grid-cols-[1fr_80px_70px_32px] items-end gap-3">
+                  <div>
+                    <label className={label}>Reward</label>
+                    <input className={input} value={p.label} onChange={(e) => setPrizes((ps) => ps.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} />
+                  </div>
+                  <div>
+                    <label className={label}>Weight</label>
+                    <input className={input} type="number" min={0} value={p.weight} onChange={(e) => setPrizes((ps) => ps.map((x, j) => (j === i ? { ...x, weight: Number(e.target.value) } : x)))} />
+                  </div>
+                  <label className="flex items-center gap-2 pb-3 text-[12px] text-[#4a4547]">
+                    <input type="checkbox" checked={p.win} onChange={(e) => setPrizes((ps) => ps.map((x, j) => (j === i ? { ...x, win: e.target.checked } : x)))} className="accent-[#fe329c]" />
+                    Win
+                  </label>
+                  <button type="button" onClick={() => setPrizes((ps) => ps.filter((_, j) => j !== i))} className="pb-2.5 text-[#8d8e8f] hover:text-[#d41d7f]" aria-label="Remove">
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={() => setPrizes((ps) => [...ps, { label: "", weight: 1, win: true }])} className="self-start text-[12px] tracking-[0.06em] text-[#d41d7f] hover:underline">
+                + Add a reward
+              </button>
+            </Section>
+
+            <div className="flex items-center gap-4">
+              <button onClick={save} disabled={updateSpa.isPending} className="rounded-sm bg-[#232122] px-7 py-3 text-[12px] uppercase tracking-[0.1em] text-white disabled:opacity-60">
+                {updateSpa.isPending ? "Saving…" : "Save changes"}
+              </button>
+              {saved && <span className="text-[13px] text-[#d41d7f]">✓ Saved. The website updates straight away.</span>}
+              {updateSpa.isError && <span className="text-[13px] text-red-600">Failed to save. Try again.</span>}
+            </div>
+          </div>
   );
 }
