@@ -1,26 +1,12 @@
 "use client";
 
+import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 import { trpc } from "@/lib/trpc";
-import Link from "next/link";
 import { useState } from "react";
 import { ImageUpload } from "@/components/dashboard/ImageUpload";
-import { brand } from "@/lib/brand";
 
 const LOCATION_ID = process.env.NEXT_PUBLIC_LOCATION_ID!;
 
-const NAV = [
-  { href: "/dashboard", label: "Overview", icon: "🏠" },
-  { href: "/dashboard/clients", label: "Guests", icon: "👥" },
-  { href: "/dashboard/services", label: "Treatments", icon: "🌿" },
-  { href: "/dashboard/staff", label: "Therapists", icon: "🧖‍♀️" },
-  { href: "/dashboard/gallery", label: "Gallery", icon: "🖼️" },
-  { href: "/dashboard/reviews", label: "Reviews", icon: "⭐" },
-  { href: "/dashboard/loyalty", label: "Loyalty", icon: "✨" },
-  { href: "/dashboard/vouchers", label: "Vouchers", icon: "🎟️" },
-  { href: "/dashboard/marketing", label: "Marketing", icon: "✉️" },
-  { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
-  { href: "/dashboard/settings", label: "Settings", icon: "⚙️" },
-];
 
 const empty = { category: "", title: "", therapist: "", price: 0, durationMins: 0, description: "", imageUrl: "" };
 
@@ -35,15 +21,8 @@ export default function GalleryAdminPage() {
   const del = trpc.gallery.delete.useMutation({ onSuccess: invalidate });
 
   return (
-    <div className="min-h-screen flex" style={{ background: "var(--background)" }}>
-      <aside className="w-60 bg-white border-r border-stone-100 p-6 flex flex-col gap-0.5 shrink-0">
-        <Link href="/" className="font-display text-xl font-bold text-teal-700 mb-8 block">{brand.name}</Link>
-        {NAV.map((item) => (
-          <Link key={item.href} href={item.href} className={`flex items-center gap-2.5 text-sm rounded-xl px-3 py-2.5 transition-colors ${item.href === "/dashboard/gallery" ? "bg-teal-50 text-teal-700 font-medium" : "text-stone-500 hover:text-teal-700 hover:bg-stone-50"}`}>
-            <span>{item.icon}</span>{item.label}
-          </Link>
-        ))}
-      </aside>
+    <div className="min-h-screen flex" style={{ background: "#faf6f5" }}>
+      <DashboardSidebar />
 
       <main className="flex-1 p-8 max-w-4xl">
         <h1 className="font-display text-2xl font-bold text-stone-900 mb-2">Gallery</h1>
@@ -59,7 +38,7 @@ export default function GalleryAdminPage() {
           <input placeholder="Category" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className="border border-stone-200 rounded-lg px-3 py-2.5 text-sm text-stone-900 outline-none focus:border-teal-500" />
           <input placeholder="Therapist" value={form.therapist} onChange={(e) => setForm((f) => ({ ...f, therapist: e.target.value }))} className="border border-stone-200 rounded-lg px-3 py-2.5 text-sm text-stone-900 outline-none focus:border-teal-500" />
           <input type="number" placeholder="Price (R)" value={form.price || ""} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} className="border border-stone-200 rounded-lg px-3 py-2.5 text-sm text-stone-900 outline-none focus:border-teal-500" />
-          <button type="submit" disabled={create.isPending} className="col-span-2 py-3 text-sm font-semibold text-white rounded-lg disabled:opacity-40" style={{ background: "#0d9488" }}>
+          <button type="submit" disabled={create.isPending} className="col-span-2 py-3 text-sm font-semibold text-white rounded-lg disabled:opacity-40" style={{ background: "#232122" }}>
             {create.isPending ? "Adding…" : "Add to gallery"}
           </button>
         </form>

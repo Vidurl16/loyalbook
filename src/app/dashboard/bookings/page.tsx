@@ -69,7 +69,7 @@ export default function BookingsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#EBEBEC]">
+    <div className="flex min-h-screen bg-[#faf6f5]">
       <DashboardSidebar />
 
       <main className="flex-1 p-8 overflow-y-auto">
@@ -78,14 +78,14 @@ export default function BookingsPage() {
           <p className="text-sm text-[#8D8E8F] mb-6">Manage all appointments and update their status</p>
 
           {/* Filters */}
-          <div className="bg-white border border-[#D1D2D4] p-4 mb-6 flex flex-wrap gap-4 items-end">
+          <div className="bg-white border border-[#efdcd8] p-4 mb-6 flex flex-wrap gap-4 items-end">
             <div>
               <label className="block text-xs text-[#8D8E8F] mb-1 uppercase tracking-wider">From</label>
               <input
                 type="date"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
-                className="border border-[#D1D2D4] px-3 py-1.5 text-sm text-black focus:outline-none focus:border-black"
+                className="border border-[#efdcd8] px-3 py-1.5 text-sm text-black focus:outline-none focus:border-black"
               />
             </div>
             <div>
@@ -94,7 +94,7 @@ export default function BookingsPage() {
                 type="date"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
-                className="border border-[#D1D2D4] px-3 py-1.5 text-sm text-black focus:outline-none focus:border-black"
+                className="border border-[#efdcd8] px-3 py-1.5 text-sm text-black focus:outline-none focus:border-black"
               />
             </div>
             <div>
@@ -102,7 +102,7 @@ export default function BookingsPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-[#D1D2D4] px-3 py-1.5 text-sm text-black focus:outline-none focus:border-black"
+                className="border border-[#efdcd8] px-3 py-1.5 text-sm text-black focus:outline-none focus:border-black"
               >
                 {STATUSES.map((s) => (
                   <option key={s} value={s}>{s ? STATUS_LABELS[s]?.label : "All Statuses"}</option>
@@ -114,7 +114,7 @@ export default function BookingsPage() {
               <select
                 value={staffFilter}
                 onChange={(e) => setStaffFilter(e.target.value)}
-                className="border border-[#D1D2D4] px-3 py-1.5 text-sm text-black focus:outline-none focus:border-black"
+                className="border border-[#efdcd8] px-3 py-1.5 text-sm text-black focus:outline-none focus:border-black"
               >
                 <option value="">All Therapists</option>
                 {staff?.map((s) => (
@@ -142,10 +142,10 @@ export default function BookingsPage() {
             Object.entries(grouped).map(([day, dayBookings]) => (
               <div key={day} className="mb-6">
                 <h2 className="text-xs font-semibold uppercase tracking-widest text-[#8D8E8F] mb-2">{day}</h2>
-                <div className="bg-white border border-[#D1D2D4] overflow-hidden">
+                <div className="bg-white border border-[#efdcd8] overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-[#D1D2D4] bg-[#EBEBEC]">
+                      <tr className="border-b border-[#efdcd8] bg-[#faf6f5]">
                         <th className="text-left px-4 py-2.5 text-xs font-semibold text-[#8D8E8F] uppercase tracking-wider">Time</th>
                         <th className="text-left px-4 py-2.5 text-xs font-semibold text-[#8D8E8F] uppercase tracking-wider">Guest</th>
                         <th className="text-left px-4 py-2.5 text-xs font-semibold text-[#8D8E8F] uppercase tracking-wider">Treatment</th>
@@ -162,7 +162,7 @@ export default function BookingsPage() {
                         const time = new Date(booking.startAt).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" });
 
                         return (
-                          <tr key={booking.id} className={`border-b border-[#D1D2D4] last:border-0 ${i % 2 === 0 ? "" : "bg-[#EBEBEC]/30"}`}>
+                          <tr key={booking.id} className={`border-b border-[#efdcd8] last:border-0 ${i % 2 === 0 ? "" : "bg-[#faf6f5]/30"}`}>
                             <td className="px-4 py-3 font-mono text-xs text-black">{time}</td>
                             <td className="px-4 py-3">
                               <div className="font-medium text-black">{booking.client?.name ?? "Unknown"}</div>
@@ -254,7 +254,7 @@ export default function BookingsPage() {
               </button>
               <button
                 onClick={() => setConfirmAction(null)}
-                className="flex-1 py-2 text-sm border border-[#D1D2D4] text-black hover:bg-[#EBEBEC]"
+                className="flex-1 py-2 text-sm border border-[#efdcd8] text-black hover:bg-[#faf6f5]"
               >
                 Cancel
               </button>

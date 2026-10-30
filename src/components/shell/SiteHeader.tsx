@@ -25,9 +25,18 @@ export function SiteHeader({ minimal = false }: { minimal?: boolean }) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-paper/90 backdrop-blur-md">
+      <div aria-hidden className="flex h-[3px]">
+        <span className="flex-1 bg-pink" />
+        <span className="flex-1 bg-blush" />
+        <span className="flex-1 bg-ink" />
+        <span className="flex-1 bg-blush" />
+        <span className="flex-1 bg-pink" />
+      </div>
       <div className="container-x flex h-14 items-center justify-between md:h-16">
-        <Link href="/" className="font-display text-[21px] tracking-wide text-ink">
-          {brand.name}
+        <Link href="/" className="flex items-center gap-2.5 text-ink">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/vivacious-mark.svg" alt="" className="h-[22px] w-auto" />
+          <span className="font-display text-[21px] tracking-wide">{brand.name}</span>
         </Link>
 
         {!minimal && (
