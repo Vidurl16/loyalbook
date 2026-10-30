@@ -1,131 +1,274 @@
 @import "tailwindcss";
 
-/* ─── Viv-a-cious Brand ───
-   Source: viv-a-cious.co.za theme.css + logo
-   Ground:  #FFFFFF white
-   Ink:     #232122 charcoal (their header colour)
-   Blush:   #E8BAB3 dusty rose (their heading colour)
-   Pink:    #FE329C hot pink (their interactive accent)
-   Fonts:   Abel (site body), Marcellus (display), Bad Script (flourish)
-*/
+/* ─── Viv-a-cious design tokens ───
+   Ground: white, blush-tinted shell for sections.
+   Ink: charcoal. Accent: hot pink, used sparingly for emphasis only.
+   Type: Marcellus for display, Abel for everything else. */
+@theme {
+  --color-ink: #232122;
+  --color-ink-soft: #4a4547;
+  --color-muted: #8d8e8f;
+  --color-paper: #ffffff;
+  --color-shell: #faf6f5;
+  --color-blush: #e8bab3;
+  --color-blush-deep: #c98d82;
+  --color-blush-tint: #f7eae7;
+  --color-hairline: #efdcd8;
+  --color-pink: #fe329c;
+  --color-pink-dark: #d41d7f;
+
+  --font-display: var(--font-marcellus), Marcellus, Georgia, serif;
+  --font-body: var(--font-abel), Abel, "Century Gothic", Helvetica, Arial, sans-serif;
+
+  --shadow-card: 0 10px 30px rgba(35, 33, 34, 0.07);
+  --shadow-lift: 0 18px 44px rgba(35, 33, 34, 0.12);
+
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 :root {
-  --background: #FFFFFF;
+  --background: #ffffff;
   --foreground: #232122;
 
-  --viv-ink:        #232122;
-  --viv-ink-soft:   #4A4547;
-  --viv-paper:      #FFFFFF;
-  --viv-shell:      #FAF6F5; /* blush-tinted section ground */
-  --viv-blush:      #E8BAB3;
-  --viv-blush-deep: #C98D82; /* blush dark enough for text on white */
-  --viv-blush-tint: #F7EAE7;
-  --viv-pink:       #FE329C;
-  --viv-pink-dark:  #D41D7F;
-  --viv-grey:       #8D8E8F;
-  --viv-border:     #EFDCD8; /* blush hairline */
-
-  /* Backward-compat aliases used across existing components */
-  --accent-gold: #FE329C;
-  --accent-gold-dark: #D41D7F;
-  --muted: #8D8E8F;
-  --border-light: #EFDCD8;
-  --p10-black:  #232122;
-  --p10-red:    #FE329C;
-  --p10-red-dark: #D41D7F;
-  --p10-grey:   #8D8E8F;
-  --p10-light:  #FAF6F5;
-  --p10-border: #EFDCD8;
-  --p10-dark:   #4A4547;
+  --viv-ink: #232122;
+  --viv-ink-soft: #4a4547;
+  --viv-paper: #ffffff;
+  --viv-shell: #faf6f5;
+  --viv-blush: #e8bab3;
+  --viv-blush-deep: #c98d82;
+  --viv-blush-tint: #f7eae7;
+  --viv-pink: #fe329c;
+  --viv-pink-dark: #d41d7f;
+  --viv-grey: #8d8e8f;
+  --viv-border: #efdcd8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 
-  /* Remap teal utility classes → Viv-a-cious pink scale (used by dashboard) */
-  --color-teal-50:  #FFF0F8;
-  --color-teal-100: #FFDCEE;
-  --color-teal-200: #FFB8DD;
-  --color-teal-300: #FF85C6;
-  --color-teal-400: #FE58AE;
-  --color-teal-500: #FE329C;
-  --color-teal-600: #D41D7F;
-  --color-teal-700: #A61562;
-  --color-teal-800: #750E45;
+  /* Remap teal utility classes → Viv-a-cious pink scale (used by the admin dashboard) */
+  --color-teal-50: #fff0f8;
+  --color-teal-100: #ffdcee;
+  --color-teal-200: #ffb8dd;
+  --color-teal-300: #ff85c6;
+  --color-teal-400: #fe58ae;
+  --color-teal-500: #fe329c;
+  --color-teal-600: #d41d7f;
+  --color-teal-700: #a61562;
+  --color-teal-800: #750e45;
   --color-teal-900: #450828;
 }
 
-/* Legacy font-variable names → Viv-a-cious fonts, so inline styles across
-   pages (var(--font-dm-sans), var(--font-cormorant)) pick up the new type. */
+/* Legacy variable names still read by the admin dashboard pages. */
 :root {
-  --font-dm-sans: var(--font-abel), 'Abel', 'Century Gothic', sans-serif;
-  --font-geist-sans: var(--font-abel), 'Abel', 'Century Gothic', sans-serif;
-  --font-cormorant: var(--font-marcellus), 'Marcellus', Georgia, serif;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-abel), 'Abel', 'Century Gothic', Helvetica, Arial, sans-serif;
+  --font-dm-sans: var(--font-abel), "Abel", "Century Gothic", sans-serif;
+  --font-geist-sans: var(--font-abel), "Abel", "Century Gothic", sans-serif;
+  --font-cormorant: var(--font-marcellus), "Marcellus", Georgia, serif;
+  --accent-gold: #fe329c;
+  --accent-gold-dark: #d41d7f;
+  --muted: #8d8e8f;
+  --border-light: #efdcd8;
+  --p10-black: #232122;
+  --p10-red: #fe329c;
+  --p10-red-dark: #d41d7f;
+  --p10-grey: #8d8e8f;
+  --p10-light: #faf6f5;
+  --p10-border: #efdcd8;
+  --p10-dark: #4a4547;
+  --onyx-950: #232122;
+  --onyx-900: #2e2a2c;
+  --onyx-800: #3a3537;
+  --onyx-700: #4a4547;
+  --onyx-600: #5c5658;
+  --onyx-500: #6f686a;
+  --gold-400: #fe329c;
+  --gold-300: #ff6fbb;
+  --gold-500: #d41d7f;
+  --cream-50: #ffffff;
+  --cream-100: #faf6f5;
+  --cream-200: #f7eae7;
+  --cream-300: #efdcd8;
+  --cream-400: #e8bab3;
+  --skin-100: #f7eae7;
+  --skin-200: #e8bab3;
+  --skin-300: #c98d82;
+  --skin-400: #b0715f;
 }
 
 html {
   scroll-behavior: smooth;
 }
 
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
 .font-display {
-  font-family: var(--font-marcellus), 'Marcellus', Georgia, "Times New Roman", serif;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
 }
 
-.font-script {
-  font-family: var(--font-bad-script), 'Bad Script', cursive;
+/* Base utilities other component classes build on (must be @utility so @apply can reuse them). */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-sm border px-7 py-3.5 text-[12px] uppercase tracking-[0.16em] whitespace-nowrap transition-[background-color,color,border-color,transform,box-shadow] duration-200 ease-out-soft active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40;
 }
 
-/* ─── Legacy token names kept so var-driven components pick up the new skin ── */
-:root {
-  --onyx-950: #232122;
-  --onyx-900: #2E2A2C;
-  --onyx-800: #3A3537;
-  --onyx-700: #4A4547;
-  --onyx-600: #5C5658;
-  --onyx-500: #6F686A;
-  --gold-400: #FE329C;
-  --gold-300: #FF6FBB;
-  --gold-500: #D41D7F;
-  --cream-50:  #FFFFFF;
-  --cream-100: #FAF6F5;
-  --cream-200: #F7EAE7;
-  --cream-300: #EFDCD8;
-  --cream-400: #E8BAB3;
-  --skin-100: #F7EAE7;
-  --skin-200: #E8BAB3;
-  --skin-300: #C98D82;
-  --skin-400: #B0715F;
+@utility card {
+  @apply rounded-sm border border-hairline bg-paper shadow-card;
 }
 
-/* Gallery category filter underline animation */
-.gallery-filter-item {
-  position: relative;
-  cursor: pointer;
-  padding-bottom: 5px;
-}
-.gallery-filter-item::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: var(--viv-pink);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.gallery-filter-item.active::after { transform: scaleX(1); }
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-5 md:px-8;
+  }
 
-/* Homepage hero animations */
+  .eyebrow {
+    @apply text-[11px] uppercase tracking-[0.28em] text-blush-deep;
+  }
+
+  .display-xl {
+    @apply font-display text-[clamp(38px,6vw,64px)] leading-[1.02] tracking-tight text-ink;
+  }
+
+  .display-lg {
+    @apply font-display text-[clamp(30px,4.5vw,44px)] leading-[1.08] text-ink;
+  }
+
+  .display-md {
+    @apply font-display text-[clamp(24px,3vw,30px)] leading-[1.15] text-ink;
+  }
+
+  .btn-primary {
+    @apply btn border-ink bg-ink text-paper hover:bg-pink-dark hover:border-pink-dark;
+  }
+
+  .btn-outline {
+    @apply btn border-ink text-ink hover:bg-ink hover:text-paper;
+  }
+
+  .btn-accent {
+    @apply btn border-pink text-pink-dark hover:bg-pink hover:text-paper;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-muted transition-colors hover:text-ink;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2 text-[11px];
+  }
+
+  .card-interactive {
+    @apply card cursor-pointer transition-[transform,box-shadow,border-color] duration-300 ease-out-soft hover:-translate-y-0.5 hover:border-blush hover:shadow-lift;
+  }
+
+  .field {
+    @apply w-full rounded-sm border border-hairline bg-paper px-4 py-3.5 text-[15px] text-ink outline-none transition-colors placeholder:text-muted focus:border-pink;
+  }
+
+  .label {
+    @apply mb-2 block text-[11px] uppercase tracking-[0.22em] text-muted;
+  }
+
+  .chip {
+    @apply shrink-0 rounded-sm border border-hairline bg-paper px-3.5 py-2 text-[11px] uppercase tracking-[0.18em] text-muted transition-colors hover:border-blush hover:text-ink;
+  }
+
+  .chip-active {
+    @apply border-ink bg-ink text-paper hover:border-ink hover:text-paper;
+  }
+
+  .hairline {
+    @apply h-px w-full bg-hairline;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-sm bg-blush-tint;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+    animation: shimmer 1.4s infinite;
+  }
+}
+
+/* ─── Motion ─── */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes shimmer {
-  0%, 100% { opacity: 0.4; transform: scaleX(0.6); }
-  50%       { opacity: 1;   transform: scaleX(1); }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-in {
+  animation: page-in 0.42s var(--ease-out-soft) both;
+}
+
+.rise {
+  animation: page-in 0.6s var(--ease-out-soft) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+.sheet-up {
+  animation: sheet-up 0.4s var(--ease-out-soft) both;
+}
+
+.fade-in {
+  animation: fade-in 0.3s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-in,
+  .rise,
+  .sheet-up,
+  .fade-in {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }

@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Abel, Marcellus, Bad_Script } from "next/font/google";
+import { Abel, Marcellus } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { BottomNav } from "@/components/ui/BottomNav";
+import { AppShell } from "@/components/shell/AppShell";
 import { brand, brandCssVars } from "@/lib/brand";
 
 const abel = Abel({
@@ -19,15 +19,11 @@ const marcellus = Marcellus({
   display: "swap",
 });
 
-const badScript = Bad_Script({
-  variable: "--font-bad-script",
-  subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-});
-
 export const viewport: Viewport = {
-  themeColor: "#fe329c",
+  themeColor: "#ffffff",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
@@ -43,20 +39,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${abel.variable} ${marcellus.variable}`}>
       <head>
         <style dangerouslySetInnerHTML={{ __html: brandCssVars() }} />
       </head>
-      <body className={`${abel.variable} ${marcellus.variable} ${badScript.variable} antialiased`} style={{ paddingBottom: 58 }}>
+      <body className="min-h-dvh">
         <Providers>
-          {children}
-          <BottomNav />
+          <AppShell>{children}</AppShell>
         </Providers>
       </body>
     </html>

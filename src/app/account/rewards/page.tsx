@@ -1,289 +1,38 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc";
-import { brand } from "@/lib/brand";
+import { formatDay, formatRand } from "@/lib/format";
+import { PointsMeter } from "@/components/rewards/PointsMeter";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 const SPA_ID = process.env.NEXT_PUBLIC_SPA_ID ?? "";
-
-// ── Points Meter ────────────────────────────────────────────────────────────
-function PointsMeter({ points, minRedeem, randValue }: {
-  points: number; minRedeem: number; randValue: number;
-}) {
-  const [arcPct, setArcPct] = useState(0);
-  const rafRef = useRef<number>(0);
-
-  // Ring fills toward the next redeemable voucher; full once redeemable.
-  const targetPct = minRedeem > 0 ? Math.min(points / minRedeem, 1) : 1;
-  const R = 90;
-  const SIZE = 220;
-  const CX = SIZE / 2;
-  const CIRC = 2 * Math.PI * R;
-
-  useEffect(() => {
-    setArcPct(0);
-    let start: number | null = null;
-    const duration = 1400;
-    const ease = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
-    const tick = (ts: number) => {
-      if (!start) start = ts;
-      const t = Math.min((ts - start) / duration, 1);
-      setArcPct(ease(t) * targetPct);
-      if (t < 1) {
-        rafRef.current = requestAnimationFrame(tick);
-      } else {
-        setArcPct(targetPct);
-      }
-    };
-    const delay = setTimeout(() => { rafRef.current = requestAnimationFrame(tick); }, 400);
-    return () => { clearTimeout(delay); cancelAnimationFrame(rafRef.current); };
-  }, [targetPct]);
-
-  const filled = CIRC * arcPct;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <div style={{
-        fontFamily: "var(--font-abel), Abel, sans-serif",
-        fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase",
-        color: "#8d8e8f", marginBottom: 14,
-      }}>
-        Your Points
-      </div>
-
-      <div style={{ position: "relative", width: SIZE, height: SIZE }}>
-        <svg
-          width={SIZE} height={SIZE}
-          viewBox={`0 0 ${SIZE} ${SIZE}`}
-          style={{ transform: "rotate(-90deg)", display: "block" }}
-        >
-          {/* Track */}
-          <circle cx={CX} cy={CX} r={R} fill="none" stroke="#f7eae7" strokeWidth="10" />
-          {/* Inner hairline */}
-          <circle cx={CX} cy={CX} r={R - 18} fill="none" stroke="#efdcd8" strokeWidth="1" />
-
-          {/* Pink fill arc */}
-          {arcPct > 0 && (
-            <circle
-              cx={CX} cy={CX} r={R}
-              fill="none"
-              stroke="#fe329c"
-              strokeWidth="10"
-              strokeLinecap="round"
-              strokeDasharray={`${filled} ${CIRC}`}
-            />
-          )}
-        </svg>
-
-        {/* Center content */}
-        <div style={{
-          position: "absolute", inset: 0,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center", gap: 2,
-        }}>
-          <div style={{
-            fontFamily: "var(--font-marcellus), Marcellus, serif",
-            fontSize: 38, fontWeight: 400, lineHeight: 1, letterSpacing: "-0.02em",
-            color: "#fe329c",
-          }}>
-            {points.toLocaleString()}
-          </div>
-          <div style={{
-            fontFamily: "var(--font-abel), Abel, sans-serif",
-            fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase",
-            color: "#8d8e8f",
-          }}>
-            points
-          </div>
-          <div style={{
-            fontFamily: "var(--font-abel), Abel, sans-serif",
-            fontSize: 14,
-            color: "#4a4547",
-          }}>
-            ≈ R{randValue} value
-          </div>
-        </div>
-      </div>
-
-      {points < minRedeem && (
-        <div style={{ marginTop: 8, textAlign: "center" }}>
-          <span style={{
-            fontFamily: "var(--font-abel), Abel, sans-serif",
-            fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase",
-            color: "#8d8e8f",
-          }}>
-            {(minRedeem - points).toLocaleString()} pts to your next voucher
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Reward voucher ──────────────────────────────────────────────────────────
-interface VoucherRow {
-  code: string;
-  discountValue: number;
-  expiresAt: Date | string | null;
-}
-
-function RewardVoucher({ code, discountValue, expiresAt }: VoucherRow) {
-  const expiry = expiresAt
-    ? new Date(expiresAt).toLocaleDateString("en-ZA", { month: "short", year: "numeric" })
-    : "No expiry";
-  return (
-    <div style={{
-      flexShrink: 0, width: 210,
-      background: "#ffffff",
-      border: "1px solid #efdcd8",
-      borderRadius: 2,
-      boxShadow: "0 10px 30px rgba(35,33,34,0.07)",
-      position: "relative", overflow: "hidden",
-    }}>
-      {/* Top pink strip */}
-      <div style={{ height: 3, background: "#fe329c" }} />
-
-      <div style={{ padding: "12px 14px 13px" }}>
-        <div style={{
-          fontFamily: "var(--font-abel), Abel, sans-serif",
-          fontSize: 8, letterSpacing: "0.28em", textTransform: "uppercase",
-          color: "#d41d7f", marginBottom: 6,
-        }}>
-          Discount Voucher
-        </div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 10 }}>
-          <span style={{
-            fontFamily: "var(--font-marcellus), Marcellus, serif",
-            fontSize: 26, fontWeight: 400, color: "#fe329c", lineHeight: 1,
-          }}>
-            <sup style={{ fontSize: 12, verticalAlign: "super", color: "#d41d7f" }}>R</sup>{discountValue}
-          </span>
-          <span style={{
-            fontFamily: "var(--font-abel), Abel, sans-serif",
-            fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase", color: "#8d8e8f",
-          }}>
-            off any treatment
-          </span>
-        </div>
-        {/* Code — the client shows this in-salon */}
-        <div style={{
-          background: "#faf6f5", border: "1px dashed #fe329c", borderRadius: 2,
-          padding: "8px 10px", textAlign: "center", marginBottom: 8,
-        }}>
-          <div style={{
-            fontFamily: "var(--font-abel), Abel, sans-serif",
-            fontSize: 15, fontWeight: 400, letterSpacing: "0.12em", color: "#232122",
-          }}>
-            {code}
-          </div>
-        </div>
-        <div style={{
-          fontFamily: "var(--font-abel), Abel, sans-serif",
-          fontSize: 8, letterSpacing: "0.12em", color: "#8d8e8f",
-        }}>
-          Show in-salon · Exp {expiry}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Product suggestion chip (redeemed in-salon — not a link) ────────────────
-function ProductChip({ name, brand: productBrand, price, imageUrl, covered, discountedPrice }: {
-  name: string; brand: string; price: number; imageUrl?: string | null;
-  covered: boolean; discountedPrice: number;
-}) {
-  return (
-    <div style={{
-      flexShrink: 0, width: 104,
-      background: "#ffffff", border: "1px solid #efdcd8",
-      borderRadius: 2, overflow: "hidden",
-      boxShadow: "0 10px 30px rgba(35,33,34,0.07)",
-    }}>
-      <div style={{ height: 64, background: "#f7eae7", position: "relative" }}>
-        {imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        )}
-        {covered && (
-          <div style={{
-            position: "absolute", top: 5, right: 5,
-            fontFamily: "var(--font-abel), Abel, sans-serif",
-            fontSize: 7, letterSpacing: "0.14em", textTransform: "uppercase",
-            color: "#ffffff", background: "#fe329c",
-            padding: "2px 5px", borderRadius: 2,
-          }}>
-            Covered
-          </div>
-        )}
-      </div>
-      <div style={{ padding: "7px 8px 8px" }}>
-        <div style={{
-          fontFamily: "var(--font-marcellus), Marcellus, serif",
-          fontSize: 12, fontWeight: 400,
-          color: "#232122", lineHeight: 1.2, marginBottom: 2,
-        }}>
-          {name}
-        </div>
-        <div style={{
-          fontFamily: "var(--font-abel), Abel, sans-serif",
-          fontSize: 8, letterSpacing: "0.18em", textTransform: "uppercase",
-          color: "#8d8e8f", marginBottom: 4,
-        }}>
-          {productBrand}
-        </div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
-          <span style={{
-            fontFamily: "var(--font-marcellus), Marcellus, serif",
-            fontSize: 13, fontWeight: 400, color: "#d41d7f",
-          }}>
-            <sup style={{ fontSize: 8, color: "#c98d82", verticalAlign: "super" }}>R</sup>{covered ? 0 : discountedPrice}
-          </span>
-          {!covered && discountedPrice < price && (
-            <span style={{
-              fontFamily: "var(--font-abel), Abel, sans-serif",
-              fontSize: 9, color: "#8d8e8f", textDecoration: "line-through",
-            }}>
-              R{price}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const TX_LABELS: Record<string, string> = {
-  earned:          "Treatment Reward",
-  redeemed:        "Points Redeemed",
-  birthday:        "Birthday Bonus",
-  rebooking_bonus: "Rebooking Bonus",
-  referral:        "Referral Reward",
-  milestone:       "Admin Adjustment",
-  expired:         "Points Expired",
-  refunded:        "Points Refunded",
-};
-
-// ── Page ────────────────────────────────────────────────────────────────────
 const LOCATION_ID = process.env.NEXT_PUBLIC_LOCATION_ID ?? "";
 
+const TX_LABELS: Record<string, string> = {
+  earned: "Treatment reward",
+  redeemed: "Points redeemed",
+  birthday: "Birthday bonus",
+  rebooking_bonus: "Rebooking bonus",
+  referral: "Referral reward",
+  milestone: "Adjustment",
+  expired: "Points expired",
+  refunded: "Points refunded",
+};
+
 export default function RewardsPage() {
-  const { data: session } = useSession();
-  const userId = (session?.user as { id?: string })?.id;
+  const { data: session, status } = useSession();
+  if (status === "unauthenticated") redirect("/login?callbackUrl=/account/rewards");
+  const enabled = !!session?.user;
   const utils = trpc.useUtils();
 
-  const { data: account } = trpc.loyalty.getAccount.useQuery(undefined, { enabled: !!userId });
-  const { data: config } = trpc.loyalty.getConfig.useQuery(
-    { spaId: SPA_ID },
-    { enabled: !!SPA_ID }
-  );
-  const { data: vouchers } = trpc.loyalty.listMyVouchers.useQuery(undefined, { enabled: !!userId });
-  const { data: suggested } = trpc.loyalty.suggestedProducts.useQuery(
-    { locationId: LOCATION_ID },
-    { enabled: !!userId && !!LOCATION_ID }
-  );
+  const { data: account } = trpc.loyalty.getAccount.useQuery(undefined, { enabled });
+  const { data: config } = trpc.loyalty.getConfig.useQuery({ spaId: SPA_ID }, { enabled });
+  const { data: vouchers } = trpc.loyalty.listMyVouchers.useQuery(undefined, { enabled });
+  const { data: suggested } = trpc.loyalty.suggestedProducts.useQuery({ locationId: LOCATION_ID }, { enabled: enabled && !!LOCATION_ID });
 
   const [redeemError, setRedeemError] = useState("");
   const redeem = trpc.loyalty.redeemVoucher.useMutation({
@@ -295,297 +44,141 @@ export default function RewardsPage() {
     onError: (e) => setRedeemError(e.message),
   });
 
-  const balance            = account?.balance         ?? 0;
-  const redemptionRate     = config?.redemptionRate   ?? 100;
-  const currencyUnitAmount = config?.currencyUnitAmount ?? 10;
-  const minRedeem          = config?.minRedeem        ?? 500;
-  const canRedeem          = balance >= minRedeem;
-  const randValue          = Math.round((balance / redemptionRate) * currencyUnitAmount);
-
+  const balance = account?.balance ?? 0;
+  const redemptionRate = config?.redemptionRate ?? 100;
+  const unit = config?.currencyUnitAmount ?? 10;
+  const minRedeem = config?.minRedeem ?? 500;
+  const toRand = (pts: number) => Math.round((pts / redemptionRate) * unit);
+  const options = [minRedeem, 1000, 2500, balance].filter((v, i, arr) => v >= minRedeem && v <= balance && arr.indexOf(v) === i);
   const activeVouchers = (vouchers ?? []).filter((v) => v.status === "active");
 
-  const userName = session?.user?.name ?? "Your membership";
-
   return (
-    <main style={{ minHeight: "100vh", background: "#ffffff" }}>
+    <main className="container-x max-w-3xl pb-16 pt-8 md:pt-12">
+      <header className="mb-8 flex items-end justify-between">
+        <div>
+          <Link href="/account" className="btn-ghost mb-3">
+            ← Account
+          </Link>
+          <h1 className="display-lg">Rewards</h1>
+        </div>
+      </header>
 
-      {/* Nav */}
-      <nav style={{
-        position: "sticky", top: 0, zIndex: 40,
-        background: "#ffffff", borderBottom: "1px solid #efdcd8",
-        padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between",
-        height: 52,
-      }}>
-        <Link href="/" style={{
-          fontFamily: "var(--font-marcellus), Marcellus, serif",
-          fontSize: 18, fontWeight: 400,
-          color: "#232122", textDecoration: "none", letterSpacing: "0.04em",
-        }}>
-          {brand.name}
-        </Link>
-        <Link href="/account/bookings" style={{
-          fontFamily: "var(--font-abel), Abel, sans-serif",
-          fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
-          color: "#fe329c", textDecoration: "none",
-          padding: "6px 12px", border: "1px solid #fe329c", borderRadius: 2,
-        }}>
-          Bookings
-        </Link>
-      </nav>
-
-      <div style={{ maxWidth: 640, margin: "0 auto" }}>
-
-        <div style={{ padding: "32px 20px 0" }}>
-
-          {/* Header */}
-          <div style={{ marginBottom: 20 }}>
-            <div style={{
-              fontFamily: "var(--font-abel), Abel, sans-serif",
-              fontSize: 9, letterSpacing: "0.28em", textTransform: "uppercase",
-              color: "#d41d7f", marginBottom: 5,
-            }}>
-              My Membership
-            </div>
-            <h1 style={{
-              fontFamily: "var(--font-marcellus), Marcellus, serif",
-              fontSize: 26, fontWeight: 400,
-              color: "#232122", lineHeight: 1.1, marginBottom: 6,
-            }}>
-              {userName}
-            </h1>
-            <p style={{
-              fontFamily: "var(--font-bad-script), 'Bad Script', cursive",
-              fontSize: 15,
-              color: "#c98d82",
-            }}>
-              your points, your treats
-            </p>
-          </div>
-
-          {/* Separator */}
-          <div style={{ height: 1, background: "#efdcd8", marginBottom: 24 }} />
-
-          {/* Points meter */}
-          <PointsMeter points={balance} minRedeem={minRedeem} randValue={randValue} />
-
-          {/* Redeem — mint a discount voucher from points */}
-          {canRedeem ? (
-            <div style={{ marginTop: 24, padding: "14px 16px", background: "#faf6f5", border: "1px solid #efdcd8", borderRadius: 2 }}>
-              <div style={{
-                fontFamily: "var(--font-abel), Abel, sans-serif",
-                fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase",
-                color: "#d41d7f", marginBottom: 8,
-              }}>
-                Redeem points for a voucher
-              </div>
-              <p style={{
-                fontFamily: "var(--font-abel), Abel, sans-serif",
-                fontSize: 13,
-                color: "#4a4547", lineHeight: 1.5, marginBottom: 12,
-              }}>
-                Turn points into a discount code to use on your next treatment. Show the code in-salon.
+      <section className="card grid gap-8 p-6 md:grid-cols-[auto_1fr] md:items-center md:p-8">
+        {account ? <PointsMeter points={balance} minRedeem={minRedeem} randValue={toRand(balance)} /> : <Skeleton className="h-[200px] w-[200px] rounded-full" />}
+        <div>
+          {balance >= minRedeem ? (
+            <>
+              <p className="eyebrow">Redeem</p>
+              <h2 className="display-md mt-2">Turn points into a voucher.</h2>
+              <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
+                Choose an amount. You get a one-time code to show at the till on your next visit.
               </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {[minRedeem, 1000, 2500, balance].filter((v, i, arr) => v >= minRedeem && v <= balance && arr.indexOf(v) === i).map((pts) => (
-                  <button
-                    key={pts}
-                    disabled={redeem.isPending}
-                    onClick={() => redeem.mutate({ points: pts })}
-                    style={{
-                      fontFamily: "var(--font-abel), Abel, sans-serif",
-                      fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase",
-                      color: "#ffffff", background: "#232122",
-                      border: "1px solid #232122", borderRadius: 2,
-                      padding: "8px 12px", cursor: redeem.isPending ? "default" : "pointer",
-                      opacity: redeem.isPending ? 0.6 : 1,
-                    }}
-                  >
-                    {pts.toLocaleString()} pts → R{Math.round((pts / redemptionRate) * currencyUnitAmount)}
+              <div className="mt-5 flex flex-wrap gap-2">
+                {options.map((pts) => (
+                  <button key={pts} type="button" disabled={redeem.isPending} onClick={() => redeem.mutate({ points: pts })} className="btn-outline btn-sm">
+                    {pts.toLocaleString("en-ZA")} pts → {formatRand(toRand(pts))}
                   </button>
                 ))}
               </div>
-              {redeemError && (
-                <div style={{ marginTop: 10, fontFamily: "var(--font-abel), Abel, sans-serif", fontSize: 11, color: "#d41d7f" }}>
-                  {redeemError}
-                </div>
-              )}
-            </div>
+              {redeemError && <p className="mt-3 text-[13px] text-pink-dark">{redeemError}</p>}
+            </>
           ) : (
-            <div style={{ marginTop: 24, textAlign: "center", fontFamily: "var(--font-abel), Abel, sans-serif", fontSize: 13, color: "#4a4547" }}>
-              Earn {(minRedeem - balance).toLocaleString()} more points to unlock your first voucher.
-            </div>
+            <>
+              <p className="eyebrow">Almost there</p>
+              <h2 className="display-md mt-2">{(minRedeem - balance).toLocaleString("en-ZA")} points to your first voucher.</h2>
+              <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
+                Points are added automatically when a treatment is completed, at {config?.pointsPerUnit ?? 10} points per {formatRand(config?.currencyUnitAmount ?? 100)}.
+              </p>
+              <Link href="/book" className="btn-primary mt-5">
+                Book a treatment
+              </Link>
+            </>
           )}
-
-          {/* Separator */}
-          <div style={{ height: 1, background: "#efdcd8", margin: "24px 0 16px" }} />
-
-          {/* Your Rewards */}
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
-            <h2 style={{
-              fontFamily: "var(--font-marcellus), Marcellus, serif",
-              fontSize: 22, fontWeight: 400, color: "#232122",
-            }}>
-              Your Rewards
-            </h2>
-            <span style={{
-              fontFamily: "var(--font-abel), Abel, sans-serif",
-              fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "#8d8e8f",
-            }}>
-              {activeVouchers.length} available
-            </span>
-          </div>
         </div>
+      </section>
 
-        {/* Voucher scroll */}
-        {activeVouchers.length > 0 ? (
-          <div style={{
-            display: "flex", gap: 10, overflowX: "auto",
-            paddingLeft: 20, paddingRight: 20, paddingBottom: 12,
-            scrollbarWidth: "none",
-          }}>
-            {activeVouchers.map((v) => (
-              <RewardVoucher key={v.id} code={v.code} discountValue={v.discountValue} expiresAt={v.expiresAt} />
-            ))}
-          </div>
+      <section className="mt-10">
+        <div className="mb-4 flex items-baseline justify-between">
+          <h2 className="eyebrow">Your vouchers</h2>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-muted">{activeVouchers.length} active</span>
+        </div>
+        {activeVouchers.length === 0 ? (
+          <p className="text-[14px] text-muted">No vouchers yet. Redeem points above to create one.</p>
         ) : (
-          <div style={{
-            padding: "0 20px", marginBottom: 4,
-            fontFamily: "var(--font-abel), Abel, sans-serif",
-            fontSize: 13, color: "#4a4547",
-          }}>
-            No vouchers yet — redeem points above to create one.
-          </div>
-        )}
-
-        <div style={{ padding: "0 20px" }}>
-          {/* Separator */}
-          <div style={{ height: 1, background: "#efdcd8", margin: "16px 0" }} />
-
-          {/* Treat yourself — products within reach of your points */}
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
-              <h2 style={{
-                fontFamily: "var(--font-marcellus), Marcellus, serif",
-                fontSize: 22, fontWeight: 400, color: "#232122",
-              }}>
-                Treat Yourself
-              </h2>
-              <span style={{
-                fontFamily: "var(--font-abel), Abel, sans-serif",
-                fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "#d41d7f",
-              }}>
-                R{suggested?.randValue ?? 0} in points
-              </span>
-            </div>
-            <p style={{
-              fontFamily: "var(--font-abel), Abel, sans-serif",
-              fontSize: 13,
-              color: "#4a4547", lineHeight: 1.6, marginBottom: 12,
-            }}>
-              What your points could put towards a little something — ask us in-salon
-            </p>
-          </div>
-        </div>
-
-        {/* Product chips scroll */}
-        {suggested && suggested.products.length > 0 && (
-          <div style={{
-            display: "flex", gap: 8, overflowX: "auto",
-            paddingLeft: 20, paddingRight: 20, paddingBottom: 12,
-            scrollbarWidth: "none",
-          }}>
-            {suggested.products.map((p) => (
-              <ProductChip
-                key={p.id}
-                name={p.name}
-                brand={p.brand}
-                price={p.price}
-                imageUrl={p.imageUrl}
-                covered={p.covered}
-                discountedPrice={p.discountedPrice}
-              />
+          <div className="no-scrollbar -mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-1">
+            {activeVouchers.map((v) => (
+              <article key={v.id} className="card w-[230px] shrink-0 snap-start overflow-hidden">
+                <div className="h-1 bg-pink" />
+                <div className="p-4">
+                  <p className="text-[9px] uppercase tracking-[0.24em] text-pink-dark">Voucher</p>
+                  <p className="mt-1 font-display text-[28px] leading-none text-ink">{formatRand(v.discountValue)}</p>
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-muted">off any treatment</p>
+                  <div className="mt-4 rounded-sm border border-dashed border-pink bg-shell px-3 py-2 text-center font-display text-[16px] tracking-[0.12em] text-ink">
+                    {v.code}
+                  </div>
+                  <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-muted">
+                    Show in salon · {v.expiresAt ? `exp ${formatDay(v.expiresAt)}` : "no expiry"}
+                  </p>
+                </div>
+              </article>
             ))}
           </div>
         )}
+      </section>
 
-        <div style={{ padding: "0 20px" }}>
-          <div style={{ height: 1, background: "#efdcd8", margin: "20px 0 16px" }} />
-
-          {/* Points history */}
-          <h2 style={{
-            fontFamily: "var(--font-marcellus), Marcellus, serif",
-            fontSize: 22, fontWeight: 400,
-            color: "#232122", marginBottom: 14,
-          }}>
-            Points History
-          </h2>
-
-          {account?.transactions && account.transactions.length > 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingBottom: 40 }}>
-              {account.transactions.map((tx) => (
-                <div key={tx.id} style={{
-                  background: "#ffffff", border: "1px solid #efdcd8",
-                  borderRadius: 2, padding: "12px 16px",
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  gap: 12,
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{
-                      fontFamily: "var(--font-abel), Abel, sans-serif",
-                      fontSize: 14,
-                      color: "#232122", marginBottom: 2,
-                    }}>
-                      {TX_LABELS[tx.type] ?? tx.type}
-                    </div>
-                    {tx.description && (
-                      <div style={{
-                        fontFamily: "var(--font-abel), Abel, sans-serif",
-                        fontSize: 10, letterSpacing: "0.08em", color: "#8d8e8f", marginBottom: 2,
-                      }}>
-                        {tx.description}
-                      </div>
-                    )}
-                    <div style={{
-                      fontFamily: "var(--font-abel), Abel, sans-serif",
-                      fontSize: 9, letterSpacing: "0.14em", color: "#8d8e8f",
-                    }}>
-                      {new Date(tx.createdAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}
-                    </div>
-                  </div>
-                  <div style={{
-                    fontFamily: "var(--font-abel), Abel, sans-serif",
-                    fontSize: 16,
-                    color: tx.amount > 0 ? "#fe329c" : "#8d8e8f",
-                    flexShrink: 0,
-                  }}>
-                    {tx.amount > 0 ? "+" : ""}{tx.amount.toLocaleString()}
-                  </div>
+      {suggested && suggested.products.length > 0 && (
+        <section className="mt-10">
+          <div className="mb-1 flex items-baseline justify-between">
+            <h2 className="eyebrow">Treat yourself</h2>
+            <span className="text-[10px] uppercase tracking-[0.2em] text-pink-dark">{formatRand(suggested.randValue)} in points</span>
+          </div>
+          <p className="mb-4 text-[13px] text-muted">What your points could go towards. Ask us in the salon.</p>
+          <div className="no-scrollbar -mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-1">
+            {suggested.products.map((p) => (
+              <article key={p.id} className="card w-[140px] shrink-0 snap-start overflow-hidden">
+                <div className="relative aspect-square bg-blush-tint">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {p.imageUrl && <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover" />}
+                  {p.covered && <span className="absolute right-2 top-2 rounded-sm bg-pink px-1.5 py-0.5 text-[8px] uppercase tracking-[0.14em] text-paper">Covered</span>}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{
-              padding: "40px 0 60px", textAlign: "center",
-              fontFamily: "var(--font-abel), Abel, sans-serif",
-              fontSize: 15, color: "#4a4547",
-            }}>
-              <div style={{ width: 32, height: 1, background: "#e8bab3", margin: "0 auto 20px" }} />
-              No activity yet — book your first treatment to start earning.
-              <div style={{ marginTop: 16 }}>
-                <Link href="/book" style={{
-                  fontFamily: "var(--font-abel), Abel, sans-serif",
-                  fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase",
-                  color: "#ffffff", background: "#232122", textDecoration: "none",
-                  padding: "8px 16px", border: "1px solid #232122", borderRadius: 2,
-                  display: "inline-block",
-                }}>
-                  Book Now
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+                <div className="p-3">
+                  <p className="font-display text-[14px] leading-tight text-ink">{p.name}</p>
+                  <p className="text-[9px] uppercase tracking-[0.16em] text-muted">{p.brand}</p>
+                  <p className="mt-1.5 text-[13px] text-ink">
+                    {formatRand(p.covered ? 0 : p.discountedPrice)}
+                    {!p.covered && p.discountedPrice < p.price && <span className="ml-1.5 text-[11px] text-muted line-through">{formatRand(p.price)}</span>}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="mt-10">
+        <h2 className="eyebrow mb-4">History</h2>
+        {account?.transactions && account.transactions.length > 0 ? (
+          <ul className="card divide-y divide-hairline">
+            {account.transactions.map((tx) => (
+              <li key={tx.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                <div className="min-w-0">
+                  <p className="text-[15px] text-ink">{TX_LABELS[tx.type] ?? tx.type}</p>
+                  <p className="truncate text-[12px] text-muted">
+                    {formatDay(tx.createdAt)}
+                    {tx.description ? ` · ${tx.description}` : ""}
+                  </p>
+                </div>
+                <span className={`shrink-0 font-display text-[18px] ${tx.amount > 0 ? "text-pink-dark" : "text-muted"}`}>
+                  {tx.amount > 0 ? "+" : ""}
+                  {tx.amount.toLocaleString("en-ZA")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-[14px] text-muted">No activity yet. Your first completed treatment starts the count.</p>
+        )}
+      </section>
     </main>
   );
 }

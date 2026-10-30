@@ -1,173 +1,63 @@
 import Link from "next/link";
 import { brand } from "@/lib/brand";
 
-const HOW_IT_WORKS = [
-  {
-    step: "01",
-    title: "Apply",
-    desc: "Sign up as a mystery shopper and tell us which treatment you'd like to evaluate.",
-  },
-  {
-    step: "02",
-    title: "Visit",
-    desc: "Book and enjoy your treatment at the salon. Keep your receipt — you'll need it.",
-  },
-  {
-    step: "03",
-    title: "Review",
-    desc: "Upload your receipt and fill out a detailed experience report after your visit.",
-  },
-  {
-    step: "04",
-    title: "Get Reimbursed",
-    desc: "Once approved, we'll reimburse the cost of your treatment. Simple as that.",
-  },
-];
-
-const WHAT_WE_EVALUATE = [
-  "Welcome & first impression",
-  "Cleanliness and ambiance",
-  "Treatment quality",
-  "Staff friendliness & professionalism",
-  "Product knowledge",
-  "Overall value for money",
+const RULES = [
+  { title: "Anyone can enter, once", body: "A real email address, verified with a one-time code. One entry per person." },
+  { title: "Staff never know", body: "Only the owner sees who entered. Your visit is treated like any other, so the review stays honest." },
+  { title: "Visit, review, reimburse", body: "If you're chosen, book like a normal client, then submit your scored review here. Your treatment is reimbursed." },
+  { title: "A fair rotation", body: "Once chosen, there's a cooling-off period before you can be picked again." },
 ];
 
 export default function MysteryShopperLandingPage() {
   return (
-    <main style={{ minHeight: "100vh", background: "#ffffff" }}>
-
-      {/* Hero */}
-      <div style={{ padding: "72px 24px 56px", maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
-        <div style={{
-          fontFamily: "var(--font-abel), Abel, sans-serif",
-          fontSize: 11, letterSpacing: "0.34em", textTransform: "uppercase",
-          color: "#c98d82", marginBottom: 16,
-        }}>
-          Mystery Shopper Programme
-        </div>
-        <h1 style={{
-          fontFamily: "var(--font-marcellus), Marcellus, serif",
-          fontSize: 48, fontWeight: 400,
-          color: "#232122", lineHeight: 1.05, marginBottom: 20,
-        }}>
-          Experience {brand.name}.<br />Tell us how it felt.
+    <main className="container-x max-w-3xl pb-16 pt-10 md:pt-16">
+      <header className="max-w-xl">
+        <p className="eyebrow mb-3">Mystery shopper programme</p>
+        <h1 className="display-xl">
+          Experience {brand.name}.
+          <br />
+          Tell us how it felt.
         </h1>
-        <p style={{
-          fontFamily: "var(--font-abel), Abel, sans-serif",
-          fontSize: 15, letterSpacing: "0.04em", lineHeight: 1.7,
-          color: "#4a4547", marginBottom: 36, maxWidth: 480, margin: "0 auto 36px",
-        }}>
-          We&apos;re always looking to raise the bar. Mystery shoppers visit our salons as regular clients,
-          evaluate the full experience, and get reimbursed for their treatment.
+        <p className="mt-6 text-[16px] leading-relaxed text-ink-soft">
+          We&apos;re always raising the bar. Mystery shoppers visit as regular clients, score the full experience, and are
+          reimbursed for their treatment.
         </p>
-        <Link href="/mystery-shopper/apply" style={{
-          fontFamily: "var(--font-abel), Abel, sans-serif",
-          fontSize: 13, fontWeight: 400, textTransform: "uppercase",
-          color: "#ffffff", textDecoration: "none",
-          display: "inline-flex", alignItems: "center", justifyContent: "center",
-          padding: "14px 36px", letterSpacing: "0.14em",
-          background: "#232122",
-          border: "1px solid #232122",
-          borderRadius: 2,
-        }}>
-          Apply to be a Mystery Shopper
-        </Link>
-      </div>
-
-      {/* Separator */}
-      <div style={{ height: 1, background: "#efdcd8", margin: "0 24px 56px" }} />
-
-      {/* How it works */}
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 24px 56px" }}>
-        <div style={{
-          fontFamily: "var(--font-abel), Abel, sans-serif",
-          fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase",
-          color: "#c98d82", marginBottom: 28, textAlign: "center",
-        }}>
-          How It Works
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Link href="/mystery-shopper/enter" className="btn-primary">
+            Enter the programme
+          </Link>
+          <Link href="/mystery-shopper/apply" className="btn-ghost justify-center sm:justify-start">
+            Already chosen? Register your visit →
+          </Link>
         </div>
+      </header>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {HOW_IT_WORKS.map((item) => (
-            <div key={item.step} style={{
-              background: "#ffffff",
-              border: "1px solid #efdcd8",
-              borderRadius: 2, padding: "20px 24px",
-              display: "flex", gap: 20, alignItems: "flex-start",
-              boxShadow: "0 10px 30px rgba(35,33,34,0.07)",
-            }}>
-              <div style={{
-                fontFamily: "var(--font-abel), Abel, sans-serif",
-                fontSize: 12, fontWeight: 400, letterSpacing: "0.12em",
-                color: "#fe329c", flexShrink: 0, marginTop: 2, width: 24,
-              }}>
-                {item.step}
-              </div>
+      <section className="mt-16">
+        <h2 className="eyebrow mb-6">How it works</h2>
+        <ol className="divide-y divide-hairline border-y border-hairline">
+          {RULES.map((r, i) => (
+            <li key={r.title} className="grid grid-cols-[48px_1fr] gap-4 py-6">
+              <span className="font-display text-[22px] text-pink">0{i + 1}</span>
               <div>
-                <div style={{
-                  fontFamily: "var(--font-marcellus), Marcellus, serif",
-                  fontSize: 20, fontWeight: 400,
-                  color: "#232122", marginBottom: 4,
-                }}>
-                  {item.title}
-                </div>
-                <div style={{
-                  fontFamily: "var(--font-abel), Abel, sans-serif",
-                  fontSize: 14, color: "#4a4547", lineHeight: 1.6,
-                }}>
-                  {item.desc}
-                </div>
+                <h3 className="font-display text-[20px] text-ink">{r.title}</h3>
+                <p className="mt-1 text-[14px] leading-relaxed text-ink-soft">{r.body}</p>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
-      </div>
+        </ol>
+      </section>
 
-      {/* What we evaluate */}
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 24px 72px" }}>
-        <div style={{
-          background: "#faf6f5",
-          border: "1px solid #efdcd8",
-          borderRadius: 2, padding: "28px 28px",
-        }}>
-          <div style={{
-            fontFamily: "var(--font-abel), Abel, sans-serif",
-            fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase",
-            color: "#8d8e8f", marginBottom: 18,
-          }}>
-            What You&apos;ll Evaluate
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {WHAT_WE_EVALUATE.map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#fe329c", flexShrink: 0 }} />
-                <span style={{
-                  fontFamily: "var(--font-marcellus), Marcellus, serif",
-                  fontSize: 16, fontWeight: 400,
-                  color: "#4a4547",
-                }}>
-                  {item}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 28 }}>
-            <Link href="/mystery-shopper/apply" style={{
-              fontFamily: "var(--font-abel), Abel, sans-serif",
-              fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase",
-              color: "#fe329c", textDecoration: "none",
-              display: "inline-block",
-              padding: "10px 22px",
-              background: "transparent",
-              border: "1px solid #fe329c",
-              borderRadius: 2,
-            }}>
-              Apply Now
-            </Link>
-          </div>
-        </div>
-      </div>
+      <section className="card mt-12 bg-shell p-6 md:p-8">
+        <h2 className="eyebrow mb-4">What you&apos;ll score</h2>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {["Welcome and first impression", "Cleanliness and ambiance", "Treatment quality", "Staff friendliness", "Product knowledge", "Value for money"].map((x) => (
+            <li key={x} className="flex items-center gap-3 font-display text-[17px] text-ink-soft">
+              <span className="h-1.5 w-1.5 rounded-full bg-pink" />
+              {x}
+            </li>
+          ))}
+        </ul>
+      </section>
     </main>
   );
 }

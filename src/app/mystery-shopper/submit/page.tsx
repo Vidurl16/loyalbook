@@ -110,7 +110,7 @@ function SubmitPageInner() {
             fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase",
             color: "#fe329c", textDecoration: "none",
           }}>
-            Apply first →
+            Register your visit first →
           </Link>
         </div>
       </main>
@@ -171,22 +171,6 @@ function SubmitPageInner() {
 
   return (
     <main style={{ minHeight: "100vh", background: "#faf6f5" }}>
-      <nav style={{
-        position: "sticky", top: 0, zIndex: 40,
-        background: "#ffffff",
-        borderBottom: "1px solid #efdcd8",
-        padding: "16px 24px",
-        display: "flex", alignItems: "center", gap: 12,
-      }}>
-        <Link href="/mystery-shopper" style={{
-          fontFamily: "var(--font-abel), Abel, sans-serif",
-          fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase",
-          color: "#8d8e8f", textDecoration: "none",
-        }}>
-          ← Mystery Shopper
-        </Link>
-      </nav>
-
       <div style={{ maxWidth: 560, margin: "0 auto", padding: "36px 24px 80px" }}>
         <div style={{
           fontFamily: "var(--font-abel), Abel, sans-serif",
