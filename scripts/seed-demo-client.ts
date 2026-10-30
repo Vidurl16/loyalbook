@@ -2,9 +2,9 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { createDbAdapter } from "../src/lib/dbAdapter";
 
-const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }) });
+const prisma = new PrismaClient({ adapter: createDbAdapter() });
 
 async function main() {
   const spa = await prisma.spa.findFirstOrThrow();

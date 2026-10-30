@@ -8,7 +8,7 @@ new Vercel project from this repo and setting the env vars below.
 
 | Var | Purpose |
 |-----|---------|
-| `DATABASE_URL` | Postgres connection string (Supabase). Per-salon, unique. |
+| `DATABASE_URL` | Postgres connection string (Neon or Supabase). Per-salon, unique. To share one server between salons, append `?schema=<salon>`; migrations and the app both honour it. |
 | `NEXTAUTH_URL` | Deployment URL (e.g. `https://perfect10.co.za`). |
 | `NEXTAUTH_SECRET` | `openssl rand -base64 32`. |
 | `DEFAULT_SPA_ID` | Seeded Spa id for this salon (server-side tenant). |

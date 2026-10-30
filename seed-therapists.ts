@@ -4,10 +4,9 @@
  */
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { createDbAdapter } from "./src/lib/dbAdapter";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter, log: [] });
+const prisma = new PrismaClient({ adapter: createDbAdapter(), log: [] });
 
 async function main() {
   const spa = await prisma.spa.findFirst();
