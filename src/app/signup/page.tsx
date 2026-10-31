@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { AuthFrame, GoogleButton, OrDivider } from "@/components/auth/AuthFrame";
+import { useGoogleSignIn } from "@/components/auth/useGoogleSignIn";
 import { brand } from "@/lib/brand";
 
 const PERKS = [
@@ -23,6 +24,7 @@ const FIELDS = [
 
 function SignUpForm() {
   const callbackUrl = useSearchParams().get("callbackUrl") ?? "/account";
+  const googleAvailable = useGoogleSignIn();
   const [form, setForm] = useState({ name: "", email: "", password: "", phone: "", marketingOptIn: true });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,8 +78,12 @@ function SignUpForm() {
           {loading ? "Creating your account…" : "Join free"}
         </button>
       </form>
-      <OrDivider />
-      <GoogleButton label="Sign up with Google" onClick={() => signIn("google", { callbackUrl })} />
+      {googleAvailable && (
+        <>
+          <OrDivider />
+          <GoogleButton label="Sign up with Google" onClick={() => signIn("google", { callbackUrl })} />
+        </>
+      )}
       <p className="mt-6 text-center text-[13px] text-muted">
         Already a member?{" "}
         <Link href={signInHref} className="text-pink-dark underline-offset-4 hover:underline">

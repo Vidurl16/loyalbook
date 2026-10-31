@@ -5,12 +5,14 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
 import { AuthFrame, GoogleButton, OrDivider } from "@/components/auth/AuthFrame";
+import { useGoogleSignIn } from "@/components/auth/useGoogleSignIn";
 import { destinationAfterSignIn } from "@/lib/afterSignIn";
 import { brand } from "@/lib/brand";
 
 function LoginForm() {
   const router = useRouter();
   const callbackUrl = useSearchParams().get("callbackUrl");
+  const googleAvailable = useGoogleSignIn();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -33,8 +35,12 @@ function LoginForm() {
 
   return (
     <>
-      <GoogleButton label="Continue with Google" onClick={() => signIn("google", { callbackUrl: callbackUrl ?? "/account" })} />
-      <OrDivider />
+      {googleAvailable && (
+        <>
+          <GoogleButton label="Continue with Google" onClick={() => signIn("google", { callbackUrl: callbackUrl ?? "/account" })} />
+          <OrDivider />
+        </>
+      )}
       <form onSubmit={submit} className="flex flex-col gap-3">
         <input type="email" required autoComplete="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} className="field" />
         <input type="password" required autoComplete="current-password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="field" />
